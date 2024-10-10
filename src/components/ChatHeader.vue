@@ -1,5 +1,5 @@
 <template>
-  <q-header elevated class="transparent see-trhrough-style">
+  <q-header elevated class="transparent see-through-style">
     <q-toolbar class="text-black">
       <q-btn round flat icon="keyboard_arrow_left" />
 
@@ -32,5 +32,4 @@
 const { currentConversation } = defineProps({
   currentConversation: Object,
 });
-
 </script>
