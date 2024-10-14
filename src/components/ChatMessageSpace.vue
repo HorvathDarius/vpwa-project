@@ -1,7 +1,7 @@
 <template>
   <q-page-container class="col overflow: auto;">
     <q-page>
-      <div id="scroll-target-id" style="max-height: 779px; overflow: auto">
+      <div id="scroll-target-id" style="max-height: 563px; overflow: auto">
         <q-infinite-scroll
           reverse
           :offset="200"

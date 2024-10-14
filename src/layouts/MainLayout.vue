@@ -2,7 +2,12 @@
   <q-layout view="lHh Lpr lFf">
     <q-page-container>
       <q-page class="background-style WAL position-relative" :style="style">
-        <router-view />
+        <div
+          class="WAL__layout shadow-3 overflow-hidden see-through-style"
+          container
+        >
+          <router-view />
+        </div>
       </q-page>
     </q-page-container>
   </q-layout>

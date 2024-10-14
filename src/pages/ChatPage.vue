@@ -1,9 +1,4 @@
 <template>
-  <q-layout
-    view="lHh Lpr lFf"
-    class="WAL__layout shadow-3 overflow-hidden"
-    container
-  >
     <ChatHeader :currentConversation="currentConversation" />
 
     <q-page
@@ -19,7 +14,6 @@
       <!-- <q-page-container class="transparent see-through-style"> -->
       <ChatMessageSpace />
     </q-page>
-  </q-layout>
 </template>
 
 <script setup>

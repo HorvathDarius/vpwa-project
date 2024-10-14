@@ -5,7 +5,7 @@
         bordered
         padding
         class="rounded-borders absolute see-through-style"
-        :style="` bottom: 100%; left: 20px; ${
+        :style="`bottom: 100%; left: 20px; ${
           showActionHelper ? 'display: block;' : 'display: none;'
         }`"
       >

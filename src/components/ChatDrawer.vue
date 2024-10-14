@@ -91,10 +91,9 @@
 
         <q-item-section>
           <q-item-label lines="1">
-            {{ mainProfile.person }}
-          </q-item-label>
-          <q-item-label class="conversation__summary" caption>
-            <q-icon name="not_interested" />
+            <span class="text-weight-bold">
+              {{ mainProfile.person }}
+            </span>
           </q-item-label>
         </q-item-section>
 
