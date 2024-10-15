@@ -1,7 +1,7 @@
 <template>
   <q-layout>
     <q-page-container>
-      <q-page class="background-style WAL position-relative q-px-md">
+      <q-page class="background-style WAL position-relative">
         <q-layout class="WAL__layout shadow-3 see-through-style" container>
           <router-view />
         </q-layout>
@@ -20,13 +20,10 @@ defineOptions({
 .WAL
   width: 100vw
   height: 100vh
-  padding-top: 20px
-  padding-bottom: 20px
 
   &__layout
     margin: 0 auto
     height: 100%
-    max-width: 950px
 
 .background-style
   background-image: url(/OceanBlue.jpg)

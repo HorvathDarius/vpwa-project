@@ -101,7 +101,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { messageDataMock } from 'src/mocks/channelMessageMock';
 import { date } from 'quasar';
 import { useChannelStore } from 'src/stores/channel-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
@@ -109,7 +108,6 @@ import ModalWindowComponent from './ModalWindowComponent.vue';
 const messageData = ref('');
 const showActionHelper = ref(false);
 const showListOfMembers = ref(false);
-const { members } = messageDataMock;
 const channelStore = useChannelStore();
 
 const handleMessageSubmit = () => {
@@ -183,7 +181,7 @@ const handleAction = (message: string) => {
 
       const userToKick = splitAction[1];
       const users = channelStore.members;
-      const newUsers = users.filter((user) => user.nickName ! == userToKick);
+      const newUsers = users.filter((user) => user.nickName !== userToKick);
 
       channelStore.members = newUsers;
 
