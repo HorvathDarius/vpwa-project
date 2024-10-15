@@ -1,11 +1,8 @@
 <template>
   <q-layout>
     <q-page-container>
-      <q-page class="background-style WAL">
-        <q-layout
-          class="WAL__layout shadow-3 overflow-hidden see-through-style"
-          container
-        >
+      <q-page class="background-style WAL position-relative q-px-md">
+        <q-layout class="WAL__layout shadow-3 see-through-style" container>
           <router-view />
         </q-layout>
       </q-page>

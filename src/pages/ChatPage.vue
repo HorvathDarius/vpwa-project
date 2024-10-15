@@ -1,5 +1,5 @@
 <template>
-  <q-page class="transparent see-through-style">
+  <div class="transparent see-through-style">
     <div class="row">
       <ChatHeader />
 
@@ -9,7 +9,7 @@
 
       <ChatMessageSpace />
     </div>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">
