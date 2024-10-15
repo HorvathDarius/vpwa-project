@@ -1,45 +1,34 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout>
     <q-page-container>
-      <q-page class="background-style WAL position-relative" :style="style">
-        <div
+      <q-page class="background-style WAL">
+        <q-layout
           class="WAL__layout shadow-3 overflow-hidden see-through-style"
           container
         >
           <router-view />
-        </div>
+        </q-layout>
       </q-page>
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
-import { computed } from 'vue';
-
-const $q = useQuasar();
-
 defineOptions({
   name: 'MainLayout',
 });
-
-const style = computed(() => ({
-  height: $q.screen.height + 'px',
-}));
 </script>
 
 <style lang="sass">
 .WAL
-  width: 100%
-  height: 100%
+  width: 100vw
+  height: 100vh
   padding-top: 20px
   padding-bottom: 20px
 
   &__layout
     margin: 0 auto
-    z-index: 4000
     height: 100%
-    width: 90%
     max-width: 950px
 
 .background-style
@@ -48,4 +37,5 @@ const style = computed(() => ({
 
 .see-through-style
   backdrop-filter: blur(10px)
+  -webkit-backdrop-filter: blur(10px)
 </style>

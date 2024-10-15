@@ -1,64 +1,59 @@
 <template>
-  <div class="row no-wrap shadow-1">
-    <q-toolbar class="transparent see-through-style">
-      <q-list
-        bordered
-        padding
-        class="rounded-borders absolute see-through-style"
-        :style="`bottom: 100%; left: 20px; ${
-          showActionHelper ? 'display: block;' : 'display: none;'
-        }`"
-      >
-        <q-item>
-          <q-item-section>
-            <q-badge outline align="middle" label="/join" />
-          </q-item-section>
-        </q-item>
+  <q-list
+    dark
+    bordered
+    padding
+    class="rounded-borders absolute see-through-style"
+    :style="`z-index: 10; bottom: 10%; left: 20px; ${
+      showActionHelper ? 'display: block;' : 'display: none;'
+    }`"
+  >
+    <q-item>
+      <q-item-section>
+        <q-badge outline align="middle" label="/join" />
+      </q-item-section>
+    </q-item>
 
-        <q-item>
-          <q-badge outline align="middle" label="/invite" />
-        </q-item>
+    <q-item>
+      <q-badge outline align="middle" label="/invite" />
+    </q-item>
 
-        <q-item>
-          <q-badge outline align="middle" label="/revoke" />
-        </q-item>
+    <q-item>
+      <q-badge outline align="middle" label="/revoke" />
+    </q-item>
 
-        <q-item>
-          <q-badge outline align="middle" label="/kick" />
-        </q-item>
+    <q-item>
+      <q-badge outline align="middle" label="/kick" />
+    </q-item>
 
-        <q-item>
-          <q-badge outline align="middle" label="/quit" />
-        </q-item>
+    <q-item>
+      <q-badge outline align="middle" label="/quit" />
+    </q-item>
 
-        <q-item>
-          <q-badge outline align="middle" label="/cancel" />
-        </q-item>
+    <q-item>
+      <q-badge outline align="middle" label="/cancel" />
+    </q-item>
 
-        <q-item>
-          <q-badge outline align="middle" label="/list" />
-        </q-item>
-      </q-list>
-      <q-form @submit="handleMessageSubmit" class="full-width">
-        <q-toolbar class="text-white row full-width">
-          <q-input
-            rounded
-            outlined
-            dark
-            dense
-            color="white"
-            label-color="white"
-            class="col-grow q-mr-sm text-white"
-            placeholder="Type a message..."
-            v-model="messageData"
-            @update:model-value="(value) => handleMessageTyping(value)"
-          />
-        </q-toolbar>
-      </q-form>
-    </q-toolbar>
-  </div>
+    <q-item>
+      <q-badge outline align="middle" label="/list" />
+    </q-item>
+  </q-list>
 
-  <q-dialog v-model="showListOfMembers" class="justify-center">
+  <q-toolbar class="transparent see-through-style">
+    <q-form @submit="handleMessageSubmit" class="full-width">
+      <q-input
+        rounded
+        outlined
+        dark
+        dense
+        placeholder="Type a message..."
+        v-model="messageData"
+        @update:model-value="(value) => handleMessageTyping(String(value))"
+      />
+    </q-form>
+  </q-toolbar>
+
+  <ModalWindowComponent v-model="showListOfMembers">
     <q-card class="transparent see-through-style">
       <q-card-section>
         <div class="text-h6 text-white">Channel members</div>
@@ -75,42 +70,47 @@
           max-width: 50vh;
         "
       >
-        <q-list separator dark>
-          <q-item v-for="member in members" :key="member.id">
-            <q-item-section avatar>
-              <q-avatar>
-                <img :src="member.avatar" />
-              </q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <span>
-                {{ member.nickName }}
-              </span>
-            </q-item-section>
-            <q-item-section class="text-caption">
-              <span> Member since: </span>
-              <span>{{ member.joined }}</span>
-            </q-item-section>
-          </q-item>
-        </q-list>
+        <q-scroll-area style="height: 300px">
+          <q-list separator dark>
+            <q-item v-for="member in channelStore.members" :key="member.id">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="member.avatar" />
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <span>
+                  {{ member.nickName }}
+                </span>
+              </q-item-section>
+              <q-item-section class="text-caption">
+                <span> Member since: </span>
+                <span>{{ member.joined }}</span>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-scroll-area>
       </q-card-section>
 
       <q-card-actions align="right">
         <q-btn flat class="text-white" label="Close" v-close-popup />
       </q-card-actions>
     </q-card>
-  </q-dialog>
+  </ModalWindowComponent>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { messageDataMock } from 'src/mocks/channelMessageMock';
 import { date } from 'quasar';
+import { useChannelStore } from 'src/stores/channel-store';
+import ModalWindowComponent from './ModalWindowComponent.vue';
 
 const messageData = ref('');
 const showActionHelper = ref(false);
 const showListOfMembers = ref(false);
 const { members } = messageDataMock;
+const channelStore = useChannelStore();
 
 const handleMessageSubmit = () => {
   const message = messageData.value.trim();
@@ -132,7 +132,7 @@ const handleMessageSubmit = () => {
   messageData.value = '';
 };
 
-const handleMessageTyping = (value) => {
+const handleMessageTyping = (value: string | null) => {
   console.log('Typing:', value);
   if (value === '/') {
     console.log('ACTION ACTION ACITON');
@@ -143,30 +143,72 @@ const handleMessageTyping = (value) => {
   }
 };
 
-const handleAction = (message) => {
+const handleAction = (message: string) => {
   console.log('ACTION', message);
-  if (message === '/list') {
-    console.log('Showing members');
-    showListOfMembers.value = true;
+
+  const splitAction = message.split(' ');
+
+  console.log('Split action:', splitAction);
+
+  switch (splitAction[0]) {
+    case '/list':
+      console.log('Showing members');
+      showListOfMembers.value = true;
+      break;
+    case '/invite':
+      console.log('Inviting members');
+
+      if (splitAction[1] === undefined) {
+        console.log('ERROR - THERE IS NO USER SPECIFIED');
+        break;
+      }
+
+      const newUser = {
+        id: 3,
+        nickName: splitAction[1],
+        avatar: '/blankProfile.jpg',
+        joined: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+      };
+
+      channelStore.addUser(newUser);
+
+      break;
+    case '/kick':
+      console.log('Kicking members');
+
+      if (splitAction[1] === undefined) {
+        console.log('ERROR - THERE IS NO USER SPECIFIED');
+        break;
+      }
+
+      const userToKick = splitAction[1];
+      const users = channelStore.members;
+      const newUsers = users.filter((user) => user.nickName ! == userToKick);
+
+      channelStore.members = newUsers;
+
+      break;
+    default:
+      console.log('No action found');
   }
 };
 
-const handleSendMessage = (message) => {
+const handleSendMessage = (message: string) => {
   console.log('Sending message:', messageData.value);
   const timeStamp = Date.now();
 
-  let newMessage = {
+  const newMessage = {
     id: 1,
-    person: 'Me',
-    avatar:
-      'https://static-00.iconduck.com/assets.00/vue-icon-2048x1766-ntogpmti.png',
-    caption: message,
-    time: date.formatDate(timeStamp, 'HH:mm'),
+    name: 'me',
+    avatar: '/blankProfileReverse.jpg',
+    text: [message],
+    stamp: date.formatDate(timeStamp, 'HH:mm'),
     sent: true,
+    bgColor: 'amber-7',
   };
 
-  messageDataMock.push(newMessage);
-  console.log(messageDataMock);
+  console.log(newMessage);
+  channelStore.addMessage(newMessage);
 };
 </script>
 

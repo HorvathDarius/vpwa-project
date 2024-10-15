@@ -1,16 +1,15 @@
 <template>
-  <q-page-container class="col overflow: auto;">
-    <q-page>
-      <div id="scroll-target-id" style="max-height: 563px; overflow: auto">
+  <q-page-container class="col">
+    <q-page class="column">
+      <q-scroll-area style="height: 300px">
         <q-infinite-scroll
           reverse
           :offset="200"
           class="q-px-lg"
           @load="loadMoreMessages"
-          :scroll-target="'#scroll-target-id'"
         >
           <q-chat-message
-            v-for="message in channelConversation"
+            v-for="message in channelStore.channelConversation"
             :key="message.id"
             :name="message.name"
             :avatar="message.avatar"
@@ -32,22 +31,21 @@
             </div>
           </template>
         </q-infinite-scroll>
-      </div>
+      </q-scroll-area>
+      <ChatFooter />
 
       <q-page-scroller reverse position="top" :scroll-offset="100">
         <q-btn elevated rounded color="primary" label="Scroll back down..." />
       </q-page-scroller>
-
-      <ChatFooter />
     </q-page>
   </q-page-container>
 </template>
 
-<script setup>
-import { messageDataMock } from '../mocks/channelMessageMock';
+<script setup lang="ts">
 import ChatFooter from './ChatFooter.vue';
+import { useChannelStore } from '../stores/channel-store';
 
-const { channelConversation } = messageDataMock;
+const channelStore = useChannelStore();
 
 const loadMoreMessages = () => {
   console.log('Loading more messages...');
