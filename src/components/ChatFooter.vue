@@ -3,8 +3,8 @@
     dark
     bordered
     padding
-    class="rounded-borders absolute see-through-style"
-    :style="`z-index: 10; bottom: 10%; left: 20px; ${
+    class="rounded-borders absolute"
+    :style="`z-index: 5000; bottom: 10%; left: 20px; ${
       showActionHelper ? 'display: block;' : 'display: none;'
     }`"
   >
@@ -39,7 +39,7 @@
     </q-item>
   </q-list>
 
-  <q-toolbar class="transparent see-through-style">
+  <q-toolbar class="see-through-style transparent">
     <q-form @submit="handleMessageSubmit" class="full-width">
       <q-input
         rounded
@@ -213,5 +213,12 @@ const handleSendMessage = (message: string) => {
 <style>
 .showActionHelper {
   display: block;
+}
+
+/*
+Styling of the input text field 
+*/
+.q-field__control {
+  background: rgba(0, 0, 0, 0.1);
 }
 </style>
