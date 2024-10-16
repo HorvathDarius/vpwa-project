@@ -1,5 +1,5 @@
 <template>
-  <q-header elevated class="transparent see-through-style row">
+  <q-header elevated class="bg-gradient row">
     <q-toolbar class="text-black q-px-lg">
       <q-avatar>
         <img src="/blankProfile.jpg" />

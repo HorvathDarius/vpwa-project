@@ -5,7 +5,15 @@
 
       <ChatDrawer :conversations="conversations" />
 
-      <q-separator vertical inset style="width: 2px" />
+      <q-separator
+        vertical
+        inset
+        style="
+          width: 2px;
+          background-color: rgba(255, 255, 255, 0.4);
+          border-radius: 1rem;
+        "
+      />
 
       <ChatMessageSpace />
     </div>

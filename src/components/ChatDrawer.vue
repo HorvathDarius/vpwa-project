@@ -1,5 +1,5 @@
 <template>
-  <q-page-container class="col-4">
+  <q-page-container class="col-4" style="background: rgba(0, 0, 0, 0.1)">
     <q-page class="column">
       <q-list class="col-11">
         <q-scroll-area style="height: 300px">
@@ -12,7 +12,14 @@
         </q-scroll-area>
       </q-list>
 
-      <q-separator style="height: 2px" inset />
+      <q-separator
+        style="
+          height: 2px;
+          background-color: rgba(255, 255, 255, 0.4);
+          border-radius: 1rem;
+        "
+        inset
+      />
 
       <q-item dark clickable class="col-1" @click="showProfileModal = true">
         <q-item-section avatar>
@@ -87,7 +94,7 @@
       </q-item>
 
       <ModalWindowComponent v-model="showProfileModal">
-        <q-card class="transparent see-through-style">
+        <q-card class="see-through-style">
           <q-card-section>
             <div class="text-h6">Alert</div>
           </q-card-section>
