@@ -1,4 +1,9 @@
 /* app global css */
+
+* {
+  background-color: transparent;
+}
+
 .text-glass {
   color: rgba(255, 255, 255, 0.1) !important;
 }

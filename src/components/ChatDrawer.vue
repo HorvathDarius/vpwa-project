@@ -4,17 +4,12 @@
       <div class="absolute-full">
         <AvailableChannelsComponent :conversations="conversations" />
 
-        <q-separator
-          style="
-            height: 2px;
-            background-color: rgba(255, 255, 255, 0.4);
-            border-radius: 1rem;
-          "
-          inset
-        />
-
         <q-item
-          style="height: calc(10% - 2px)"
+          style="
+            height: calc(15% - 2px);
+            border-top: 1px solid #777;
+            border-right: 1px solid #777;
+          "
           dark
           clickable
           class="col-1"
