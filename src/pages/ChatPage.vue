@@ -1,7 +1,7 @@
 <template>
   <div class="transparent see-through-style">
     <div class="row">
-      <ChatHeader />
+      <ChatHeader :conversations="conversations"/>
 
       <ChatDrawer :conversations="conversations" />
 
