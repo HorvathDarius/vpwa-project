@@ -36,5 +36,5 @@ defineOptions({
   -webkit-backdrop-filter: blur(50px)
 
 .bg-gradient
-  background: linear-gradient(45deg, #075985, #0284c7, #0d9488, #0284c7, #075985)
+  background: linear-gradient(90deg, rgba(2,2,14,1) 0%, rgba(1,6,20,1) 100%)
 </style>

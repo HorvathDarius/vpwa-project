@@ -1,97 +1,107 @@
 <template>
-  <q-page-container class="col-4" style="background: rgba(0, 0, 0, 0.1)">
+  <q-page-container class="col-4" style="background: rgba(255, 255, 255, 0.1)">
     <q-page class="column">
-      <q-list class="col-11">
-        <q-scroll-area style="height: 300px">
-          <ChatChannelComponent
-            v-for="conversation in conversations"
-            :key="conversation.id"
-            :onClick="handleSetConversation"
-            :conversation="conversation"
+      <q-list class="col-11 position-relative full-height">
+        <div class="absolute-full">
+          <q-scroll-area style="height: 90%">
+            <ChatChannelComponent
+              v-for="conversation in conversations"
+              :key="conversation.id"
+              :onClick="handleSetConversation"
+              :conversation="conversation"
+            />
+          </q-scroll-area>
+
+          <q-separator
+            style="
+              height: 2px;
+              background-color: rgba(255, 255, 255, 0.4);
+              border-radius: 1rem;
+            "
+            inset
           />
-        </q-scroll-area>
-      </q-list>
 
-      <q-separator
-        style="
-          height: 2px;
-          background-color: rgba(255, 255, 255, 0.4);
-          border-radius: 1rem;
-        "
-        inset
-      />
-
-      <q-item dark clickable class="col-1" @click="showProfileModal = true">
-        <q-item-section avatar>
-          <q-avatar>
-            <img :src="mainProfile.avatar" />
-          </q-avatar>
-        </q-item-section>
-
-        <q-item-section>
-          <q-item-label lines="1">
-            <span class="text-weight-bold">
-              {{ mainProfile.person }}
-            </span>
-          </q-item-label>
-        </q-item-section>
-
-        <q-item-section side>
-          <q-btn-dropdown
-            push
-            round
-            no-icon-animation
-            color="primary"
-            content-class="transparent see-through-style"
-            :dropdown-icon="userProfileStatusIcon"
-            @click="handleActivityClick"
+          <q-item
+            style="height: calc(10% - 2px)"
+            dark
+            clickable
+            class="col-1"
+            @click="showProfileModal = true"
           >
-            <q-list>
-              <q-item
-                dark
-                clickable
-                v-close-popup
-                @click="() => handleClickActivityStatus('wifi')"
-              >
-                <q-item-section>
-                  <div class="row items-center no-wrap">
-                    <q-icon left name="wifi" />
-                    <q-item-label>Active</q-item-label>
-                  </div>
-                </q-item-section>
-              </q-item>
+            <q-item-section avatar>
+              <q-avatar>
+                <img :src="mainProfile.avatar" />
+              </q-avatar>
+            </q-item-section>
 
-              <q-item
-                dark
-                clickable
-                v-close-popup
-                @click="() => handleClickActivityStatus('notifications_off')"
-              >
-                <q-item-section>
-                  <div class="row items-center no-wrap">
-                    <q-icon left name="notifications_off" />
-                    <q-item-label>Do Not Disturb</q-item-label>
-                  </div>
-                </q-item-section>
-              </q-item>
+            <q-item-section>
+              <q-item-label lines="1">
+                <span class="text-weight-bold">
+                  {{ mainProfile.person }}
+                </span>
+              </q-item-label>
+            </q-item-section>
 
-              <q-item
-                dark
-                clickable
-                v-close-popup
-                @click="() => handleClickActivityStatus('wifi_off')"
+            <q-item-section side>
+              <q-btn-dropdown
+                push
+                round
+                no-icon-animation
+                color="primary"
+                content-class="transparent see-through-style"
+                :dropdown-icon="userProfileStatusIcon"
+                @click="handleActivityClick"
               >
-                <q-item-section>
-                  <div class="row items-center no-wrap">
-                    <q-icon left name="wifi_off" />
-                    <q-item-label>Offline</q-item-label>
-                  </div>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-        </q-item-section>
-      </q-item>
+                <q-list>
+                  <q-item
+                    dark
+                    clickable
+                    v-close-popup
+                    @click="() => handleClickActivityStatus('wifi')"
+                  >
+                    <q-item-section>
+                      <div class="row items-center no-wrap">
+                        <q-icon left name="wifi" />
+                        <q-item-label>Active</q-item-label>
+                      </div>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item
+                    dark
+                    clickable
+                    v-close-popup
+                    @click="
+                      () => handleClickActivityStatus('notifications_off')
+                    "
+                  >
+                    <q-item-section>
+                      <div class="row items-center no-wrap">
+                        <q-icon left name="notifications_off" />
+                        <q-item-label>Do Not Disturb</q-item-label>
+                      </div>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item
+                    dark
+                    clickable
+                    v-close-popup
+                    @click="() => handleClickActivityStatus('wifi_off')"
+                  >
+                    <q-item-section>
+                      <div class="row items-center no-wrap">
+                        <q-icon left name="wifi_off" />
+                        <q-item-label>Offline</q-item-label>
+                      </div>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+            </q-item-section>
+          </q-item>
+        </div>
+      </q-list>
 
       <ModalWindowComponent v-model="showProfileModal">
         <q-card class="see-through-style">
