@@ -1,16 +1,8 @@
 <template>
-  <q-page-container class="col-4" style="background: rgba(255, 255, 255, 0.1)">
+  <q-page-container class="gt-xs col-3" style="background: rgba(0, 0, 0, 0.1)">
     <q-page class="column">
-      <q-list class="col-11 position-relative full-height">
-        <div class="absolute-full">
-          <q-scroll-area style="height: 90%">
-            <ChatChannelComponent
-              v-for="conversation in conversations"
-              :key="conversation.id"
-              :onClick="handleSetConversation"
-              :conversation="conversation"
-            />
-          </q-scroll-area>
+      <AvailableChannelsComponent :conversations="conversations" />
+
 
           <q-separator
             style="
@@ -128,13 +120,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { mainProfile } from 'src/mocks/chatChannelMock';
-import ChatChannelComponent from './ChatChannelComponent.vue';
 import ModalWindowComponent from './ModalWindowComponent.vue';
+import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 
-const { conversations, handleSetConversation } = defineProps([
-  'conversations',
-  'handleSetConversation',
-]);
+const { conversations } = defineProps(['conversations']);
 
 const showProfileModal = ref(false);
 const userProfileStatusIcon = ref('wifi');

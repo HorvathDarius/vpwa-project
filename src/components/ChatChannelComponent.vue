@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable v-ripple @click="!handleOnSetConversation">
+  <q-item dark clickable v-ripple>
     <q-item-section avatar>
       <q-avatar>
         <img :src="conversation?.avatar" />
@@ -29,6 +29,5 @@
 <script setup lang="ts">
 const { conversation } = defineProps({
   conversation: Object,
-  handleOnSetConversation: () => {},
 });
 </script>

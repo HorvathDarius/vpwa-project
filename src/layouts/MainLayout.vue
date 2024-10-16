@@ -22,10 +22,6 @@ defineOptions({
   width: 100vw
   height: 100vh
 
-  &__layout
-    margin: 0 auto
-    height: 100%
-
 .background-style
   background-image: url(/image.webp)
   background-size: cover
