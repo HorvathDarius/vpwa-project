@@ -1,6 +1,6 @@
-  <template>
-  <q-list class="col-11 full-width">
-    <q-scroll-area style="height: 500px">
+<template>
+  <q-list style="height: 90%">
+    <q-scroll-area class="fit">
       <ChatChannelComponent
         v-for="conversation in conversations"
         :key="conversation.id"
