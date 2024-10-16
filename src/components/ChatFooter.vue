@@ -4,7 +4,7 @@
     bordered
     padding
     class="rounded-borders absolute"
-    :style="`z-index: 5000; bottom: 10%; left: 20px; ${
+    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
       showActionHelper ? 'display: block;' : 'display: none;'
     }`"
   >
@@ -101,10 +101,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { date } from 'quasar';
+import { date, useQuasar } from 'quasar';
 import { useChannelStore } from 'src/stores/channel-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 
+const $q = useQuasar();
 const messageData = ref('');
 const showActionHelper = ref(false);
 const showListOfMembers = ref(false);
@@ -170,6 +171,14 @@ const handleAction = (message: string) => {
 
       channelStore.addUser(newUser);
 
+      $q.notify({
+        message: `${splitAction[1]} has joined the channel`,
+        color: 'primary',
+        textColor: 'white',
+        position: 'top',
+        avatar: '/blankProfile.jpg',
+      });
+
       break;
     case '/kick':
       console.log('Kicking members');
@@ -184,6 +193,14 @@ const handleAction = (message: string) => {
       const newUsers = users.filter((user) => user.nickName !== userToKick);
 
       channelStore.members = newUsers;
+
+      $q.notify({
+        message: `${splitAction[1]} just left the channel`,
+        color: 'primary',
+        textColor: 'white',
+        position: 'top',
+        avatar: '/blankProfile.jpg',
+      });
 
       break;
     default:
