@@ -19,10 +19,7 @@
       />
 
       <ModalWindowComponent v-model="showModalChannelWindow">
-        <q-card
-          dark
-          class="transparent see-through-style full-width full-height"
-        >
+        <q-card dark class="transparent see-through-style">
           <q-card-section class="row justify-between">
             <span class="text-h6">Menu</span>
           </q-card-section>
@@ -49,10 +46,18 @@
 
           <q-separator />
 
-          <q-tab-panels v-model="tab" animated class="transparent">
+          <q-tab-panels
+            v-model="tab"
+            animated
+            class="transparent"
+            style="max-height: 60vh; min-height: 60vh"
+          >
             <q-tab-panel name="channels" class="transparent">
-              <div class="text-h6">Channels</div>
-              <AvailableChannelsComponent :conversations="conversations" />
+              <div class="position-relative">
+                <div class="absolute-full">
+                  <AvailableChannelsComponent :conversations="conversations" />
+                </div>
+              </div>
             </q-tab-panel>
 
             <q-tab-panel name="account">
