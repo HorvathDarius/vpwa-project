@@ -2,24 +2,22 @@
   <q-item dark clickable v-ripple>
     <q-item-section avatar>
       <q-avatar>
-        <img :src="conversation?.avatar" />
+        <img :src="channel?.avatar" />
       </q-avatar>
     </q-item-section>
 
     <q-item-section>
       <q-item-label lines="1">
-        {{ conversation?.person }}
+        {{ channel?.name }}
       </q-item-label>
       <q-item-label class="conversation__summary" caption>
-        <q-icon name="check" v-if="conversation?.sent" />
-        <q-icon name="not_interested" />
-        {{ conversation?.caption }}
+        {{ channel?.caption }}
       </q-item-label>
     </q-item-section>
 
     <q-item-section side>
       <q-item-label caption>
-        {{ conversation?.time }}
+        {{ channel?.time }}
       </q-item-label>
       <q-icon name="keyboard_arrow_down" />
     </q-item-section>
@@ -27,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-const { conversation } = defineProps({
-  conversation: Object,
+const { channel } = defineProps({
+  channel: Object,
 });
 </script>

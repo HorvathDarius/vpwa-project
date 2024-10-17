@@ -30,7 +30,7 @@
         input-style="color: black;"
         v-model="email"
         label="Email"
-        type="text"
+        type="email"
         lazy-rules
         :rules="[(val) => !!val || 'Email is required']"
       />

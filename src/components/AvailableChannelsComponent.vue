@@ -2,9 +2,9 @@
   <q-list style="height: 85%; border-right: 1px solid #777">
     <q-scroll-area class="fit">
       <ChatChannelComponent
-        v-for="conversation in conversations"
-        :key="conversation.id"
-        :conversation="conversation"
+        v-for="channel in channels"
+        :key="channel.id"
+        :channel="channel"
       />
     </q-scroll-area>
   </q-list>
@@ -12,5 +12,5 @@
 
 <script setup lang="ts">
 import ChatChannelComponent from './ChatChannelComponent.vue';
-const { conversations } = defineProps(['conversations']);
+const { channels } = defineProps(['channels']);
 </script>
