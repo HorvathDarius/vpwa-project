@@ -20,7 +20,7 @@
     </q-item-section>
 
     <q-item-section side>
-      <q-btn icon="more_vert" flat dense />
+      <q-btn round icon="more_vert" flat dense />
     </q-item-section>
   </q-item>
 </template>
