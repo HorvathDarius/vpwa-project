@@ -116,6 +116,7 @@ const user = ref({
   width: 100%;
   max-width: 24rem;
   padding: 2rem;
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 
 @media (max-width: 768px) {

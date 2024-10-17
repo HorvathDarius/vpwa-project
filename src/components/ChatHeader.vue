@@ -32,11 +32,7 @@
           inline-label
         >
           <q-tab name="channels" label="Channels" icon="groups" />
-          <q-tab
-            name="account"
-            label="Account Settings"
-            icon="account_circle"
-          />
+          <q-tab name="account" label="Account" icon="account_circle" />
         </q-tabs>
 
         <q-separator />
@@ -55,7 +51,10 @@
             </div>
           </q-tab-panel>
 
-          <q-tab-panel name="account">
+          <q-tab-panel
+            name="account"
+            style="overflow-y: auto; max-height: 60vh"
+          >
             <UserProfileCard
               :full-name="currentlyLoggedUserMock.fullName"
               :email="currentlyLoggedUserMock.email"
