@@ -1,19 +1,9 @@
 <template>
   <div class="transparent see-through-style">
     <div class="row transparent">
-      <ChatHeader :channels="channels"  />
+      <ChatHeader :channels="channels" />
 
       <ChatDrawer :channels="channels" />
-
-      <q-separator
-        vertical
-        inset
-        style="
-          width: 2px;
-          background-color: rgba(255, 255, 255, 0.4);
-          border-radius: 1rem;
-        "
-      />
 
       <ChatMessageSpace />
     </div>

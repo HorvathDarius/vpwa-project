@@ -16,10 +16,11 @@
     </q-item-section>
 
     <q-item-section side>
-      <q-item-label caption>
-        {{ channel?.time }}
-      </q-item-label>
-      <q-icon name="keyboard_arrow_down" />
+      <q-icon v-if="channel?.private" name="lock_person" />
+    </q-item-section>
+
+    <q-item-section side>
+      <q-btn icon="more_vert" flat dense />
     </q-item-section>
   </q-item>
 </template>

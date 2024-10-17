@@ -13,7 +13,7 @@ export const channelsMock = {
         'https://static-00.iconduck.com/assets.00/vue-icon-2048x1766-ntogpmti.png',
       caption: 'LAST MESSAGE',
       time: '15:00',
-      private: true,
+      private: false,
     },
     {
       id: 2,
