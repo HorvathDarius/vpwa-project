@@ -1,14 +1,11 @@
 import { defineStore } from 'pinia';
-import { messageDataMock } from 'src/mocks/channelMessageMock';
+import { channelsMock } from 'src/mocks/chatChannelMock';
 
 export const useChannelStore = defineStore('channel', {
-  state: () => messageDataMock,
+  state: () => channelsMock,
   actions: {
-    addUser(newUser: object) {
-      this.members.push(newUser);
-    },
-    addMessage(newMessage: object) {
-      this.channelConversation.push(newMessage);
+    addChannel(channel: object) {
+      this.channels.push(channel);
     },
   },
 });

@@ -6,7 +6,7 @@
       </q-avatar>
 
       <span class="q-subtitle-1 q-pl-md text-white text-bold">
-        SLACK VPWA PROJECT
+        {{ channels.name }}
       </span>
 
       <q-space />
@@ -37,19 +37,19 @@
 
         <q-separator />
 
-        <q-tab-panels
-          v-model="tab"
-          animated
-          class="transparent"
-          style="max-height: 60vh; min-height: 60vh"
-        >
-          <q-tab-panel name="channels" class="transparent">
-            <div class="position-relative">
-              <div class="absolute-full">
-                <AvailableChannelsComponent :conversations="conversations" />
+          <q-tab-panels
+            v-model="tab"
+            animated
+            class="transparent"
+            style="max-height: 60vh; min-height: 60vh"
+          >
+            <q-tab-panel name="channels" class="transparent">
+              <div class="position-relative">
+                <div class="absolute-full">
+                  <AvailableChannelsComponent :channels="channels" />
+                </div>
               </div>
-            </div>
-          </q-tab-panel>
+            </q-tab-panel>
 
           <q-tab-panel
             name="account"
@@ -77,12 +77,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ModalWindowComponent from './ModalWindowComponent.vue';
-import { conversations } from 'src/mocks/chatChannelMock';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
 
 const showModalChannelWindow = ref(false);
 const tab = ref('channels');
+const { channels } = defineProps(['channels']);
 
 const currentlyLoggedUserMock = ref({
   fullName: 'John Doe',

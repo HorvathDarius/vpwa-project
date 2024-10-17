@@ -1,12 +1,4 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none">
-    <defs>
-      <filter id="blur-filter">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
-      </filter>
-    </defs>
-  </svg>
-
   <q-list
     bordered
     padding
@@ -25,6 +17,48 @@
         align="middle"
         :label="command.name"
       />
+    </q-item>
+  </q-list>
+
+  <q-list
+    dark
+    bordered
+    padding
+    class="rounded-borders absolute"
+    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
+      showMentionHelper ? 'display: block;' : 'display: none;'
+    }`"
+  >
+    <q-item v-for="member in conversationStore.members" :key="member.id">
+      <q-item-section>
+        <q-avatar>
+          <img :src="member.avatar" />
+        </q-avatar>
+      </q-item-section>
+      <q-item-section>
+        <span>{{ member.nickName }}</span>
+      </q-item-section>
+    </q-item>
+  </q-list>
+
+  <q-list
+    dark
+    bordered
+    padding
+    class="rounded-borders absolute"
+    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
+      showMentionHelper ? 'display: block;' : 'display: none;'
+    }`"
+  >
+    <q-item v-for="member in conversationStore.members" :key="member.id">
+      <q-item-section>
+        <q-avatar>
+          <img :src="member.avatar" />
+        </q-avatar>
+      </q-item-section>
+      <q-item-section>
+        <span>{{ member.nickName }}</span>
+      </q-item-section>
     </q-item>
   </q-list>
 
@@ -66,7 +100,10 @@
       >
         <q-scroll-area style="height: 300px">
           <q-list separator dark>
-            <q-item v-for="member in channelStore.members" :key="member.id">
+            <q-item
+              v-for="member in conversationStore.members"
+              :key="member.id"
+            >
               <q-item-section avatar>
                 <q-avatar>
                   <img :src="member.avatar" />
@@ -95,14 +132,17 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { date, useQuasar } from 'quasar';
+import { date } from 'quasar';
+import { useConversationStore } from 'src/stores/conversation-store';
 import { useChannelStore } from 'src/stores/channel-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
+import { useNotifications } from 'src/utils/useNotifications';
 
-const $q = useQuasar();
 const messageData = ref('');
 const showActionHelper = ref(false);
+const showMentionHelper = ref(false);
 const showListOfMembers = ref(false);
+const conversationStore = useConversationStore();
 const channelStore = useChannelStore();
 
 const commands = [
@@ -140,9 +180,13 @@ const handleMessageTyping = (value: string | null) => {
   if (value === '/') {
     console.log('ACTION ACTION ACITON');
     showActionHelper.value = true;
+  } else if (value?.endsWith('@')) {
+    console.log('MENTION MENTION MENTION');
+    showMentionHelper.value = true;
   } else {
     console.log('Typing:', value);
     showActionHelper.value = false;
+    showMentionHelper.value = false;
   }
 };
 
@@ -158,6 +202,7 @@ const handleAction = (message: string) => {
       console.log('Showing members');
       showListOfMembers.value = true;
       break;
+
     case '/invite':
       console.log('Inviting members');
 
@@ -173,17 +218,14 @@ const handleAction = (message: string) => {
         joined: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
       };
 
-      channelStore.addUser(newUser);
+      conversationStore.addUser(newUser);
 
-      $q.notify({
-        message: `${splitAction[1]} has joined the channel`,
-        color: 'primary',
-        textColor: 'white',
-        position: 'top',
-        avatar: '/blankProfile.jpg',
-      });
-
+      useNotifications(
+        `${splitAction[1]} has joined the channel`,
+        '/blankProfile.jpg'
+      );
       break;
+
     case '/kick':
       console.log('Kicking members');
 
@@ -193,18 +235,44 @@ const handleAction = (message: string) => {
       }
 
       const userToKick = splitAction[1];
-      const users = channelStore.members;
+      const users = conversationStore.members;
       const newUsers = users.filter((user) => user.nickName !== userToKick);
 
-      channelStore.members = newUsers;
+      conversationStore.members = newUsers;
 
-      $q.notify({
-        message: `${splitAction[1]} just left the channel`,
-        color: 'primary',
-        textColor: 'white',
-        position: 'top',
-        avatar: '/blankProfile.jpg',
-      });
+      useNotifications(
+        `${splitAction[1]} just left the channel`,
+        '/blankProfile.jpg'
+      );
+      break;
+
+    case '/join':
+      console.log('Joining channel');
+
+      if (splitAction[1] === undefined) {
+        console.log('ERROR - THERE IS NO CHANNEL SPECIFIED');
+        break;
+      }
+
+      let privateChannel = false;
+      if (splitAction[2] !== undefined && splitAction[2] === 'private') {
+        console.log(`third param - ${splitAction[2]}`);
+        privateChannel = true;
+      }
+
+      const newChannel = {
+        id: 3,
+        name: splitAction[1],
+        avatar:
+          'https://static-00.iconduck.com/assets.00/vue-icon-2048x1766-ntogpmti.png',
+        caption: '',
+        time: '',
+        private: privateChannel,
+      };
+
+      channelStore.addChannel(newChannel);
+
+      useNotifications(`Channel ${splitAction[1]} has been created`);
 
       break;
     default:
@@ -226,8 +294,7 @@ const handleSendMessage = (message: string) => {
     bgColor: 'amber-7',
   };
 
-  console.log(newMessage);
-  channelStore.addMessage(newMessage);
+  conversationStore.addMessage(newMessage);
 };
 </script>
 

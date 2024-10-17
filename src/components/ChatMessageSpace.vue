@@ -11,7 +11,7 @@
               @load="loadMoreMessages"
             >
               <q-chat-message
-                v-for="message in channelStore.channelConversation"
+                v-for="message in conversationStore.conversation"
                 :class="message.name == 'me' ? 'text-blue-3' : 'text-grey-1'"
                 :key="message.id"
                 :name="message.name"
@@ -53,9 +53,10 @@
 
 <script setup lang="ts">
 import ChatFooter from './ChatFooter.vue';
-import { useChannelStore } from '../stores/channel-store';
+import { useConversationStore } from '../stores/conversation-store';
 
-const channelStore = useChannelStore();
+const conversationStore = useConversationStore();
+console.log(conversationStore);
 
 const loadMoreMessages = () => {
   console.log('Loading more messages...');

@@ -2,7 +2,7 @@
   <q-page-container class="gt-xs col-3" style="background: rgba(0, 0, 0, 0.1)">
     <q-page class="position-relative">
       <div class="absolute-full">
-        <AvailableChannelsComponent :conversations="conversations" />
+        <AvailableChannelsComponent :channels="channels" />
 
         <q-item
           style="
@@ -110,7 +110,7 @@ import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
 
-const { conversations } = defineProps(['conversations']);
+const { channels } = defineProps(['channels']);
 
 const currentlyLoggedUserMock = ref({
   fullName: 'John Doe',
