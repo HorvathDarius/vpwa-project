@@ -9,14 +9,11 @@
     <q-item-section>
       <q-item-label lines="1">
         {{ channel?.name }}
+        <q-icon v-if="channel?.private" name="lock_person" class="q-ml-xs" />
       </q-item-label>
       <q-item-label class="conversation__summary" caption>
         {{ channel?.caption }}
       </q-item-label>
-    </q-item-section>
-
-    <q-item-section side>
-      <q-icon v-if="channel?.private" name="lock_person" />
     </q-item-section>
 
     <q-item-section side>
