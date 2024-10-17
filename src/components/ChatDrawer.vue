@@ -87,23 +87,17 @@
         </q-item>
       </div>
 
-      <ModalWindowComponent v-model="showProfileModal">
-        <q-card class="see-through-style">
-          <q-card-section>
-            <div class="text-h6">Alert</div>
-          </q-card-section>
-
-          <q-card-section class="q-pt-none">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
-            repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis
-            perferendis totam, ea at omnis vel numquam exercitationem aut, natus
-            minima, porro labore.
-          </q-card-section>
-
-          <q-card-actions align="right">
-            <q-btn flat label="OK" color="primary" v-close-popup />
-          </q-card-actions>
-        </q-card>
+      <ModalWindowComponent v-model="showProfileModal" title="User Settings">
+        <UserProfileCard
+          :full-name="currentlyLoggedUserMock.fullName"
+          :email="currentlyLoggedUserMock.email"
+          :username="currentlyLoggedUserMock.username"
+          :password-hash="currentlyLoggedUserMock.passwordHash"
+          :status="currentlyLoggedUserMock.status"
+          :notification-setting="currentlyLoggedUserMock.notificationSetting"
+          :status-options="userStatus"
+          :notification-options="notificationSetting"
+        ></UserProfileCard>
       </ModalWindowComponent>
     </q-page>
   </q-page-container>
@@ -114,8 +108,21 @@ import { ref } from 'vue';
 import { mainProfile } from 'src/mocks/chatChannelMock';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
+import UserProfileCard from './UserProfileCard.vue';
 
 const { conversations } = defineProps(['conversations']);
+
+const currentlyLoggedUserMock = ref({
+  fullName: 'John Doe',
+  email: 'john.doe@gmail.com',
+  username: 'johny123',
+  passwordHash: 'b2c701af',
+  status: 'active',
+  notificationSetting: 'all',
+});
+
+const userStatus = ['active', 'idle', 'offline'];
+const notificationSetting = ['all', 'mentionsOnly', 'off'];
 
 const showProfileModal = ref(false);
 const userProfileStatusIcon = ref('wifi');

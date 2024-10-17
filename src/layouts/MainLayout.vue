@@ -30,7 +30,4 @@ defineOptions({
   background: rgba(255,255,255, 0.05)
   backdrop-filter: blur(50px)
   -webkit-backdrop-filter: blur(50px)
-
-.bg-gradient
-  background: linear-gradient(90deg, rgba(2,2,14,1) 0%, rgba(1,6,20,1) 100%)
 </style>
