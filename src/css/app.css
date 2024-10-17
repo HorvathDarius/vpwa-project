@@ -1,7 +1,9 @@
 /* app global css */
-.text-glass {
-  color: rgba(255, 255, 255, 0.1) !important;
-}
-.bg-glass {
-  background: rgba(255, 255, 255, 0.1) !important;
+
+.bg-gradient {
+  background: linear-gradient(
+    90deg,
+    rgba(2, 2, 14, 1) 0%,
+    rgba(1, 6, 20, 1) 100%
+  );
 }

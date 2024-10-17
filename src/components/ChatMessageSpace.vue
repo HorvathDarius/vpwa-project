@@ -3,7 +3,7 @@
     <q-page class="column">
       <div class="position-relative full-height">
         <div class="absolute-full">
-          <q-scroll-area style="height: 90%">
+          <q-scroll-area style="height: 85%">
             <q-infinite-scroll
               reverse
               :offset="200"
@@ -12,18 +12,21 @@
             >
               <q-chat-message
                 v-for="message in channelStore.channelConversation"
+                :class="message.name == 'me' ? 'text-blue-3' : 'text-grey-1'"
                 :key="message.id"
                 :name="message.name"
                 :avatar="message.avatar"
                 :text="message.text"
                 :stamp="message.stamp"
                 :sent="message.sent"
-                :bg-color="message.bgColor"
+                :bg-color="message.name == 'me' ? 'blue-4' : 'grey-5'"
               />
+              <!-- sender.id === user.id -->
               <q-chat-message
+                class="text-grey-1"
                 name="Martin"
                 avatar="/blankProfile.jpg"
-                bg-color="primary"
+                bg-color="grey-5"
               >
                 <q-spinner-dots size="2rem" />
               </q-chat-message>
@@ -35,7 +38,7 @@
             </q-infinite-scroll>
           </q-scroll-area>
 
-          <div style="height: 10%; display: flex; align-items: center">
+          <div style="height: 15%; display: flex; align-items: center">
             <ChatFooter />
           </div>
         </div>

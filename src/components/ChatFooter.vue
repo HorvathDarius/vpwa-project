@@ -1,51 +1,45 @@
 <template>
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none">
+    <defs>
+      <filter id="blur-filter">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
+      </filter>
+    </defs>
+  </svg>
+
   <q-list
-    dark
     bordered
     padding
+    dark
     class="rounded-borders absolute"
-    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
-      showActionHelper ? 'display: block;' : 'display: none;'
-    }`"
+    :style="[
+      'z-index: 5000; bottom: 12%; left: 20px; background: linear-gradient(90deg, rgba(2,2,14,1) 0%, rgba(1,6,20,1) 100%);',
+      showActionHelper ? 'display: block;' : 'display: none;',
+    ]"
   >
-    <q-item>
-      <q-item-section>
-        <q-badge outline align="middle" label="/join" />
-      </q-item-section>
-    </q-item>
-
-    <q-item>
-      <q-badge outline align="middle" label="/invite" />
-    </q-item>
-
-    <q-item>
-      <q-badge outline align="middle" label="/revoke" />
-    </q-item>
-
-    <q-item>
-      <q-badge outline align="middle" label="/kick" />
-    </q-item>
-
-    <q-item>
-      <q-badge outline align="middle" label="/quit" />
-    </q-item>
-
-    <q-item>
-      <q-badge outline align="middle" label="/cancel" />
-    </q-item>
-
-    <q-item>
-      <q-badge outline align="middle" label="/list" />
+    <q-item v-for="(command, i) in commands" :key="i">
+      <q-badge
+        class="full-width"
+        style="border: 1px solid #777"
+        outline
+        align="middle"
+        :label="command.name"
+      />
     </q-item>
   </q-list>
 
-  <q-toolbar class="see-through-style transparent">
+  <q-toolbar
+    class="see-through-style transparent"
+    style="display: flex; align-items: center"
+  >
     <q-form @submit="handleMessageSubmit" class="full-width">
       <q-input
+        clearable
         rounded
         outlined
         dark
         dense
+        counter
         placeholder="Type a message..."
         v-model="messageData"
         @update:model-value="(value) => handleMessageTyping(String(value))"
@@ -110,6 +104,16 @@ const messageData = ref('');
 const showActionHelper = ref(false);
 const showListOfMembers = ref(false);
 const channelStore = useChannelStore();
+
+const commands = [
+  { name: '/join', action: '' },
+  { name: '/invite', action: '' },
+  { name: '/revoke', action: '' },
+  { name: '/kick', action: '' },
+  { name: '/quit', action: '' },
+  { name: '/cancel', action: '' },
+  { name: '/list', action: '' },
+];
 
 const handleMessageSubmit = () => {
   const message = messageData.value.trim();

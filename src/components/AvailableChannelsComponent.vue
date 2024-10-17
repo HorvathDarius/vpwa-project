@@ -1,5 +1,5 @@
 <template>
-  <q-list style="height: 90%">
+  <q-list style="height: 85%; border-right: 1px solid #777">
     <q-scroll-area class="fit">
       <ChatChannelComponent
         v-for="conversation in conversations"

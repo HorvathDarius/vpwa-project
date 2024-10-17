@@ -18,58 +18,58 @@
         @click="handleClickMenuButton"
       />
 
-      <ModalWindowComponent v-model="showModalChannelWindow">
-        <q-card dark class="transparent see-through-style">
-          <q-card-section class="row justify-between">
-            <span class="text-h6">Menu</span>
-          </q-card-section>
+      <ModalWindowComponent v-model="showModalChannelWindow" title="Menu">
+        <q-separator dark inline style="height: 2px" />
 
-          <q-separator dark inline style="height: 2px" />
+        <q-tabs
+          dense
+          v-model="tab"
+          class="text-grey"
+          active-color="white"
+          indicator-color="white"
+          align="justify"
+          narrow-indicator
+          inline-label
+        >
+          <q-tab name="channels" label="Channels" icon="groups" />
+          <q-tab
+            name="account"
+            label="Account Settings"
+            icon="account_circle"
+          />
+        </q-tabs>
 
-          <q-tabs
-            dense
-            v-model="tab"
-            class="text-grey"
-            active-color="white"
-            indicator-color="white"
-            align="justify"
-            narrow-indicator
-            inline-label
-          >
-            <q-tab name="channels" label="Channels" icon="groups" />
-            <q-tab
-              name="account"
-              label="Account Settings"
-              icon="account_circle"
-            />
-          </q-tabs>
+        <q-separator />
 
-          <q-separator />
-
-          <q-tab-panels
-            v-model="tab"
-            animated
-            class="transparent"
-            style="max-height: 60vh; min-height: 60vh"
-          >
-            <q-tab-panel name="channels" class="transparent">
-              <div class="position-relative">
-                <div class="absolute-full">
-                  <AvailableChannelsComponent :conversations="conversations" />
-                </div>
+        <q-tab-panels
+          v-model="tab"
+          animated
+          class="transparent"
+          style="max-height: 60vh; min-height: 60vh"
+        >
+          <q-tab-panel name="channels" class="transparent">
+            <div class="position-relative">
+              <div class="absolute-full">
+                <AvailableChannelsComponent :conversations="conversations" />
               </div>
-            </q-tab-panel>
+            </div>
+          </q-tab-panel>
 
-            <q-tab-panel name="account">
-              <div class="text-h6">Account Settings</div>
-              PUT HERE ACCOUNT PAGE SETTINGS
-            </q-tab-panel>
-          </q-tab-panels>
-
-          <q-card-actions align="right">
-            <q-btn flat label="OK" color="white" v-close-popup />
-          </q-card-actions>
-        </q-card>
+          <q-tab-panel name="account">
+            <UserProfileCard
+              :full-name="currentlyLoggedUserMock.fullName"
+              :email="currentlyLoggedUserMock.email"
+              :username="currentlyLoggedUserMock.username"
+              :password-hash="currentlyLoggedUserMock.passwordHash"
+              :status="currentlyLoggedUserMock.status"
+              :notification-setting="
+                currentlyLoggedUserMock.notificationSetting
+              "
+              :status-options="userStatus"
+              :notification-options="notificationSetting"
+            ></UserProfileCard>
+          </q-tab-panel>
+        </q-tab-panels>
       </ModalWindowComponent>
     </q-toolbar>
   </q-header>
@@ -80,9 +80,22 @@ import { ref } from 'vue';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { conversations } from 'src/mocks/chatChannelMock';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
+import UserProfileCard from './UserProfileCard.vue';
 
 const showModalChannelWindow = ref(false);
 const tab = ref('channels');
+
+const currentlyLoggedUserMock = ref({
+  fullName: 'John Doe',
+  email: 'john.doe@gmail.com',
+  username: 'johny123',
+  passwordHash: 'b2c701af',
+  status: 'active',
+  notificationSetting: 'all',
+});
+
+const userStatus = ['active', 'idle', 'offline'];
+const notificationSetting = ['all', 'mentionsOnly', 'off'];
 
 const handleClickMenuButton = () => {
   showModalChannelWindow.value = !showModalChannelWindow.value;
