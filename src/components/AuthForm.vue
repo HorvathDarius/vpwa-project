@@ -4,6 +4,23 @@
       {{ heading }}
     </h1>
     <q-form @submit="submitHandler" class="q-pa-md q-mx-auto q-ma-sm q-ma-lg">
+      <p class="text-white text-h6">Personal Information</p>
+
+      <!-- Name Field -->
+      <q-input
+        v-if="isRegister"
+        standout
+        class="q-mt-md"
+        bg-color="white"
+        style="min-width: 100%"
+        input-style="color: black;"
+        v-model="fullName"
+        label="Full Name"
+        type="text"
+        lazy-rules
+        :rules="[(val) => !!val || 'Username is required']"
+      />
+
       <!-- Email Field -->
       <q-input
         standout
@@ -20,6 +37,7 @@
 
       <!-- Username Field -->
       <q-input
+        v-if="isRegister"
         standout
         class="q-mt-md"
         bg-color="white"
@@ -32,6 +50,7 @@
         :rules="[(val) => !!val || 'Username is required']"
       />
 
+      <p class="text-white text-h6 q-mt-md">Password</p>
       <!-- Password Field -->
       <q-input
         standout
@@ -95,6 +114,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   heading: {
@@ -114,7 +134,10 @@ const props = defineProps({
   },
 });
 
+const router = useRouter();
+
 const email = ref('');
+const fullName = ref('');
 const username = ref('');
 const password = ref('');
 const passwordRepeat = ref('');
@@ -131,11 +154,16 @@ const submitHandler = (): void => {
   }
 
   // Handle form submission
-  console.log('Form submitted:', {
+  console.table({
     email: email.value,
+    fullName: fullName.value,
+    username: username.value,
     password: password.value,
     passwordRepeat: passwordRepeat.value,
   });
+
+  // Redirect to main app
+  router.push('/');
 };
 
 const login = (): void => {};
