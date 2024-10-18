@@ -25,41 +25,27 @@
     bordered
     padding
     class="rounded-borders absolute"
-    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
-      showMentionHelper ? 'display: block;' : 'display: none;'
-    }`"
+    :style="`z-index: 5000; bottom: 10%; left: 20px; backdrop-filter: blur(20px); 
+    background: linear-gradient(90deg, rgba(2,2,14,1) 0%, rgba(1,6,20,1) 100%);
+     ${showMentionHelper ? 'display: block;' : 'display: none;'}`"
   >
-    <q-item v-for="member in conversationStore.members" :key="member.id">
-      <q-item-section>
-        <q-avatar>
-          <img :src="member.avatar" />
-        </q-avatar>
-      </q-item-section>
-      <q-item-section>
-        <span>{{ member.nickName }}</span>
-      </q-item-section>
-    </q-item>
-  </q-list>
-
-  <q-list
-    dark
-    bordered
-    padding
-    class="rounded-borders absolute"
-    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
-      showMentionHelper ? 'display: block;' : 'display: none;'
-    }`"
-  >
-    <q-item v-for="member in conversationStore.members" :key="member.id">
-      <q-item-section>
-        <q-avatar>
-          <img :src="member.avatar" />
-        </q-avatar>
-      </q-item-section>
-      <q-item-section>
-        <span>{{ member.nickName }}</span>
-      </q-item-section>
-    </q-item>
+    <q-scroll-area style="height: 400px; width: 200px" class="overflow-scroll">
+      <q-item
+        clickable
+        v-for="member in conversationStore.members"
+        :key="member.id"
+        @click="() => handleMentionClick(member.id)"
+      >
+        <q-item-section>
+          <q-avatar>
+            <img :src="member.avatar" />
+          </q-avatar>
+        </q-item-section>
+        <q-item-section>
+          <span>{{ member.nickName }}</span>
+        </q-item-section>
+      </q-item>
+    </q-scroll-area>
   </q-list>
 
   <q-toolbar
@@ -74,6 +60,7 @@
         dark
         dense
         counter
+        ref="action-input-field"
         placeholder="Type a message..."
         v-model="messageData"
         @update:model-value="(value) => handleMessageTyping(String(value))"
@@ -131,13 +118,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import { date } from 'quasar';
 import { useConversationStore } from 'src/stores/conversation-store';
 import { useChannelStore } from 'src/stores/channel-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
 
+const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
 const showActionHelper = ref(false);
 const showMentionHelper = ref(false);
@@ -155,7 +143,7 @@ const commands = [
   { name: '/list', action: '' },
 ];
 
-const handleMessageSubmit = () => {
+const handleMessageSubmit = (): void => {
   const message = messageData.value.trim();
 
   if (message === '') {
@@ -175,7 +163,7 @@ const handleMessageSubmit = () => {
   messageData.value = '';
 };
 
-const handleMessageTyping = (value: string | null) => {
+const handleMessageTyping = (value: string | null): void => {
   console.log('Typing:', value);
   if (value === '/') {
     console.log('ACTION ACTION ACITON');
@@ -190,7 +178,7 @@ const handleMessageTyping = (value: string | null) => {
   }
 };
 
-const handleAction = (message: string) => {
+const handleAction = (message: string): void => {
   console.log('ACTION', message);
 
   const splitAction = message.split(' ');
@@ -280,7 +268,7 @@ const handleAction = (message: string) => {
   }
 };
 
-const handleSendMessage = (message: string) => {
+const handleSendMessage = (message: string): void => {
   console.log('Sending message:', messageData.value);
   const timeStamp = Date.now();
 
@@ -295,6 +283,14 @@ const handleSendMessage = (message: string) => {
   };
 
   conversationStore.addMessage(newMessage);
+};
+
+const handleMentionClick = (id: number): void => {
+  const member = conversationStore.members.find((member) => member.id === id);
+  console.log('Member:', member);
+  messageData.value += `${member?.nickName} `;
+  showMentionHelper.value = false;
+  actionInputField.value.focus();
 };
 </script>
 
