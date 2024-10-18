@@ -28,8 +28,12 @@
                 avatar="/blankProfile.jpg"
                 bg-color="grey-5"
               >
-                <q-spinner-dots size="2rem" />
+                <div @click="handleMouseHover">
+                  <q-spinner-dots v-if="!showTypingMessage" size="2rem" />
+                  <span v-else>This is a message that is being typed...</span>
+                </div>
               </q-chat-message>
+
               <template v-slot:loading>
                 <div class="row justify-center q-my-md">
                   <q-spinner-dots color="primary" size="40px" />
@@ -52,13 +56,19 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import ChatFooter from './ChatFooter.vue';
 import { useConversationStore } from '../stores/conversation-store';
 
+const showTypingMessage = ref(false);
 const conversationStore = useConversationStore();
 console.log(conversationStore);
 
 const loadMoreMessages = () => {
   console.log('Loading more messages...');
+};
+
+const handleMouseHover = () => {
+  showTypingMessage.value = !showTypingMessage.value;
 };
 </script>
