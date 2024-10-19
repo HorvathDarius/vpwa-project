@@ -42,19 +42,13 @@ const handleTimingMessage = () => {
     intervalId++;
     console.log(`Timing message - ${intervalId}`);
     if (displayNotification) {
-      useNotifications(
-        'mention',
-        'Martin mentioned you',
-        '',
-        '/blankProfile.jpg'
-      );
+      useNotifications('mention', 'Martin mentioned you', '');
       useNotifications(
         'message',
         'Martin messagged you',
         trimMessage(
           'This is a very very VERY long message that surely will not be displayed all'
-        ),
-        '/blankProfile.jpg'
+        )
       );
     }
   }, 3000);

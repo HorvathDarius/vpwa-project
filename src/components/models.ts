@@ -18,6 +18,18 @@ export enum UserNotificationSetting {
   Off = 'off',
 }
 
+export enum UserRole {
+  Admin = 'admin',
+  Member = 'member',
+}
+
+export enum UserChannelStatus {
+  PendingInvite = 'pending_invite',
+  InChannel = 'in_channel',
+  LeftChannel = 'left_channel',
+  KickedOut = 'kicked_out',
+}
+
 /**
  * Interfaces
  */
@@ -42,6 +54,16 @@ export interface User {
   passwordHash: string; // idk if we should put this here?
   status: UserStatus;
   notificationSetting: UserNotificationSetting;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+}
+
+export interface UserChannel {
+  userID: string;
+  channelID: string;
+  userRole: UserRole;
+  userChannelStatus: UserChannelStatus;
   createdAt: string;
   updatedAt: string;
   deletedAt: string;

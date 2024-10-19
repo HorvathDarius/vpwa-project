@@ -17,13 +17,15 @@
         >
           <q-item-section avatar>
             <q-avatar>
-              <img src="/" />
+              <img src="/blankProfile.jpg" />
             </q-avatar>
           </q-item-section>
 
           <q-item-section>
             <q-item-label lines="1">
-              <span class="text-weight-bold"> mainProfile.person </span>
+              <span class="text-weight-bold">
+                {{ userStore.currentUserData?.nickName }}
+              </span>
             </q-item-label>
           </q-item-section>
 
@@ -106,6 +108,9 @@ import { ref } from 'vue';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
+import { useUserStore } from 'src/stores/user-store';
+
+const userStore = useUserStore();
 
 const { channels } = defineProps(['channels']);
 

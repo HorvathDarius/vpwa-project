@@ -1,24 +1,8 @@
-enum UserRole {
-  Admin = 'admin',
-  Member = 'member',
-}
-
-enum UserChannelStatus {
-  PendingInvite = 'pending_invite',
-  InChannel = 'in_channel',
-  LeftChannel = 'left_channel',
-  KickedOut = 'kicked_out',
-}
-
-interface UserChannel {
-  userID: string;
-  channelID: string;
-  userRole: UserRole;
-  userChannelStatus: UserChannelStatus;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
-}
+import {
+  UserChannel,
+  UserRole,
+  UserChannelStatus,
+} from 'src/components/models';
 
 export const userChannelsMock: UserChannel[] = [
   {
@@ -50,7 +34,7 @@ export const userChannelsMock: UserChannel[] = [
   },
   {
     userID: '2',
-    channelID: '3',
+    channelID: '1',
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295826',
@@ -59,7 +43,7 @@ export const userChannelsMock: UserChannel[] = [
   },
   {
     userID: '2',
-    channelID: '1',
+    channelID: '2',
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295832',

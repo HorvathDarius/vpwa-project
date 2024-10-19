@@ -16,17 +16,29 @@
             >
               <q-chat-message
                 v-for="message in messageStore.messages"
-                :class="message.userID == '1' ? 'text-blue-3' : 'text-grey-1'"
+                :class="
+                  message.userID == userStore.currentUserData?.id
+                    ? 'text-blue-3'
+                    : 'text-grey-1'
+                "
                 :key="message.id"
-                :name="message.userID"
+                :name="
+                  message.userID === userStore.currentUserData?.id
+                    ? 'me'
+                    : message.userID
+                "
                 :avatar="
-                  message.userID == '1'
+                  message.userID == userStore.currentUserData?.id
                     ? '/blankProfileReverse.jpg'
                     : '/blankProfile.jpg'
                 "
                 :text="[message.content as any]"
                 :stamp="message.sentAt"
-                :bg-color="message.userID == 'me' ? 'blue-4' : 'grey-5'"
+                :bg-color="
+                  message.userID == userStore.currentUserData?.id
+                    ? 'blue-4'
+                    : 'grey-5'
+                "
               />
               <q-chat-message
                 class="text-grey-1"
@@ -96,10 +108,12 @@ import { ref } from 'vue';
 import ChatFooter from './ChatFooter.vue';
 import { useMessageStore } from '../stores/message-store';
 import { useChannelStore } from 'src/stores/channel-store';
+import { useUserStore } from 'src/stores/user-store';
 
 const showTypingMessage = ref(false);
 const messageStore = useMessageStore();
 const channelStore = useChannelStore();
+const userStore = useUserStore();
 
 const loadMoreMessages = () => {
   console.log('Loading more messages...');

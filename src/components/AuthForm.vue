@@ -120,8 +120,10 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
+import { useChannelStore } from 'src/stores/channel-store';
 
 const userStore = useUserStore();
+const channelsStore = useChannelStore();
 
 const props = defineProps({
   heading: {
@@ -158,12 +160,21 @@ const submitHandler = (): void => {
       username.value,
       password.value
     );
+
+    const id = userStore.currentUserData?.id;
+    if (id) {
+      channelsStore.loadChannels(id);
+    }
+
     router.push('/');
     return;
   }
 
   userStore.login(email.value, password.value);
-
+  const id = userStore.currentUserData?.id;
+  if (id) {
+    channelsStore.loadChannels(id);
+  }
   // Handle form submission
   console.table({
     email: email.value,

@@ -14,7 +14,7 @@ export const useUserStore = defineStore('users', () => {
   /**
    * State
    */
-  const currentUserData = ref<User | undefined>(usersMock[1]);
+  const currentUserData = ref<User | undefined>(usersMock[0]);
 
   /**
    * Getters

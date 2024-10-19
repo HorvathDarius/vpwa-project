@@ -311,7 +311,8 @@ const handleMentionClick = (id: string): void => {
   console.log('Member:', member);
   messageData.value += `${member?.nickName} `;
   showMentionHelper.value = false;
-  actionInputField.value.focus();
+
+  actionInputField.value?.focus();
 };
 </script>
 
