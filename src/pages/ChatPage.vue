@@ -18,6 +18,7 @@ import { useChannelStore } from 'src/stores/channel-store';
 import { useNotifications } from 'src/utils/useNotifications';
 import { useQuasar } from 'quasar';
 import { watch } from 'vue';
+import { trimMessage } from 'src/utils/trimMessage';
 
 const channelStore = useChannelStore();
 const $q = useQuasar();
@@ -41,8 +42,20 @@ const handleTimingMessage = () => {
     intervalId++;
     console.log(`Timing message - ${intervalId}`);
     if (displayNotification) {
-      useNotifications('Martin mentioned you', '/blankProfile.jpg', 'mention');
-      useNotifications('Martin messagged you', '/blankProfile.jpg');
+      useNotifications(
+        'mention',
+        'Martin mentioned you',
+        '',
+        '/blankProfile.jpg'
+      );
+      useNotifications(
+        'message',
+        'Martin messagged you',
+        trimMessage(
+          'This is a very very VERY long message that surely will not be displayed all'
+        ),
+        '/blankProfile.jpg'
+      );
     }
   }, 3000);
 };

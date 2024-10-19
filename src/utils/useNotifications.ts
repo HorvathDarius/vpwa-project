@@ -1,24 +1,26 @@
 import { Notify } from 'quasar';
 
-Notify.registerType('mention-notification', {
+Notify.registerType('mention', {
   icon: 'alternate_email',
   color: 'primary',
   textColor: 'white',
 });
-Notify.registerType('message-notification', {
+Notify.registerType('message', {
   icon: 'chat',
   color: 'primary',
   textColor: 'white',
 });
 
 export const useNotifications = (
+  type: string,
   message: string,
-  avatar = '',
-  type: string = 'message'
+  caption: string = '',
+  avatar: string = ''
 ) => {
   Notify.create({
-    type: type === 'mention' ? 'mention-notification' : 'message-notification',
+    type: type,
     message: message,
+    caption: caption,
     position: 'top',
     avatar: avatar,
   });
