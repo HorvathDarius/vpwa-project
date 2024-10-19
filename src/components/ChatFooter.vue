@@ -122,6 +122,7 @@ import { ref, useTemplateRef } from 'vue';
 import { date } from 'quasar';
 import { useMessageStore } from 'src/stores/message-store';
 import { useChannelStore } from 'src/stores/channel-store';
+import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
 import {
@@ -140,6 +141,7 @@ const showMentionHelper = ref(false);
 const showListOfMembers = ref(false);
 const messageStore = useMessageStore();
 const channelStore = useChannelStore();
+const userStore = useUserStore();
 
 const commands = [
   { name: '/join', action: '' },
@@ -291,8 +293,8 @@ const handleSendMessage = (message: string): void => {
 
   const newMessage: Message = {
     id: '1',
-    userID: 'me',
-    channelID: '1',
+    userID: userStore.currentUserData?.id || 'me',
+    channelID: channelStore.currentActiveChannel?.id || '',
     content: message,
     status: '',
     sentAt: date.formatDate(timeStamp, 'HH:mm'),
