@@ -51,15 +51,25 @@
                 <q-item
                   dark
                   clickable
-                  v-for="(statusItem, i) in userStatusWithIcons"
+                  v-for="(status, i) in userStatus"
                   :key="i"
                   v-close-popup
-                  @click="() => handleClickActivityStatus(statusItem)"
+                  @click="() => handleClickActivityStatus(status)"
                 >
                   <q-item-section>
                     <div class="row items-center no-wrap">
-                      <q-icon left :name="statusItem[1]" />
-                      <q-item-label>{{ statusItem[0] }}</q-item-label>
+                      <q-icon left v-if="status === 'Active'" name="wifi" />
+                      <q-icon
+                        left
+                        v-else-if="status === 'Do not disturb'"
+                        name="notifications_off"
+                      />
+                      <q-icon
+                        left
+                        v-else-if="status === 'Offline'"
+                        name="wifi_off"
+                      />
+                      <q-item-label>{{ status }}</q-item-label>
                     </div>
                   </q-item-section>
                 </q-item>
@@ -100,25 +110,20 @@ const userStore = useUserStore();
 
 const router = useRouter();
 
-const userStatusWithIcons = [
-  ['Active', 'wifi'],
-  ['Do not distrurb', 'notifications_off'],
-  ['Offline', 'wifi_off'],
-];
-const userStatus = ['Active', , 'Do not distrurb', 'Offline'];
+const userStatus = ['Active', 'Do not disturb', 'Offline'];
 const notificationSetting = ['all', 'mentionsOnly', 'off'];
 
 const showProfileModal = ref(false);
 const userProfileStatusIcon = ref('wifi');
 
-const handleClickActivityStatus = (status: Array<string>) => {
-  if (status[0] === 'Active') {
-    userProfileStatusIcon.value = status[1];
-  } else if (status[0] === 'Do not distrurb') {
-    userProfileStatusIcon.value = status[1];
-  } else {
-    userProfileStatusIcon.value = status[1];
-  }
+const handleClickActivityStatus = (status: string) => {
+  userProfileStatusIcon.value =
+    status === 'Active'
+      ? 'wifi'
+      : status === 'Do not disturb'
+      ? 'notifications_off'
+      : 'wifi_off';
+
   userStore.updateUserSettings({
     ...userStore.currentUserData,
     status,

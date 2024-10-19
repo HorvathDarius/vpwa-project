@@ -15,13 +15,16 @@ import ChatHeader from 'src/components/ChatHeader.vue';
 import ChatDrawer from 'src/components/ChatDrawer.vue';
 import ChatMessageSpace from 'src/components/ChatMessageSpace.vue';
 import { useChannelStore } from 'src/stores/channel-store';
+import { useUserStore } from 'src/stores/user-store';
 import { useNotifications } from 'src/utils/useNotifications';
 import { useQuasar } from 'quasar';
 import { watch } from 'vue';
 import { trimMessage } from 'src/utils/trimMessage';
 
 const channelStore = useChannelStore();
+const userStore = useUserStore();
 const $q = useQuasar();
+
 let displayNotification = false;
 
 watch(
@@ -41,18 +44,21 @@ const handleTimingMessage = () => {
   setInterval(() => {
     intervalId++;
     console.log(`Timing message - ${intervalId}`);
-    if (displayNotification) {
-      useNotifications('mention', 'Martin mentioned you', '');
-      useNotifications(
-        'message',
-        'Martin messagged you',
-        trimMessage(
-          'This is a very very VERY long message that surely will not be displayed all'
-        )
-      );
+    if (userStore.currentUserData!.status === 'Do not disturb') {
+      return;
     }
-  }, 3000);
+    // if (displayNotification) {
+    useNotifications('mention', 'Martin mentioned you', '');
+    useNotifications(
+      'message',
+      'Martin messagged you',
+      trimMessage(
+        'This is a very very VERY long message that surely will not be displayed all'
+      )
+    );
+    // }
+  }, 1000);
 };
 
-// handleTimingMessage();
+handleTimingMessage();
 </script>

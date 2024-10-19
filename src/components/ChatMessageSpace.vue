@@ -44,7 +44,6 @@
               <q-chat-message
                 class="text-grey-1"
                 name="Martin"
-                avatar="/blankProfile.jpg"
                 bg-color="grey-5"
               >
                 <div @click="handleMouseHover">
