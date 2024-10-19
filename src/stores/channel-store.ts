@@ -5,7 +5,7 @@ import { Channel, User } from '../components/models';
 /* 
 Store
 */
-export const useChannelStore = defineStore('channel', () => {
+export const useChannelStore = defineStore('channels', () => {
   /**
    * State
    */
