@@ -8,6 +8,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '1',
     channelID: '1',
+    kicks: 0,
     userRole: UserRole.Admin,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295813',
@@ -17,6 +18,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '1',
     channelID: '2',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295813',
@@ -26,6 +28,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '1',
     channelID: '3',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.LeftChannel,
     createdAt: '2024-10-19T13:39:36.295813',
@@ -35,6 +38,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '2',
     channelID: '1',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295826',
@@ -44,6 +48,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '2',
     channelID: '2',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295832',
@@ -53,6 +58,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '2',
     channelID: '3',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295832',
@@ -62,6 +68,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '3',
     channelID: '2',
+    kicks: 0,
     userRole: UserRole.Admin,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295838',
@@ -71,6 +78,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '3',
     channelID: '3',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295844',
@@ -80,6 +88,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '4',
     channelID: '1',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295838',
@@ -89,6 +98,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '4',
     channelID: '2',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.KickedOut,
     createdAt: '2024-10-19T13:39:36.295844',
@@ -98,6 +108,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '4',
     channelID: '3',
+    kicks: 0,
     userRole: UserRole.Admin,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295838',
@@ -107,6 +118,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '3',
     channelID: '4',
+    kicks: 0,
     userRole: UserRole.Admin,
     userChannelStatus: UserChannelStatus.InChannel,
     createdAt: '2024-10-19T13:39:36.295838',
@@ -116,6 +128,7 @@ export const userChannelsMock: UserChannel[] = [
   {
     userID: '1',
     channelID: '4',
+    kicks: 0,
     userRole: UserRole.Member,
     userChannelStatus: UserChannelStatus.PendingInvite,
     createdAt: '2024-10-19T13:39:36.295838',

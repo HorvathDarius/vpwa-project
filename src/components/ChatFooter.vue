@@ -159,6 +159,9 @@ const commands = [
 ];
 
 const handleUserRights = () => {
+  if (!channelStore.currentActiveChannel) {
+    return [{ name: '/join', action: '', rights: '' }];
+  }
   if (userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)) {
     return commands;
   } else {
@@ -234,24 +237,94 @@ const handleAction = (message: string): void => {
       useNotifications('add', `${foundUser.nickName} has joined the channel`);
       break;
 
-    case '/kick':
+    case '/revoke':
       console.log('Kicking members');
 
-      if (splitAction[1] === undefined) {
-        console.log('ERROR - THERE IS NO USER SPECIFIED');
+      if (
+        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        console.log('ERROR - NOT ENOUGH RIGHTS');
+        useNotifications('error', 'You do not have enough rights');
         break;
       }
 
-      const userToKick = splitAction[1];
-      const users = channelStore.currentChannelMembers;
-      const newUsers = users.filter((user) => user.nickName !== userToKick);
+      if (splitAction[1] === undefined) {
+        console.log('ERROR - THERE IS NO USER SPECIFIED');
+        useNotifications('error', 'No user was specified');
+        break;
+      }
 
-      channelStore.currentChannelMembers = newUsers;
+      const userToRevoke = userStore.findUserByNickname(splitAction[1]);
+
+      if (!userToRevoke) {
+        console.log('ERROR - USER NOT FOUND');
+        useNotifications('error', 'User not found');
+        break;
+      }
+
+      const channelUsers = channelStore.currentChannelMembers;
+      const remainingUsers = channelUsers.filter(
+        (user) => user !== userToRevoke
+      );
+
+      channelStore.currentChannelMembers = remainingUsers;
 
       useNotifications(
-        `${splitAction[1]} just left the channel`,
-        '/blankProfile.jpg'
+        'info',
+        `${splitAction[1]} has been revoked out of the channel`
       );
+      break;
+
+    case '/kick':
+      console.log('Kicking members');
+
+      if (
+        userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        if (splitAction[1] === undefined) {
+          console.log('ERROR - THERE IS NO USER SPECIFIED');
+          useNotifications('error', 'No user was specified');
+          break;
+        }
+
+        const userToKick = userStore.findUserByNickname(splitAction[1]);
+
+        if (!userToKick) {
+          console.log('ERROR - USER NOT FOUND');
+          useNotifications('error', 'User not found');
+          break;
+        }
+
+        const users = channelStore.currentChannelMembers;
+        const newUsers = users.filter((user) => user !== userToKick);
+
+        channelStore.currentChannelMembers = newUsers;
+
+        useNotifications(
+          'info',
+          `${splitAction[1]} has been kicked out of the channel`
+        );
+      } else {
+        if (splitAction[1] === undefined) {
+          console.log('ERROR - THERE IS NO USER SPECIFIED');
+          useNotifications('error', 'No user was specified');
+          break;
+        }
+
+        const userToKick = userStore.findUserByNickname(splitAction[1]);
+
+        if (!userToKick) {
+          console.log('ERROR - USER NOT FOUND');
+          useNotifications('error', 'User not found');
+          break;
+        }
+
+        channelStore.kickMemberFromChannel(
+          userToKick.id,
+          channelStore.currentActiveChannel!.id,
+          userToKick.nickName
+        );
+      }
       break;
 
     case '/join':
@@ -311,6 +384,20 @@ const handleAction = (message: string): void => {
         channelStore.removeMember(userStore.currentUserData?.id);
         channelStore.currentActiveChannel = null;
       }
+      break;
+    case '/quit':
+      if (
+        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        console.log('ERROR - NOT ENOUGH RIGHTS');
+        useNotifications('error', 'You do not have enough rights');
+        break;
+      }
+
+      console.log('Quitting channel');
+      channelStore.cancelChannel(channelStore.currentActiveChannel?.id);
+      channelStore.currentActiveChannel = null;
+
       break;
     default:
       console.log('No action found');
