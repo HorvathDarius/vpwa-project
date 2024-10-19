@@ -26,11 +26,13 @@ export const useUserStore = defineStore('users', () => {
   function getUserData(userID: string) {
     currentUserData.value = usersMock.filter((user) => user.id === userID)[0]; // user.id is unique in DB
   }
+
   function login(userEmail: string, password: string) {
     currentUserData.value = usersMock.find(
       (user) => user.email === userEmail && user.passwordHash === password
     );
   }
+
   function register(
     userEmail: string,
     fullName: string,
@@ -51,6 +53,11 @@ export const useUserStore = defineStore('users', () => {
       deletedAt: '',
     });
   }
+
+  function logout() {
+    currentUserData.value = undefined;
+  }
+
   /**
    * Return
    */
@@ -62,6 +69,7 @@ export const useUserStore = defineStore('users', () => {
     getUserData,
     login,
     register,
+    logout,
   };
 });
 
