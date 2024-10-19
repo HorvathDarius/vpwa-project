@@ -1,16 +1,50 @@
+import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { channelsMock } from 'src/mocks/chatChannelMock';
+import { Channel, User } from '../components/models';
 
 /* 
 Store
 */
-export const useChannelStore = defineStore('channel', {
-  state: () => channelsMock,
-  actions: {
-    addChannel(channel: object) {
-      this.channels.push(channel);
-    },
-  },
+export const useChannelStore = defineStore('channel', () => {
+  /**
+   * State
+   */
+  const availableChannels = ref<Channel[]>([]);
+  const currentChannelMembers = ref<User[]>([]);
+
+  /**
+   * Getters
+   */
+
+  /**
+   * Actions
+   */
+  function addChannel(channel: Channel) {
+    availableChannels.value.push(channel);
+  }
+  function addMember(newUser: User) {
+    currentChannelMembers.value.push(newUser);
+  }
+  function loadChannels(userID: string) {
+    availableChannels.value = [];
+  }
+  function loadCurrentChannelMembers(channelID: string) {
+    currentChannelMembers.value = [];
+  }
+
+  /**
+   * Return
+   */
+  return {
+    // state
+    availableChannels,
+    currentChannelMembers,
+
+    // actions
+    addChannel,
+    addMember,
+    loadChannels,
+  };
 });
 
 /* 

@@ -1,9 +1,9 @@
 <template>
   <div class="transparent see-through-style">
     <div class="row transparent">
-      <ChatHeader :channels="channels" />
+      <ChatHeader :channels="channelStore.availableChannels" />
 
-      <ChatDrawer :channels="channels" />
+      <ChatDrawer :channels="channelStore.availableChannels" />
 
       <ChatMessageSpace />
     </div>
@@ -20,7 +20,6 @@ import { useQuasar } from 'quasar';
 import { watch } from 'vue';
 
 const channelStore = useChannelStore();
-const channels = channelStore.channels;
 const $q = useQuasar();
 let displayNotification = false;
 

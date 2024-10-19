@@ -11,15 +11,18 @@
               @load="loadMoreMessages"
             >
               <q-chat-message
-                v-for="message in conversationStore.conversation"
-                :class="message.name == 'me' ? 'text-blue-3' : 'text-grey-1'"
+                v-for="message in messageStore.messages"
+                :class="message.userID == 'me' ? 'text-blue-3' : 'text-grey-1'"
                 :key="message.id"
-                :name="message.name"
-                :avatar="message.avatar"
-                :text="message.text"
-                :stamp="message.stamp"
-                :sent="message.sent"
-                :bg-color="message.name == 'me' ? 'blue-4' : 'grey-5'"
+                :name="message.userID"
+                :avatar="
+                  message.userID == 'me'
+                    ? '/blankProfileReverse.jpg'
+                    : '/blankProfile.jpg'
+                "
+                :text="message.content as any"
+                :stamp="message.sentAt"
+                :bg-color="message.userID == 'me' ? 'blue-4' : 'grey-5'"
               />
               <!-- sender.id === user.id -->
               <q-chat-message
@@ -58,11 +61,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ChatFooter from './ChatFooter.vue';
-import { useConversationStore } from '../stores/conversation-store';
+import { useMessageStore } from '../stores/message-store';
 
 const showTypingMessage = ref(false);
-const conversationStore = useConversationStore();
-console.log(conversationStore);
+const messageStore = useMessageStore();
+console.log(messageStore);
 
 const loadMoreMessages = () => {
   console.log('Loading more messages...');

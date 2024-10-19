@@ -32,13 +32,13 @@
     <q-scroll-area style="height: 400px; width: 200px" class="overflow-scroll">
       <q-item
         clickable
-        v-for="member in conversationStore.members"
+        v-for="member in channelStore.currentChannelMembers"
         :key="member.id"
         @click="() => handleMentionClick(member.id)"
       >
         <q-item-section>
           <q-avatar>
-            <img :src="member.avatar" />
+            <img src="/blankProfile.jpg" />
           </q-avatar>
         </q-item-section>
         <q-item-section>
@@ -88,12 +88,12 @@
         <q-scroll-area style="height: 300px">
           <q-list separator dark>
             <q-item
-              v-for="member in conversationStore.members"
+              v-for="member in channelStore.currentChannelMembers"
               :key="member.id"
             >
               <q-item-section avatar>
                 <q-avatar>
-                  <img :src="member.avatar" />
+                  <img src="/blankProfile.jpg" />
                 </q-avatar>
               </q-item-section>
               <q-item-section>
@@ -103,7 +103,7 @@
               </q-item-section>
               <q-item-section class="text-caption">
                 <span> Member since: </span>
-                <span>{{ member.joined }}</span>
+                <span>{{ member.createdAt }}</span>
               </q-item-section>
             </q-item>
           </q-list>
@@ -120,17 +120,25 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue';
 import { date } from 'quasar';
-import { useConversationStore } from 'src/stores/conversation-store';
+import { useMessageStore } from 'src/stores/message-store';
 import { useChannelStore } from 'src/stores/channel-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
+import {
+  Channel,
+  Message,
+  User,
+  UserStatus,
+  UserNotificationSetting,
+  ChannelType,
+} from './models';
 
 const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
 const showActionHelper = ref(false);
 const showMentionHelper = ref(false);
 const showListOfMembers = ref(false);
-const conversationStore = useConversationStore();
+const messageStore = useMessageStore();
 const channelStore = useChannelStore();
 
 const commands = [
@@ -199,14 +207,20 @@ const handleAction = (message: string): void => {
         break;
       }
 
-      const newUser = {
-        id: 3,
+      const newUser: User = {
+        id: '3',
+        fullName: 'John Doe',
         nickName: splitAction[1],
-        avatar: '/blankProfile.jpg',
-        joined: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+        email: 'john.doe@gmail.com',
+        passwordHash: '12345678',
+        status: UserStatus.Active,
+        notificationSetting: UserNotificationSetting.ShowAll,
+        createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+        updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+        deletedAt: '',
       };
 
-      conversationStore.addUser(newUser);
+      channelStore.addMember(newUser);
 
       useNotifications(
         `${splitAction[1]} has joined the channel`,
@@ -223,10 +237,10 @@ const handleAction = (message: string): void => {
       }
 
       const userToKick = splitAction[1];
-      const users = conversationStore.members;
+      const users = channelStore.currentChannelMembers;
       const newUsers = users.filter((user) => user.nickName !== userToKick);
 
-      conversationStore.members = newUsers;
+      channelStore.currentChannelMembers = newUsers;
 
       useNotifications(
         `${splitAction[1]} just left the channel`,
@@ -248,14 +262,17 @@ const handleAction = (message: string): void => {
         privateChannel = true;
       }
 
-      const newChannel = {
-        id: 3,
+      const newChannel: Channel = {
+        id: '3',
         name: splitAction[1],
-        avatar:
-          'https://static-00.iconduck.com/assets.00/vue-icon-2048x1766-ntogpmti.png',
-        caption: '',
-        time: '',
-        private: privateChannel,
+        type: ChannelType.Public,
+        createdBy: '1',
+        numberOfUsers: 1,
+        numberOfMessages: 0,
+        lastActive: '',
+        createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+        updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+        deletedAt: '',
       };
 
       channelStore.addChannel(newChannel);
@@ -272,21 +289,25 @@ const handleSendMessage = (message: string): void => {
   console.log('Sending message:', messageData.value);
   const timeStamp = Date.now();
 
-  const newMessage = {
-    id: 1,
-    name: 'me',
-    avatar: '/blankProfileReverse.jpg',
-    text: [message],
-    stamp: date.formatDate(timeStamp, 'HH:mm'),
-    sent: true,
-    bgColor: 'amber-7',
+  const newMessage: Message = {
+    id: '1',
+    userID: 'me',
+    channelID: '1',
+    content: message,
+    status: '',
+    sentAt: date.formatDate(timeStamp, 'HH:mm'),
+    createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+    updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+    deletedAt: '',
   };
 
-  conversationStore.addMessage(newMessage);
+  messageStore.addMessage(newMessage);
 };
 
-const handleMentionClick = (id: number): void => {
-  const member = conversationStore.members.find((member) => member.id === id);
+const handleMentionClick = (id: string): void => {
+  const member = channelStore.currentChannelMembers.find(
+    (member) => member.id === id
+  );
   console.log('Member:', member);
   messageData.value += `${member?.nickName} `;
   showMentionHelper.value = false;
