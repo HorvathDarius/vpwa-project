@@ -64,32 +64,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useUserStore } from 'src/stores/user-store';
 
-const props = defineProps({
-  fullName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-  },
-  passwordHash: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    required: true,
-  },
-  notificationSetting: {
-    type: String,
-    required: true,
-  },
+const userStore = useUserStore();
+
+defineProps({
   statusOptions: {
     type: Array,
     required: true,
@@ -102,12 +81,12 @@ const props = defineProps({
 
 // Local state for user data
 const user = ref({
-  fullName: props.fullName,
-  email: props.email,
-  username: props.username,
-  passwordHash: props.passwordHash,
-  status: props.status,
-  notificationSetting: props.notificationSetting,
+  fullName: userStore.currentUserData?.fullName,
+  email: userStore.currentUserData?.email,
+  username: userStore.currentUserData?.nickName,
+  passwordHash: userStore.currentUserData?.passwordHash,
+  status: userStore.currentUserData?.status,
+  notificationSetting: userStore.currentUserData?.notificationSetting,
 });
 </script>
 

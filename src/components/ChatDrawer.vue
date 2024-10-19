@@ -89,12 +89,6 @@
 
       <ModalWindowComponent v-model="showProfileModal" title="User Settings">
         <UserProfileCard
-          :full-name="currentlyLoggedUserMock.fullName"
-          :email="currentlyLoggedUserMock.email"
-          :username="currentlyLoggedUserMock.username"
-          :password-hash="currentlyLoggedUserMock.passwordHash"
-          :status="currentlyLoggedUserMock.status"
-          :notification-setting="currentlyLoggedUserMock.notificationSetting"
           :status-options="userStatus"
           :notification-options="notificationSetting"
         ></UserProfileCard>
@@ -113,15 +107,6 @@ import { useUserStore } from 'src/stores/user-store';
 const userStore = useUserStore();
 
 const { channels } = defineProps(['channels']);
-
-const currentlyLoggedUserMock = ref({
-  fullName: 'John Doe',
-  email: 'john.doe@gmail.com',
-  username: 'johny123',
-  passwordHash: 'b2c701af',
-  status: 'active',
-  notificationSetting: 'all',
-});
 
 const userStatus = ['active', 'idle', 'offline'];
 const notificationSetting = ['all', 'mentionsOnly', 'off'];
