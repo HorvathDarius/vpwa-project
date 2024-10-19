@@ -93,7 +93,6 @@ const user = ref({
 <style scoped>
 .user-menu-container {
   width: 100%;
-  max-width: 24rem;
   padding: 2rem;
   overflow-y: auto; /* Enable vertical scrolling */
 }
