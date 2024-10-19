@@ -104,4 +104,22 @@ export const userChannelsMock: UserChannel[] = [
     updatedAt: '2024-10-19T13:39:36.295840',
     deletedAt: '',
   },
+  {
+    userID: '3',
+    channelID: '4',
+    userRole: UserRole.Admin,
+    userChannelStatus: UserChannelStatus.InChannel,
+    createdAt: '2024-10-19T13:39:36.295838',
+    updatedAt: '2024-10-19T13:39:36.295840',
+    deletedAt: '',
+  },
+  {
+    userID: '1',
+    channelID: '4',
+    userRole: UserRole.Member,
+    userChannelStatus: UserChannelStatus.PendingInvite,
+    createdAt: '2024-10-19T13:39:36.295838',
+    updatedAt: '2024-10-19T13:39:36.295840',
+    deletedAt: '',
+  },
 ];
