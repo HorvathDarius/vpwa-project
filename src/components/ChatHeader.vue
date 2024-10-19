@@ -6,7 +6,10 @@
       </q-avatar>
 
       <span class="q-subtitle-1 q-pl-md text-white text-bold">
-        {{ channels.name }}
+        {{
+          channelStore.currentActiveChannel?.name ??
+          'VPWA Project Slack Application'
+        }}
       </span>
 
       <q-space />
@@ -37,19 +40,19 @@
 
         <q-separator />
 
-          <q-tab-panels
-            v-model="tab"
-            animated
-            class="transparent"
-            style="max-height: 60vh; min-height: 60vh"
-          >
-            <q-tab-panel name="channels" class="transparent">
-              <div class="position-relative">
-                <div class="absolute-full">
-                  <AvailableChannelsComponent :channels="channels" />
-                </div>
+        <q-tab-panels
+          v-model="tab"
+          animated
+          class="transparent"
+          style="max-height: 60vh; min-height: 60vh"
+        >
+          <q-tab-panel name="channels" class="transparent">
+            <div class="position-relative">
+              <div class="absolute-full">
+                <AvailableChannelsComponent :channels="channels" />
               </div>
-            </q-tab-panel>
+            </div>
+          </q-tab-panel>
 
           <q-tab-panel
             name="account"
@@ -79,10 +82,12 @@ import { ref } from 'vue';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
+import { useChannelStore } from 'src/stores/channel-store';
 
 const showModalChannelWindow = ref(false);
 const tab = ref('channels');
 const { channels } = defineProps(['channels']);
+const channelStore = useChannelStore();
 
 const currentlyLoggedUserMock = ref({
   fullName: 'John Doe',

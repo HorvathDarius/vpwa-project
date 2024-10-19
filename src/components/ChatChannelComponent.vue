@@ -1,15 +1,13 @@
 <template>
-  <q-item dark clickable v-ripple>
-    <q-item-section avatar>
-      <q-avatar>
-        <img :src="channel?.avatar" />
-      </q-avatar>
-    </q-item-section>
-
+  <q-item dark clickable v-ripple class="q-pa-md">
     <q-item-section>
-      <q-item-label lines="1">
+      <q-item-label lines="1" class="text-bold">
         {{ channel?.name }}
-        <q-icon v-if="channel?.private" name="lock_person" class="q-ml-xs" />
+        <q-icon
+          v-if="channel?.type === 'private'"
+          name="lock_person"
+          class="q-ml-xs"
+        />
       </q-item-label>
       <q-item-label class="conversation__summary" caption>
         {{ channel?.caption }}
