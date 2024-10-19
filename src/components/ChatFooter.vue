@@ -137,14 +137,7 @@ import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
-import {
-  Channel,
-  Message,
-  User,
-  UserStatus,
-  UserNotificationSetting,
-  ChannelType,
-} from './models';
+import { Channel, Message, ChannelType } from './models';
 
 const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
@@ -276,9 +269,8 @@ const handleAction = (message: string): void => {
         privateChannel = true;
       }
 
-      const channel = channelStore.getChannel(splitAction[1]);
+      const channel = channelStore.getChannelByName(splitAction[1]);
       if (channel) {
-        console.log('Channel already exists');
         if (channel.type === ChannelType.Private) {
           useNotifications(
             'error',
@@ -288,7 +280,6 @@ const handleAction = (message: string): void => {
         }
         channelStore.joinChannel(userStore.currentUserData!, channel);
       } else {
-        console.log('No channel found, creating new channel');
         const newChannel: Channel = {
           id: '',
           name: splitAction[1],

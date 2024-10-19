@@ -5,6 +5,7 @@
         v-for="channel in channelStore.availableChannels"
         :key="channel.id"
         :channel="channel"
+        :pending="channelStore.pendingChannels.includes(channel)"
         @click="() => channelStore.setCurrentActiveChannel(channel)"
       />
     </q-scroll-area>

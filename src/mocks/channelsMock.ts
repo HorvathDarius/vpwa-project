@@ -37,4 +37,16 @@ export const channelsMock: Channel[] = [
     updatedAt: '2024-10-19T13:29:22.179719',
     deletedAt: '',
   },
+  {
+    id: '4',
+    name: 'Channel4',
+    type: ChannelType.Private,
+    createdBy: '3',
+    numberOfUsers: 1,
+    numberOfMessages: 0,
+    lastActive: '2024-10-19T13:29:22.179712',
+    createdAt: '2024-10-19T13:29:22.179716',
+    updatedAt: '2024-10-19T13:29:22.179719',
+    deletedAt: '',
+  },
 ];
