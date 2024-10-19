@@ -60,6 +60,18 @@ export const useUserStore = defineStore('users', () => {
     });
   }
 
+  function updateUserSettings(userData: any) {
+    currentUserData.value = {
+      ...currentUserData.value,
+      fullName: userData.fullName,
+      email: userData.email,
+      nickName: userData.nickName,
+      passwordHash: userData.passwordHash,
+      status: userData.status,
+      notificationSetting: userData.notificationSetting,
+    } as User;
+  }
+
   function logout() {
     currentUserData.value = undefined;
   }
@@ -77,6 +89,7 @@ export const useUserStore = defineStore('users', () => {
     checkUserRights,
     login,
     register,
+    updateUserSettings,
     logout,
   };
 });
