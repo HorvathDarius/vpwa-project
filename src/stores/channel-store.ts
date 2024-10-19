@@ -9,7 +9,7 @@ import { useMessageStore } from './message-store';
 /* 
 Store
 */
-export const useChannelStore = defineStore('channel', () => {
+export const useChannelStore = defineStore('channels', () => {
   /**
    * State
    */

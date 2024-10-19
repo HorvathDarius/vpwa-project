@@ -93,6 +93,10 @@
         class="q-mt-md g-pa-md"
       />
 
+      <div v-if="!isRegister && failLogin" class="text-red-5 q-mt-sm">
+        Incorrect credentials!
+      </div>
+
       <div class="full-width q-pb-md">
         <p v-if="!isRegister" class="text-left text-grey-1 q-mt-md">
           Don't have an account?
@@ -115,6 +119,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from 'src/stores/user-store';
+
+const userStore = useUserStore();
 
 const props = defineProps({
   heading: {
@@ -135,6 +142,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const failLogin = ref(false);
 
 const email = ref('');
 const fullName = ref('');
@@ -143,15 +151,18 @@ const password = ref('');
 const passwordRepeat = ref('');
 
 const submitHandler = (): void => {
-  if (!(email.value && password.value)) {
+  if (props.isRegister === true) {
+    userStore.register(
+      email.value,
+      fullName.value,
+      username.value,
+      password.value
+    );
+    router.push('/');
     return;
   }
 
-  if (props.isRegister === true) {
-    register();
-  } else {
-    login();
-  }
+  userStore.login(email.value, password.value);
 
   // Handle form submission
   console.table({
@@ -163,12 +174,12 @@ const submitHandler = (): void => {
   });
 
   // Redirect to main app
-  router.push('/');
+  if (userStore.currentUserData) {
+    router.push('/');
+    return;
+  }
+  failLogin.value = true;
 };
-
-const login = (): void => {};
-
-const register = (): void => {};
 </script>
 
 <style scoped lang="sass">
