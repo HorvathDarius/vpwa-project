@@ -16,6 +16,7 @@
             >
               <q-chat-message
                 v-for="message in messageStore.messages"
+                :sent="message.userID == userStore.currentUserData?.id"
                 :class="
                   message.userID == userStore.currentUserData?.id
                     ? 'text-blue-3'
