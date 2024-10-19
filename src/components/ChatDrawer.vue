@@ -17,15 +17,13 @@
         >
           <q-item-section avatar>
             <q-avatar>
-              <img :src="mainProfile.avatar" />
+              <img src="/" />
             </q-avatar>
           </q-item-section>
 
           <q-item-section>
             <q-item-label lines="1">
-              <span class="text-weight-bold">
-                {{ mainProfile.person }}
-              </span>
+              <span class="text-weight-bold"> mainProfile.person </span>
             </q-item-label>
           </q-item-section>
 
@@ -105,7 +103,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { mainProfile } from 'src/mocks/channelsMock';
+// import { mainProfile } from 'src/mocks/channelsMock';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
