@@ -1,6 +1,10 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { Channel, User } from '../components/models';
+import { channelsMock } from '../mocks/channelsMock';
+import { userChannelsMock } from 'src/mocks/userChannelMock';
+import { usersMock } from 'src/mocks/usersMock';
+import { useMessageStore } from './message-store';
 
 /* 
 Store
@@ -9,8 +13,11 @@ export const useChannelStore = defineStore('channel', () => {
   /**
    * State
    */
-  const availableChannels = ref<Channel[]>([]);
+  // const availableChannels = ref<Channel[]>([]);
+  const availableChannels = ref<Channel[]>(channelsMock);
   const currentChannelMembers = ref<User[]>([]);
+  const currentActiveChannel = ref<Channel | null>(null);
+  const messageStore = useMessageStore();
 
   /**
    * Getters
@@ -29,7 +36,27 @@ export const useChannelStore = defineStore('channel', () => {
     availableChannels.value = [];
   }
   function loadCurrentChannelMembers(channelID: string) {
-    currentChannelMembers.value = [];
+    const filteredChannels = userChannelsMock.filter(
+      (channel) => channel.channelID === channelID
+    );
+
+    const memberIDs = filteredChannels.map((channel) => channel.userID);
+    const uniqueIds: string[] = [];
+
+    memberIDs.forEach((id) => {
+      if (!uniqueIds.includes(id)) {
+        uniqueIds.push(id);
+      }
+    });
+
+    const memebers = usersMock.filter((user) => uniqueIds.includes(user.id));
+
+    currentChannelMembers.value = memebers;
+  }
+  function setCurrentActiveChannel(channel: Channel) {
+    currentActiveChannel.value = channel;
+    loadCurrentChannelMembers(channel.id);
+    messageStore.loadMessages(channel.id);
   }
 
   /**
@@ -39,11 +66,13 @@ export const useChannelStore = defineStore('channel', () => {
     // state
     availableChannels,
     currentChannelMembers,
+    currentActiveChannel,
 
     // actions
     addChannel,
     addMember,
     loadChannels,
+    setCurrentActiveChannel,
   };
 });
 

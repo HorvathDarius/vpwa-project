@@ -265,7 +265,7 @@ const handleAction = (message: string): void => {
       const newChannel: Channel = {
         id: '3',
         name: splitAction[1],
-        type: ChannelType.Public,
+        type: privateChannel ? ChannelType.Private : ChannelType.Public,
         createdBy: '1',
         numberOfUsers: 1,
         numberOfMessages: 0,
@@ -277,7 +277,7 @@ const handleAction = (message: string): void => {
 
       channelStore.addChannel(newChannel);
 
-      useNotifications(`Channel ${splitAction[1]} has been created`);
+      // useNotifications(`Channel ${splitAction[1]} has been created`);
 
       break;
     default:
