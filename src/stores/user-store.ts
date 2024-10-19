@@ -6,7 +6,6 @@ import {
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { usersMock } from 'src/mocks/usersMock';
-import { stringify } from 'querystring';
 
 /* 
 Store
@@ -15,7 +14,7 @@ export const useUserStore = defineStore('users', () => {
   /**
    * State
    */
-  const currentUserData = ref<User>();
+  const currentUserData = ref<User | undefined>(usersMock[1]);
 
   /**
    * Getters
@@ -25,7 +24,7 @@ export const useUserStore = defineStore('users', () => {
    * Actions
    */
   function getUserData(userID: string) {
-    currentUserData.value = undefined;
+    currentUserData.value = usersMock.filter((user) => user.id === userID)[0]; // user.id is unique in DB
   }
   function login(userEmail: string, password: string) {
     currentUserData.value = usersMock.find(
