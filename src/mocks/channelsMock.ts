@@ -3,7 +3,7 @@ import { Channel, ChannelType } from '../components/models';
 export const channelsMock: Channel[] = [
   {
     id: '1',
-    name: 'Channel 1',
+    name: 'Channel1',
     type: ChannelType.Public,
     createdBy: '1',
     numberOfUsers: 4,
@@ -15,7 +15,7 @@ export const channelsMock: Channel[] = [
   },
   {
     id: '2',
-    name: 'Channel 2',
+    name: 'Channel2',
     type: ChannelType.Public,
     createdBy: '2',
     numberOfUsers: 4,
@@ -27,7 +27,7 @@ export const channelsMock: Channel[] = [
   },
   {
     id: '3',
-    name: 'Channel 3',
+    name: 'Channel3',
     type: ChannelType.Private,
     createdBy: '3',
     numberOfUsers: 4,

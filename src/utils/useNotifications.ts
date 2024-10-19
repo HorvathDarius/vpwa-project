@@ -10,6 +10,16 @@ Notify.registerType('message', {
   color: 'primary',
   textColor: 'white',
 });
+Notify.registerType('error', {
+  icon: 'warning',
+  color: 'negative',
+  textColor: 'white',
+});
+Notify.registerType('add', {
+  icon: 'add',
+  color: 'primary',
+  textColor: 'white',
+});
 
 export const useNotifications = (
   type: string,

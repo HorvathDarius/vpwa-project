@@ -26,7 +26,9 @@ export const useUserStore = defineStore('users', () => {
   function getUserData(userID: string) {
     currentUserData.value = usersMock.filter((user) => user.id === userID)[0]; // user.id is unique in DB
   }
-
+  function checkUserRights(channelCreatorID: string | undefined) {
+    return currentUserData.value?.id === channelCreatorID;
+  }
   function login(userEmail: string, password: string) {
     currentUserData.value = usersMock.find(
       (user) => user.email === userEmail && user.passwordHash === password
@@ -67,6 +69,7 @@ export const useUserStore = defineStore('users', () => {
 
     // actions
     getUserData,
+    checkUserRights,
     login,
     register,
     logout,

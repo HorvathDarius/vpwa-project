@@ -1,6 +1,12 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { Channel, User, UserChannelStatus } from '../components/models';
+import {
+  Channel,
+  User,
+  UserChannel,
+  UserChannelStatus,
+  UserRole,
+} from '../components/models';
 import { channelsMock } from '../mocks/channelsMock';
 import { userChannelsMock } from 'src/mocks/userChannelMock';
 import { usersMock } from 'src/mocks/usersMock';
@@ -13,7 +19,8 @@ export const useChannelStore = defineStore('channels', () => {
   /**
    * State
    */
-  // const availableChannels = ref<Channel[]>([]);
+  const allChannels = ref<Channel[]>(channelsMock);
+  const userChannelRecords = ref<UserChannel[]>(userChannelsMock);
   const availableChannels = ref<Channel[]>(channelsMock);
   const currentChannelMembers = ref<User[]>([]);
   const currentActiveChannel = ref<Channel | null>(null);
@@ -26,14 +33,69 @@ export const useChannelStore = defineStore('channels', () => {
   /**
    * Actions
    */
+  function getChannel(channelName: string) {
+    console.log(channelName);
+    const foundChannel = allChannels.value.filter(
+      (channel) => channel.name === channelName
+    );
+
+    if (foundChannel.length) {
+      console.log('CHANNEL FOUND - ' + foundChannel[0]);
+      return foundChannel[0];
+    } else {
+      console.log('CHANNEL NOT FOUND - ' + foundChannel[0]);
+      return null;
+    }
+  }
   function addChannel(channel: Channel) {
+    const channelId = getHighestChannelID(allChannels.value) + 1;
+    console.log('NEXT ID - ' + channelId);
+    channel.id = channelId.toString();
+    console.log('NEXT ID - ' + channel);
     availableChannels.value.push(channel);
+    setCurrentActiveChannel(channel);
   }
-  function addMember(newUser: User) {
+  function cancelChannel(channelID: string | undefined) {
+    availableChannels.value = availableChannels.value.filter(
+      (channel) => channel.id !== channelID
+    );
+  }
+  function addMember(newUser: User, channel: Channel) {
+    userChannelRecords.value.push({
+      userID: newUser.id,
+      channelID: channel.id,
+      userRole: UserRole.Member,
+      userChannelStatus: UserChannelStatus.InChannel,
+      createdAt: Date.now().toString(),
+      updatedAt: Date.now().toString(),
+      deletedAt: '',
+    });
+    setCurrentActiveChannel(channel);
     currentChannelMembers.value.push(newUser);
+    loadChannels(newUser.id, userChannelRecords.value);
   }
-  function loadChannels(userID: string) {
-    const userChannelIds = userChannelsMock
+  function removeMember(userID: string | undefined) {
+    currentChannelMembers.value = currentChannelMembers.value.filter(
+      (user) => user.id !== userID
+    );
+
+    const removedUserChannelRecord = userChannelRecords.value.find(
+      (record) =>
+        record.userID === userID &&
+        record.channelID === currentActiveChannel.value?.id
+    );
+
+    const newUserChannelRecord = userChannelRecords.value.filter(
+      (record) => record !== removedUserChannelRecord
+    );
+
+    loadChannels(userID, newUserChannelRecord);
+  }
+  function loadChannels(
+    userID: string | undefined,
+    userChannelRecord: UserChannel[] = userChannelsMock
+  ) {
+    const userChannelIds = userChannelRecord
       .filter(
         (item) =>
           item.userID === userID &&
@@ -82,8 +144,11 @@ export const useChannelStore = defineStore('channels', () => {
     currentActiveChannel,
 
     // actions
+    getChannel,
     addChannel,
+    cancelChannel,
     addMember,
+    removeMember,
     loadChannels,
     setCurrentActiveChannel,
   };
@@ -92,3 +157,8 @@ export const useChannelStore = defineStore('channels', () => {
 /* 
 Controller
 */
+
+// only helper for 1st assignment
+const getHighestChannelID = (channels: Channel[]): number => {
+  return Math.max(...channels.map((channel) => parseInt(channel.id, 10)));
+};

@@ -9,7 +9,7 @@
       showActionHelper ? 'display: block;' : 'display: none;',
     ]"
   >
-    <q-item v-for="(command, i) in commands" :key="i">
+    <q-item v-for="(command, i) in handleUserRights()" :key="i">
       <q-badge
         class="full-width"
         style="border: 1px solid #777"
@@ -32,7 +32,9 @@
     <q-scroll-area style="height: 400px; width: 200px" class="overflow-scroll">
       <q-item
         clickable
-        v-for="member in channelStore.currentChannelMembers"
+        v-for="member in channelStore.currentChannelMembers.filter(
+          (member) => member.id !== userStore.currentUserData?.id
+        )"
         :key="member.id"
         @click="() => handleMentionClick(member.id)"
       >
@@ -96,7 +98,17 @@
                   <img src="/blankProfile.jpg" />
                 </q-avatar>
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="column">
+                <span>
+                  {{
+                    member.id === userStore.currentUserData?.id ? '(me)' : ''
+                  }}
+                  {{
+                    member.id === channelStore.currentActiveChannel?.createdBy
+                      ? '(admin)'
+                      : ''
+                  }}
+                </span>
                 <span>
                   {{ member.nickName }}
                 </span>
@@ -144,14 +156,22 @@ const channelStore = useChannelStore();
 const userStore = useUserStore();
 
 const commands = [
-  { name: '/join', action: '' },
-  { name: '/invite', action: '' },
-  { name: '/revoke', action: '' },
-  { name: '/kick', action: '' },
-  { name: '/quit', action: '' },
-  { name: '/cancel', action: '' },
-  { name: '/list', action: '' },
+  { name: '/join', action: '', rights: '' },
+  { name: '/invite', action: '', rights: 'admin' },
+  { name: '/revoke', action: '', rights: 'admin' },
+  { name: '/kick', action: '', rights: '' },
+  { name: '/quit', action: '', rights: 'admin' },
+  { name: '/cancel', action: '', rights: '' },
+  { name: '/list', action: '', rights: '' },
 ];
+
+const handleUserRights = () => {
+  if (userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)) {
+    return commands;
+  } else {
+    return commands.filter((command) => command.rights !== 'admin');
+  }
+};
 
 const handleMessageSubmit = (): void => {
   const message = messageData.value.trim();
@@ -176,36 +196,35 @@ const handleMessageSubmit = (): void => {
 const handleMessageTyping = (value: string | null): void => {
   console.log('Typing:', value);
   if (value === '/') {
-    console.log('ACTION ACTION ACITON');
     showActionHelper.value = true;
   } else if (value?.endsWith('@')) {
-    console.log('MENTION MENTION MENTION');
     showMentionHelper.value = true;
   } else {
-    console.log('Typing:', value);
     showActionHelper.value = false;
     showMentionHelper.value = false;
   }
 };
 
 const handleAction = (message: string): void => {
-  console.log('ACTION', message);
-
   const splitAction = message.split(' ');
-
-  console.log('Split action:', splitAction);
 
   switch (splitAction[0]) {
     case '/list':
-      console.log('Showing members');
       showListOfMembers.value = true;
       break;
 
     case '/invite':
-      console.log('Inviting members');
+      if (
+        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        console.log('ERROR - NOT ENOUGH RIGHTS');
+        useNotifications('error', 'You do not have enough rights');
+        break;
+      }
 
       if (splitAction[1] === undefined) {
         console.log('ERROR - THERE IS NO USER SPECIFIED');
+        useNotifications('error', 'No user was specified');
         break;
       }
 
@@ -224,10 +243,7 @@ const handleAction = (message: string): void => {
 
       channelStore.addMember(newUser);
 
-      useNotifications(
-        `${splitAction[1]} has joined the channel`,
-        '/blankProfile.jpg'
-      );
+      useNotifications('add', `${splitAction[1]} has joined the channel`);
       break;
 
     case '/kick':
@@ -255,6 +271,7 @@ const handleAction = (message: string): void => {
 
       if (splitAction[1] === undefined) {
         console.log('ERROR - THERE IS NO CHANNEL SPECIFIED');
+        useNotifications('error', 'No channel was specified');
         break;
       }
 
@@ -264,26 +281,47 @@ const handleAction = (message: string): void => {
         privateChannel = true;
       }
 
-      const newChannel: Channel = {
-        id: '3',
-        name: splitAction[1],
-        type: privateChannel ? ChannelType.Private : ChannelType.Public,
-        createdBy: '1',
-        numberOfUsers: 1,
-        numberOfMessages: 0,
-        lastActive: '',
-        createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-        updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-        deletedAt: '',
-      };
+      const channelId = channelStore.getChannel(splitAction[1]);
+      if (channelId) {
+        console.log('Channel already exists');
+        channelStore.addMember(userStore.currentUserData!, channelId);
+      } else {
+        console.log('No channel found, creating new channel');
+        const newChannel: Channel = {
+          id: '',
+          name: splitAction[1],
+          type: privateChannel ? ChannelType.Private : ChannelType.Public,
+          createdBy: userStore.currentUserData!.id,
+          numberOfUsers: 1,
+          numberOfMessages: 0,
+          lastActive: '',
+          createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+          updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+          deletedAt: '',
+        };
 
-      channelStore.addChannel(newChannel);
+        channelStore.addChannel(newChannel);
 
-      // useNotifications(`Channel ${splitAction[1]} has been created`);
+        useNotifications('add', `Channel ${splitAction[1]} has been created`);
+      }
+      break;
 
+    case '/cancel':
+      if (
+        userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        console.log('Leaving channel ADMIN');
+        channelStore.cancelChannel(channelStore.currentActiveChannel?.id);
+        channelStore.currentActiveChannel = null;
+      } else {
+        console.log('Leaving channel NORMAL');
+        channelStore.removeMember(userStore.currentUserData?.id);
+        channelStore.currentActiveChannel = null;
+      }
       break;
     default:
       console.log('No action found');
+      useNotifications('error', 'No action found');
   }
 };
 
