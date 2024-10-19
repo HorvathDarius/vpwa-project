@@ -35,32 +35,36 @@ export const useChannelStore = defineStore('channels', () => {
    */
   function getChannel(channelName: string) {
     console.log(channelName);
-    const foundChannel = allChannels.value.filter(
-      (channel) => channel.name === channelName
-    );
-
-    if (foundChannel.length) {
-      console.log('CHANNEL FOUND - ' + foundChannel[0]);
-      return foundChannel[0];
-    } else {
-      console.log('CHANNEL NOT FOUND - ' + foundChannel[0]);
-      return null;
-    }
+    return allChannels.value.find((channel) => channel.name === channelName);
   }
-  function addChannel(channel: Channel) {
+  function addChannel(channel: Channel, user: User) {
     const channelId = getHighestChannelID(allChannels.value) + 1;
     console.log('NEXT ID - ' + channelId);
     channel.id = channelId.toString();
     console.log('NEXT ID - ' + channel);
     availableChannels.value.push(channel);
     setCurrentActiveChannel(channel);
+    inviteMember(user);
   }
   function cancelChannel(channelID: string | undefined) {
     availableChannels.value = availableChannels.value.filter(
       (channel) => channel.id !== channelID
     );
   }
-  function addMember(newUser: User, channel: Channel) {
+  function inviteMember(user: User) {
+    console.log('INVITE MEMBER - ' + user);
+    userChannelRecords.value.push({
+      userID: user.id,
+      channelID: currentActiveChannel.value!.id,
+      userRole: UserRole.Member,
+      userChannelStatus: UserChannelStatus.InChannel,
+      createdAt: Date.now().toString(),
+      updatedAt: Date.now().toString(),
+      deletedAt: '',
+    });
+    loadCurrentChannelMembers(currentActiveChannel.value!.id);
+  }
+  function joinChannel(newUser: User, channel: Channel) {
     userChannelRecords.value.push({
       userID: newUser.id,
       channelID: channel.id,
@@ -71,8 +75,8 @@ export const useChannelStore = defineStore('channels', () => {
       deletedAt: '',
     });
     setCurrentActiveChannel(channel);
-    currentChannelMembers.value.push(newUser);
     loadChannels(newUser.id, userChannelRecords.value);
+    loadCurrentChannelMembers(currentActiveChannel.value!.id);
   }
   function removeMember(userID: string | undefined) {
     currentChannelMembers.value = currentChannelMembers.value.filter(
@@ -147,7 +151,8 @@ export const useChannelStore = defineStore('channels', () => {
     getChannel,
     addChannel,
     cancelChannel,
-    addMember,
+    joinChannel,
+    inviteMember,
     removeMember,
     loadChannels,
     setCurrentActiveChannel,

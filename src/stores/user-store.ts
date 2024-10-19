@@ -14,6 +14,7 @@ export const useUserStore = defineStore('users', () => {
   /**
    * State
    */
+  const allUsers = ref<User[]>(usersMock);
   const currentUserData = ref<User | undefined>(usersMock[0]);
 
   /**
@@ -23,6 +24,9 @@ export const useUserStore = defineStore('users', () => {
   /**
    * Actions
    */
+  function findUserByNickname(nickname: string) {
+    return allUsers.value.find((user) => user.nickName === nickname);
+  }
   function getUserData(userID: string) {
     currentUserData.value = usersMock.filter((user) => user.id === userID)[0]; // user.id is unique in DB
   }
@@ -68,6 +72,7 @@ export const useUserStore = defineStore('users', () => {
     currentUserData,
 
     // actions
+    findUserByNickname,
     getUserData,
     checkUserRights,
     login,

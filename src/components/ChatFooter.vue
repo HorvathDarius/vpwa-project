@@ -228,22 +228,17 @@ const handleAction = (message: string): void => {
         break;
       }
 
-      const newUser: User = {
-        id: '3',
-        fullName: 'John Doe',
-        nickName: splitAction[1],
-        email: 'john.doe@gmail.com',
-        passwordHash: '12345678',
-        status: UserStatus.Active,
-        notificationSetting: UserNotificationSetting.ShowAll,
-        createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-        updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-        deletedAt: '',
-      };
+      const foundUser = userStore.findUserByNickname(splitAction[1]);
 
-      channelStore.addMember(newUser);
+      if (!foundUser) {
+        console.log('ERROR - USER NOT FOUND');
+        useNotifications('error', 'User not found');
+        break;
+      }
 
-      useNotifications('add', `${splitAction[1]} has joined the channel`);
+      channelStore.inviteMember(foundUser);
+
+      useNotifications('add', `${foundUser.nickName} has joined the channel`);
       break;
 
     case '/kick':
@@ -281,10 +276,17 @@ const handleAction = (message: string): void => {
         privateChannel = true;
       }
 
-      const channelId = channelStore.getChannel(splitAction[1]);
-      if (channelId) {
+      const channel = channelStore.getChannel(splitAction[1]);
+      if (channel) {
         console.log('Channel already exists');
-        channelStore.addMember(userStore.currentUserData!, channelId);
+        if (channel.type === ChannelType.Private) {
+          useNotifications(
+            'error',
+            'The channel you are trying to join is a private one'
+          );
+          break;
+        }
+        channelStore.joinChannel(userStore.currentUserData!, channel);
       } else {
         console.log('No channel found, creating new channel');
         const newChannel: Channel = {
@@ -300,7 +302,7 @@ const handleAction = (message: string): void => {
           deletedAt: '',
         };
 
-        channelStore.addChannel(newChannel);
+        channelStore.addChannel(newChannel, userStore.currentUserData!);
 
         useNotifications('add', `Channel ${splitAction[1]} has been created`);
       }
