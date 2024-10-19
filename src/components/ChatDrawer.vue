@@ -51,41 +51,15 @@
                 <q-item
                   dark
                   clickable
+                  v-for="(statusItem, i) in userStatusWithIcons"
+                  :key="i"
                   v-close-popup
-                  @click="() => handleClickActivityStatus('wifi')"
+                  @click="() => handleClickActivityStatus(statusItem)"
                 >
                   <q-item-section>
                     <div class="row items-center no-wrap">
-                      <q-icon left name="wifi" />
-                      <q-item-label>Active</q-item-label>
-                    </div>
-                  </q-item-section>
-                </q-item>
-
-                <q-item
-                  dark
-                  clickable
-                  v-close-popup
-                  @click="() => handleClickActivityStatus('notifications_off')"
-                >
-                  <q-item-section>
-                    <div class="row items-center no-wrap">
-                      <q-icon left name="notifications_off" />
-                      <q-item-label>Do Not Disturb</q-item-label>
-                    </div>
-                  </q-item-section>
-                </q-item>
-
-                <q-item
-                  dark
-                  clickable
-                  v-close-popup
-                  @click="() => handleClickActivityStatus('wifi_off')"
-                >
-                  <q-item-section>
-                    <div class="row items-center no-wrap">
-                      <q-icon left name="wifi_off" />
-                      <q-item-label>Offline</q-item-label>
+                      <q-icon left :name="statusItem[1]" />
+                      <q-item-label>{{ statusItem[0] }}</q-item-label>
                     </div>
                   </q-item-section>
                 </q-item>
@@ -126,14 +100,29 @@ const userStore = useUserStore();
 
 const router = useRouter();
 
-const userStatus = ['active', 'idle', 'offline'];
+const userStatusWithIcons = [
+  ['Active', 'wifi'],
+  ['Do not distrurb', 'notifications_off'],
+  ['Offline', 'wifi_off'],
+];
+const userStatus = ['Active', , 'Do not distrurb', 'Offline'];
 const notificationSetting = ['all', 'mentionsOnly', 'off'];
 
 const showProfileModal = ref(false);
 const userProfileStatusIcon = ref('wifi');
 
-const handleClickActivityStatus = (status: string) => {
-  userProfileStatusIcon.value = status;
+const handleClickActivityStatus = (status: Array<string>) => {
+  if (status[0] === 'Active') {
+    userProfileStatusIcon.value = status[1];
+  } else if (status[0] === 'Do not distrurb') {
+    userProfileStatusIcon.value = status[1];
+  } else {
+    userProfileStatusIcon.value = status[1];
+  }
+  userStore.updateUserSettings({
+    ...userStore.currentUserData,
+    status,
+  });
 };
 
 const handleActivityClick = (e: Event) => {
