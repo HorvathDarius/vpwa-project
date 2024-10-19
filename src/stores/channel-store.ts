@@ -11,6 +11,7 @@ import { channelsMock } from '../mocks/channelsMock';
 import { userChannelsMock } from 'src/mocks/userChannelMock';
 import { usersMock } from 'src/mocks/usersMock';
 import { useMessageStore } from './message-store';
+import { useNotifications } from 'src/utils/useNotifications';
 
 /* 
 Store
@@ -66,6 +67,7 @@ export const useChannelStore = defineStore('channels', () => {
       userID: user.id,
       channelID: currentActiveChannel.value!.id,
       userRole: UserRole.Member,
+      kicks: 0,
       userChannelStatus: UserChannelStatus.PendingInvite,
       createdAt: Date.now().toString(),
       updatedAt: Date.now().toString(),
@@ -77,6 +79,7 @@ export const useChannelStore = defineStore('channels', () => {
     userChannelRecords.value.push({
       userID: newUser.id,
       channelID: channel.id,
+      kicks: 0,
       userRole: UserRole.Member,
       userChannelStatus: UserChannelStatus.InChannel,
       createdAt: Date.now().toString(),
@@ -187,6 +190,32 @@ export const useChannelStore = defineStore('channels', () => {
     );
   }
 
+  function kickMemberFromChannel(
+    userID: string,
+    channelID: string,
+    userName: string
+  ) {
+    const record = loadUserChannelRecords(userID, channelID);
+    record!.kicks++;
+
+    useNotifications('info', `${userName} has ${record!.kicks} kicks`);
+
+    if (record!.kicks == 3) {
+      record!.userChannelStatus = UserChannelStatus.KickedOut;
+      removeMember(userID);
+      useNotifications(
+        'info',
+        `${userName} has been kicked out of the channel`
+      );
+    }
+  }
+
+  function loadUserChannelRecords(userID: string, channelID: string) {
+    return userChannelRecords.value.find(
+      (record) => record.channelID === channelID && record.userID === userID
+    );
+  }
+
   function loadCurrentChannelMembers(channelID: string) {
     const filteredChannels = userChannelsMock.filter(
       (channel) => channel.channelID === channelID
@@ -232,6 +261,7 @@ export const useChannelStore = defineStore('channels', () => {
     acceptInvitation,
     declineInvitation,
     loadChannels,
+    kickMemberFromChannel,
     loadPendingChannels,
     setCurrentActiveChannel,
   };

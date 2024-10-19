@@ -1,5 +1,11 @@
 <template>
-  <q-item dark clickable v-ripple class="q-pa-md">
+  <q-item
+    dark
+    clickable
+    v-ripple
+    class="q-pa-md"
+    @click="() => handleChannelClick(channel as Channel)"
+  >
     <q-item-section>
       <q-item-label lines="1" class="text-bold">
         {{ channel?.name }}
@@ -45,10 +51,12 @@
 <script setup lang="ts">
 import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
+import { Channel } from './models';
+import { useNotifications } from 'src/utils/useNotifications';
 
 const userStore = useUserStore();
 const channelStore = useChannelStore();
-const { channel } = defineProps({
+const { channel, pending } = defineProps({
   channel: Object,
   pending: Boolean,
 });
@@ -68,5 +76,13 @@ const handleInvitationClick = (
     console.log('Declining Invitation');
     channelStore.declineInvitation(userStore.currentUserData!.id, channelId);
   }
+};
+
+const handleChannelClick = (channel: Channel) => {
+  if (pending) {
+    useNotifications('error', 'You are not a member of the channel yet');
+    return;
+  }
+  channelStore.setCurrentActiveChannel(channel);
 };
 </script>

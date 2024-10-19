@@ -62,6 +62,7 @@ export interface User {
 export interface UserChannel {
   userID: string;
   channelID: string;
+  kicks: number;
   userRole: UserRole;
   userChannelStatus: UserChannelStatus;
   createdAt: string;

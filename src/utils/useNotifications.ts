@@ -20,6 +20,11 @@ Notify.registerType('add', {
   color: 'primary',
   textColor: 'white',
 });
+Notify.registerType('info', {
+  icon: 'info',
+  color: 'primary',
+  textColor: 'white',
+});
 
 export const useNotifications = (
   type: string,
