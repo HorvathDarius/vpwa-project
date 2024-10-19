@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { Message } from '../components/models';
-import { conversationMock } from 'src/mocks/channelMessageMock';
+import { conversationMock } from 'src/mocks/usersMock';
 
 /* 
 Store

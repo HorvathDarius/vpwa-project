@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { mainProfile } from 'src/mocks/chatChannelMock';
+import { mainProfile } from 'src/mocks/channelsMock';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';

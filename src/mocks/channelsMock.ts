@@ -1,0 +1,40 @@
+import { Channel, ChannelType } from '../components/models';
+
+export const channelsMock: Channel[] = [
+  {
+    id: '1',
+    name: 'Channel 1',
+    type: ChannelType.Public,
+    createdBy: '1',
+    numberOfUsers: 4,
+    numberOfMessages: 19,
+    lastActive: '2024-10-19T13:29:22.179663',
+    createdAt: '2024-10-19T13:29:22.179673',
+    updatedAt: '2024-10-19T13:29:22.179676',
+    deletedAt: '',
+  },
+  {
+    id: '2',
+    name: 'Channel 2',
+    type: ChannelType.Public,
+    createdBy: '2',
+    numberOfUsers: 4,
+    numberOfMessages: 14,
+    lastActive: '2024-10-19T13:29:22.179689',
+    createdAt: '2024-10-19T13:29:22.179692',
+    updatedAt: '2024-10-19T13:29:22.179695',
+    deletedAt: '',
+  },
+  {
+    id: '3',
+    name: 'Channel 3',
+    type: ChannelType.Private,
+    createdBy: '3',
+    numberOfUsers: 4,
+    numberOfMessages: 17,
+    lastActive: '2024-10-19T13:29:22.179712',
+    createdAt: '2024-10-19T13:29:22.179716',
+    updatedAt: '2024-10-19T13:29:22.179719',
+    deletedAt: '',
+  },
+];
