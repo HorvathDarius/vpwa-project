@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { Message } from '../components/models';
+import { Message, UserStatus } from '../components/models';
 import { messagesMock } from 'src/mocks/messagesMock';
 
 /* 
@@ -23,10 +23,8 @@ export const useMessageStore = defineStore('messages', () => {
   function addMessage(newMessage: Message) {
     messages.value.push(newMessage);
   }
-  function loadMessages(channelID: string) {
-    console.log('Loading messages for channel:', channelID);
-    console.log('Messages:', messagesMock);
 
+  function loadMessages(channelID: string) {
     const filteredMessages: Message[] = messagesMock.filter(
       (message) => message.channelID === channelID
     );
@@ -35,24 +33,28 @@ export const useMessageStore = defineStore('messages', () => {
 
     messages.value = filteredMessages;
   }
-  function loadPartOfMessages(startIndex: number, endIndex: number) {
-    console.log('Loading part of messages');
-    console.log('Start index:', startIndex);
-    console.log('End index:', endIndex);
-    console.log('Length:', messages.value.length);
-    console.log('Limit:', messages.value.length - endIndex);
 
-    let maxIndex = messages.value.length - startIndex - 1;
-    const downLimit = messages.value.length - endIndex;
-
-    for (; maxIndex > downLimit; maxIndex--) {
-      displayedMessages.value.push(messages.value[maxIndex]);
-      console.log(maxIndex);
+  // Function used to return visible messages
+  function getMessages(userStatus: UserStatus) {
+    // If user is online, return all messages
+    if (userStatus !== UserStatus.Offline) {
+      return messages.value;
+    // Else return a saved conversation from function saveActualConversation()
+    } else {
+      return displayedMessages.value;
     }
-    console.log('Displayed messages:');
-    console.log(displayedMessages.value);
-    return displayedMessages.value;
   }
+
+  // This function is called whenever a user changes status
+  function saveActualConversation(status: UserStatus) {
+    // for when he goes offline, save a snapshot of the current convo
+    if (status === UserStatus.Offline) {
+      messages.value.forEach((message) =>
+        displayedMessages.value.push(message)
+      );
+    }
+  }
+
   /**
    * Return
    */
@@ -64,7 +66,8 @@ export const useMessageStore = defineStore('messages', () => {
     //actions
     addMessage,
     loadMessages,
-    loadPartOfMessages,
+    getMessages,
+    saveActualConversation,
   };
 });
 

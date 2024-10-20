@@ -12,7 +12,6 @@ import { userChannelsMock } from 'src/mocks/userChannelMock';
 import { usersMock } from 'src/mocks/usersMock';
 import { useMessageStore } from './message-store';
 import { useNotifications } from 'src/utils/useNotifications';
-import { channel } from 'diagnostics_channel';
 
 /* 
 Store

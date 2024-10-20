@@ -105,6 +105,7 @@ import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
 import { useUserStore } from 'src/stores/user-store';
+import { User } from './models';
 
 const userStore = useUserStore();
 
@@ -127,7 +128,7 @@ const handleClickActivityStatus = (status: string) => {
   userStore.updateUserSettings({
     ...userStore.currentUserData,
     status,
-  });
+  } as User);
 };
 
 const handleActivityClick = (e: Event) => {

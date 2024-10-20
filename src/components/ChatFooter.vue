@@ -434,6 +434,7 @@ const handleMentionClick = (id: string): void => {
   messageData.value += `${member?.nickName} `;
   showMentionHelper.value = false;
 
+  // @ts-expect-error Unkown property
   actionInputField.value?.focus();
 };
 </script>
