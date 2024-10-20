@@ -34,7 +34,7 @@ let displayNotification = false;
 watch(
   () => $q.appVisible,
   (value) => {
-    console.log('App visible:', value);
+    // console.log('App visible:', value);
     if (value) {
       displayNotification = false;
     } else {
@@ -59,7 +59,7 @@ const handleTimingMessage = () => {
   let intervalId = 0;
   setInterval(() => {
     intervalId++;
-    console.log(`Timing message - ${intervalId}`);
+    // console.log(`Timing message - ${intervalId}`);
     if (userStore.currentUserData!.status === 'Do not disturb') {
       return;
     }
@@ -101,7 +101,6 @@ handleTimingMessage();
 handleAutomaticMessage();
 
 onBeforeMount(() => {
-  console.log('ChatPage mounted');
   channelStore.loadChannels(userStore.currentUserData!.id);
 });
 </script>
