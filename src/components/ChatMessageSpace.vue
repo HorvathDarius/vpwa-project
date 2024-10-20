@@ -124,7 +124,6 @@ const userStore = useUserStore();
 
 const loadMoreMessages = (index: number, done: () => void) => {
   setTimeout(() => {
-    // messageStore.loadPartOfMessages(0, 10);
     done();
     console.log('DONE');
   }, 2000);

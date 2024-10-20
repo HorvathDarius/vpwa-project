@@ -151,13 +151,17 @@ const username = ref('');
 const password = ref('');
 const passwordRepeat = ref('');
 
+// Function to submit form
 const submitHandler = (): void => {
+  // Check if registering
   if (props.isRegister === true) {
+    // Check if nickname is unique
     if (userStore.findUserByNickname(username.value)) {
       useNotifications('error', 'Username already exists');
       return;
     }
 
+    // Create user
     userStore.register(
       email.value,
       fullName.value,
@@ -165,10 +169,12 @@ const submitHandler = (): void => {
       password.value
     );
 
+    // Redirect
     router.push('/');
     return;
   }
 
+  // If login, perform login action
   userStore.login(email.value, password.value);
 
   // Handle form submission

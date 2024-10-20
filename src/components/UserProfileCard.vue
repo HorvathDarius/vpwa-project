@@ -100,6 +100,7 @@ defineProps({
 
 // Local state for user data
 const user = ref({
+  id: userStore.currentUserData?.id,
   fullName: userStore.currentUserData?.fullName,
   email: userStore.currentUserData?.email,
   nickName: userStore.currentUserData?.nickName,

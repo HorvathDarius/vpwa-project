@@ -21,6 +21,7 @@ import { useQuasar } from 'quasar';
 import { onBeforeMount, watch } from 'vue';
 import { trimMessage } from 'src/utils/trimMessage';
 import { useMessageStore } from 'src/stores/message-store';
+import { UserNotificationSetting } from 'src/components/models';
 
 const channelStore = useChannelStore();
 const userStore = useUserStore();
@@ -41,7 +42,9 @@ watch(
   }
 );
 
+// Check if there is a session
 if (userStore.currentUserData) {
+  // Scheduler to check if channels are inactive
   const handleCheckChannelInactive = () => {
     let intervalId = 0;
     setInterval(() => {
@@ -59,18 +62,36 @@ if (userStore.currentUserData) {
       if (userStore.currentUserData!.status === 'Do not disturb') {
         return;
       }
+
+      // Display notifications only if not visible
       if (displayNotification) {
+        // Check if notification disabled from settings
+        if (
+          userStore.currentUserData?.notificationSetting ===
+          UserNotificationSetting.Off
+        ) {
+          return;
+        }
+
+        // Mentions are shown always
         useNotifications('mention', 'Martin mentioned you', '');
-        useNotifications(
-          'message',
-          'Martin messagged you',
-          trimMessage(
-            'This is a very very VERY long message that surely will not be displayed all'
-          )
-        );
+        // Check if all
+        if (
+          userStore.currentUserData?.notificationSetting !==
+          UserNotificationSetting.ShowMentions
+        ) {
+          useNotifications(
+            'message',
+            'Martin messagged you',
+            trimMessage(
+              'This is a very very VERY long message that surely will not be displayed all'
+            )
+          );
+        }
       }
     }, 1000);
   };
+  // Dummy to send messages every 3 seconds
   const handleAutomaticMessage = () => {
     let intervalId = 100;
     setInterval(() => {
@@ -84,6 +105,7 @@ if (userStore.currentUserData) {
   handleTimingMessage();
   handleAutomaticMessage();
 
+  // Loads channels for the user before mounting main component
   onBeforeMount(() => {
     channelStore.loadChannels(userStore.currentUserData!.id);
   });

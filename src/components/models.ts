@@ -13,8 +13,8 @@ export enum UserStatus {
 }
 
 export enum UserNotificationSetting {
-  ShowAll = 'show_all',
-  ShowMentions = 'show_mentions',
+  ShowAll = 'all',
+  ShowMentions = 'mentionsOnly',
   Off = 'off',
 }
 

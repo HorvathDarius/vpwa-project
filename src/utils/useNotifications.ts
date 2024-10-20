@@ -1,5 +1,6 @@
 import { Notify } from 'quasar';
 
+// Different types of notifications
 Notify.registerType('mention', {
   icon: 'alternate_email',
   color: 'primary',
@@ -26,6 +27,7 @@ Notify.registerType('info', {
   textColor: 'white',
 });
 
+// Function called to show notifications
 export const useNotifications = (
   type: string,
   message: string,

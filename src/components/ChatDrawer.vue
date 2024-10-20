@@ -45,7 +45,7 @@
               no-icon-animation
               content-class="transparent see-through-style"
               :dropdown-icon="userProfileStatusIcon"
-              @click="handleActivityClick"
+              @click="toggleDropdownMenu"
             >
               <q-list>
                 <q-item
@@ -108,7 +108,6 @@ import { useUserStore } from 'src/stores/user-store';
 import { User } from './models';
 
 const userStore = useUserStore();
-
 const router = useRouter();
 
 const userStatus = ['Active', 'Do not disturb', 'Offline'];
@@ -117,7 +116,9 @@ const notificationSetting = ['all', 'mentionsOnly', 'off'];
 const showProfileModal = ref(false);
 const userProfileStatusIcon = ref('wifi');
 
+// Change user active status handler
 const handleClickActivityStatus = (status: string) => {
+  // Modify icon
   userProfileStatusIcon.value =
     status === 'Active'
       ? 'wifi'
@@ -125,17 +126,18 @@ const handleClickActivityStatus = (status: string) => {
       ? 'notifications_off'
       : 'wifi_off';
 
+  // Update the settings in the store
   userStore.updateUserSettings({
     ...userStore.currentUserData,
     status,
   } as User);
 };
 
-const handleActivityClick = (e: Event) => {
+const toggleDropdownMenu = (e: Event) => {
   e.stopPropagation();
-  console.log('CHANGING ACTIVTY');
 };
 
+// Logout, clear session
 const handleLogout = () => {
   userStore.logout();
   router.push('/login');

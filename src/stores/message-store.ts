@@ -1,7 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { date } from 'quasar';
-import { Message, User, UserChannelStatus, UserStatus } from '../components/models';
+import {
+  Message,
+  User,
+  UserChannelStatus,
+  UserStatus,
+} from '../components/models';
 import { messagesMock } from 'src/mocks/messagesMock';
 import { mentionsMock } from 'src/mocks/mentionsMock';
 import { userChannelsMock } from 'src/mocks/userChannelMock';
@@ -24,6 +29,7 @@ export const useMessageStore = defineStore('messages', () => {
   /**
    * Actions
    */
+  // Function to add a message
   function addMessage(
     userID: string,
     channelID: string,
@@ -31,6 +37,7 @@ export const useMessageStore = defineStore('messages', () => {
     status: string
   ) {
     const timeStamp = Date.now();
+    // Create new message
     const newMessage: Message = {
       id: (getHighestMessageID(messagesMock) + 1).toString(),
       userID: userID,
@@ -42,24 +49,24 @@ export const useMessageStore = defineStore('messages', () => {
       updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
       deletedAt: '',
     };
+
     findMentionsInMessage(newMessage);
     messages.value.push(newMessage);
     messagesMock.push(newMessage);
-    // console.table(newMessage);
-    // console.table(messagesMock);
   }
 
+  // Load messages for a given channel
   function loadMessages(channelID: string) {
+    // Filter messages by channelID
     const filteredMessages: Message[] = messagesMock.filter(
       (message) => message.channelID === channelID
     );
 
-    console.log(filteredMessages);
-
+    // Set the messages for the channel
     messages.value = filteredMessages;
   }
 
-
+  // Function to check if a user is mentioned in a message
   function isUserMentioned(userID: string, messageID: string): boolean {
     // endpoint call
     return mentionsMock.some(
@@ -72,7 +79,7 @@ export const useMessageStore = defineStore('messages', () => {
     // If user is online, return all messages
     if (userStatus !== UserStatus.Offline) {
       return messages.value;
-    // Else return a saved conversation from function saveActualConversation()
+      // Else return a saved conversation from function saveActualConversation()
     } else {
       return displayedMessages.value;
     }

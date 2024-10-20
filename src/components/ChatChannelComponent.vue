@@ -61,6 +61,7 @@ const { channel, pending } = defineProps({
   pending: Boolean,
 });
 
+// Handler for invitation response
 const handleInvitationClick = (
   e: Event,
   decision: string,
@@ -78,11 +79,14 @@ const handleInvitationClick = (
   }
 };
 
+// Switch to channel
 const handleChannelClick = (channel: Channel) => {
+  // If try to join channel while still being invited
   if (pending) {
     useNotifications('error', 'You are not a member of the channel yet');
     return;
   }
+  // Set current channel
   channelStore.setCurrentActiveChannel(channel);
 };
 </script>
