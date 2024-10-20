@@ -65,7 +65,7 @@ export const useUserStore = defineStore('users', () => {
     // Get next id
     const newUserID = getHighestUserID(usersMock) + 1;
 
-    // Add new user to the mocks
+    // Add new user to the mock DB
     usersMock.push({
       id: newUserID.toString(),
       fullName: fullName,
