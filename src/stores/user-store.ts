@@ -24,6 +24,9 @@ export const useUserStore = defineStore('users', () => {
   /**
    * Actions
    */
+  function findUserByID(userID: string) {
+    return allUsers.value.find((user) => user.id === userID);
+  }
   function findUserByNickname(nickname: string) {
     return allUsers.value.find((user) => user.nickName === nickname);
   }
@@ -84,6 +87,7 @@ export const useUserStore = defineStore('users', () => {
     currentUserData,
 
     // actions
+    findUserByID,
     findUserByNickname,
     getUserData,
     checkUserRights,

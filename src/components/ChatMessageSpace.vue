@@ -26,7 +26,7 @@
                 :name="
                   message.userID === userStore.currentUserData?.id
                     ? 'me'
-                    : message.userID
+                    : userStore.findUserByID(message.userID)!.nickName
                 "
                 :avatar="
                   message.userID == userStore.currentUserData?.id
