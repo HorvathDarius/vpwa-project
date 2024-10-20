@@ -49,6 +49,7 @@ export const useUserStore = defineStore('users', () => {
     password: string
   ) {
     const newUserID = getHighestUserID(usersMock) + 1;
+
     usersMock.push({
       id: newUserID.toString(),
       fullName: fullName,
@@ -61,6 +62,7 @@ export const useUserStore = defineStore('users', () => {
       updatedAt: 'now',
       deletedAt: '',
     });
+    login(userEmail, password);
   }
 
   function updateUserSettings(userData: any) {
