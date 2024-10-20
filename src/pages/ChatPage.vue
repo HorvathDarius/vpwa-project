@@ -18,7 +18,7 @@ import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import { useNotifications } from 'src/utils/useNotifications';
 import { useQuasar } from 'quasar';
-import { watch } from 'vue';
+import { onBeforeMount, watch } from 'vue';
 import { trimMessage } from 'src/utils/trimMessage';
 
 const channelStore = useChannelStore();
@@ -61,4 +61,9 @@ const handleTimingMessage = () => {
 };
 
 handleTimingMessage();
+
+onBeforeMount(() => {
+  console.log('ChatPage mounted');
+  channelStore.loadChannels(userStore.currentUserData!.id);
+});
 </script>

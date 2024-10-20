@@ -161,20 +161,12 @@ const submitHandler = (): void => {
       password.value
     );
 
-    const id = userStore.currentUserData?.id;
-    if (id) {
-      channelsStore.loadChannels(id);
-    }
-
     router.push('/');
     return;
   }
 
   userStore.login(email.value, password.value);
-  const id = userStore.currentUserData?.id;
-  if (id) {
-    channelsStore.loadChannels(id);
-  }
+
   // Handle form submission
   console.table({
     email: email.value,
