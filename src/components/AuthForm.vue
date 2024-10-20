@@ -93,6 +93,10 @@
         class="q-mt-md g-pa-md"
       />
 
+      <div v-if="!isRegister && failLogin" class="text-red-5 q-mt-sm">
+        Incorrect credentials!
+      </div>
+
       <div class="full-width q-pb-md">
         <p v-if="!isRegister" class="text-left text-grey-1 q-mt-md">
           Don't have an account?
@@ -115,6 +119,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from 'src/stores/user-store';
+import { useNotifications } from 'src/utils/useNotifications';
+
+const userStore = useUserStore();
 
 const props = defineProps({
   heading: {
@@ -135,6 +143,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const failLogin = ref(false);
 
 const email = ref('');
 const fullName = ref('');
@@ -142,16 +151,31 @@ const username = ref('');
 const password = ref('');
 const passwordRepeat = ref('');
 
+// Function to submit form
 const submitHandler = (): void => {
-  if (!(email.value && password.value)) {
+  // Check if registering
+  if (props.isRegister === true) {
+    // Check if nickname is unique
+    if (userStore.findUserByNickname(username.value)) {
+      useNotifications('error', 'Username already exists');
+      return;
+    }
+
+    // Create user
+    userStore.register(
+      email.value,
+      fullName.value,
+      username.value,
+      password.value
+    );
+
+    // Redirect
+    router.push('/');
     return;
   }
 
-  if (props.isRegister === true) {
-    register();
-  } else {
-    login();
-  }
+  // If login, perform login action
+  userStore.login(email.value, password.value);
 
   // Handle form submission
   console.table({
@@ -163,12 +187,12 @@ const submitHandler = (): void => {
   });
 
   // Redirect to main app
-  router.push('/');
+  if (userStore.currentUserData) {
+    router.push('/');
+    return;
+  }
+  failLogin.value = true;
 };
-
-const login = (): void => {};
-
-const register = (): void => {};
 </script>
 
 <style scoped lang="sass">

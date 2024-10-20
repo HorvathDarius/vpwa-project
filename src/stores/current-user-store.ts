@@ -1,7 +1,0 @@
-/* 
-Store
-*/
-
-/* 
-Controller
-*/

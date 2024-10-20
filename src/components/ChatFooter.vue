@@ -9,7 +9,7 @@
       showActionHelper ? 'display: block;' : 'display: none;',
     ]"
   >
-    <q-item v-for="(command, i) in commands" :key="i">
+    <q-item v-for="(command, i) in handleUserRights()" :key="i">
       <q-badge
         class="full-width"
         style="border: 1px solid #777"
@@ -25,41 +25,40 @@
     bordered
     padding
     class="rounded-borders absolute"
-    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
-      showMentionHelper ? 'display: block;' : 'display: none;'
-    }`"
+    :style="`z-index: 5000; bottom: 10%; left: 20px; backdrop-filter: blur(20px); 
+    background: linear-gradient(90deg, rgba(2,2,14,1) 0%, rgba(1,6,20,1) 100%);
+     ${showMentionHelper ? 'display: block;' : 'display: none;'}`"
   >
-    <q-item v-for="member in conversationStore.members" :key="member.id">
-      <q-item-section>
-        <q-avatar>
-          <img :src="member.avatar" />
-        </q-avatar>
-      </q-item-section>
-      <q-item-section>
-        <span>{{ member.nickName }}</span>
-      </q-item-section>
-    </q-item>
-  </q-list>
-
-  <q-list
-    dark
-    bordered
-    padding
-    class="rounded-borders absolute"
-    :style="`z-index: 100; bottom: 10%; left: 20px; backdrop-filter: blur(20px); ${
-      showMentionHelper ? 'display: block;' : 'display: none;'
-    }`"
-  >
-    <q-item v-for="member in conversationStore.members" :key="member.id">
-      <q-item-section>
-        <q-avatar>
-          <img :src="member.avatar" />
-        </q-avatar>
-      </q-item-section>
-      <q-item-section>
-        <span>{{ member.nickName }}</span>
-      </q-item-section>
-    </q-item>
+    <q-scroll-area style="height: 400px; width: 200px" class="overflow-scroll">
+      <q-item
+        clickable
+        v-for="member in channelStore.currentChannelMembers.filter(
+          (member) => member.id !== userStore.currentUserData?.id
+        )"
+        :key="member.id"
+        @click="() => handleMentionClick(member.id)"
+      >
+        <q-item-section>
+          <q-avatar>
+            <q-badge
+              floating
+              :color="
+                member.status === UserStatus.Active
+                  ? 'green'
+                  : member.status === UserStatus.DND
+                  ? 'orange'
+                  : 'red'
+              "
+              rounded
+            />
+            <img src="/blankProfile.jpg" />
+          </q-avatar>
+        </q-item-section>
+        <q-item-section>
+          <span>{{ member.nickName }}</span>
+        </q-item-section>
+      </q-item>
+    </q-scroll-area>
   </q-list>
 
   <q-toolbar
@@ -74,6 +73,7 @@
         dark
         dense
         counter
+        ref="action-input-field"
         placeholder="Type a message..."
         v-model="messageData"
         @update:model-value="(value) => handleMessageTyping(String(value))"
@@ -101,22 +101,43 @@
         <q-scroll-area style="height: 300px">
           <q-list separator dark>
             <q-item
-              v-for="member in conversationStore.members"
+              v-for="member in channelStore.currentChannelMembers"
               :key="member.id"
             >
               <q-item-section avatar>
                 <q-avatar>
-                  <img :src="member.avatar" />
+                  <q-badge
+                    floating
+                    :color="
+                      member.status === UserStatus.Active
+                        ? 'green'
+                        : member.status === UserStatus.DND
+                        ? 'orange'
+                        : 'red'
+                    "
+                    rounded
+                  />
+                  <img src="/blankProfile.jpg" />
                 </q-avatar>
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="column">
+                <span>
+                  {{
+                    member.id === userStore.currentUserData?.id ? '(me)' : ''
+                  }}
+                  {{
+                    member.id === channelStore.currentActiveChannel?.createdBy
+                      ? '(admin)'
+                      : ''
+                  }}
+                </span>
                 <span>
                   {{ member.nickName }}
                 </span>
               </q-item-section>
               <q-item-section class="text-caption">
                 <span> Member since: </span>
-                <span>{{ member.joined }}</span>
+                <span>{{ member.createdAt }}</span>
               </q-item-section>
             </q-item>
           </q-list>
@@ -131,170 +152,326 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import { date } from 'quasar';
-import { useConversationStore } from 'src/stores/conversation-store';
+import { useMessageStore } from 'src/stores/message-store';
 import { useChannelStore } from 'src/stores/channel-store';
+import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
+import { Channel, ChannelType, UserStatus } from './models';
 
+const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
 const showActionHelper = ref(false);
 const showMentionHelper = ref(false);
 const showListOfMembers = ref(false);
-const conversationStore = useConversationStore();
+const messageStore = useMessageStore();
 const channelStore = useChannelStore();
+const userStore = useUserStore();
 
 const commands = [
-  { name: '/join', action: '' },
-  { name: '/invite', action: '' },
-  { name: '/revoke', action: '' },
-  { name: '/kick', action: '' },
-  { name: '/quit', action: '' },
-  { name: '/cancel', action: '' },
-  { name: '/list', action: '' },
+  { name: '/join', action: '', rights: '' },
+  { name: '/invite', action: '', rights: 'admin' },
+  { name: '/revoke', action: '', rights: 'admin' },
+  { name: '/kick', action: '', rights: '' },
+  { name: '/quit', action: '', rights: 'admin' },
+  { name: '/cancel', action: '', rights: '' },
+  { name: '/list', action: '', rights: '' },
 ];
 
-const handleMessageSubmit = () => {
+// Check if user is admin in given channel and can see all commands
+const handleUserRights = () => {
+  if (!channelStore.currentActiveChannel) {
+    return [{ name: '/join', action: '', rights: '' }];
+  }
+  if (userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)) {
+    return commands;
+  } else {
+    return commands.filter((command) => command.rights !== 'admin');
+  }
+};
+
+// Handle message submit
+const handleMessageSubmit = (): void => {
   const message = messageData.value.trim();
 
+  // If no message is typed
   if (message === '') {
     return;
   }
 
-  console.log('Message submitted:', message);
-
+  // Determine if message or command
   if (message[0] === '/') {
-    console.log('Processing ACTION');
     handleAction(message);
   } else {
-    console.log('Processing MESSAGE');
-    handleSendMessage(message);
+    messageStore.addMessage(
+      userStore.currentUserData!.id,
+      channelStore.currentActiveChannel!.id,
+      message,
+      ''
+    );
   }
 
+  // Clear after submit
   messageData.value = '';
 };
 
-const handleMessageTyping = (value: string | null) => {
-  console.log('Typing:', value);
+// Handle what user is typing
+const handleMessageTyping = (value: string | null): void => {
+  // If begins with '/' is command
   if (value === '/') {
-    console.log('ACTION ACTION ACITON');
+    // Display command list
     showActionHelper.value = true;
+
+    // If last char is '@' user wants to mention
   } else if (value?.endsWith('@')) {
-    console.log('MENTION MENTION MENTION');
+    // Display list of members
     showMentionHelper.value = true;
   } else {
-    console.log('Typing:', value);
+    // Hide the lists
     showActionHelper.value = false;
     showMentionHelper.value = false;
   }
 };
 
-const handleAction = (message: string) => {
-  console.log('ACTION', message);
-
+// Main function for handling commands
+const handleAction = (message: string): void => {
+  // Split the message
   const splitAction = message.split(' ');
 
-  console.log('Split action:', splitAction);
-
+  // Check the command
   switch (splitAction[0]) {
     case '/list':
-      console.log('Showing members');
+      // Dispplay modal with members
       showListOfMembers.value = true;
       break;
 
+    // INVITE USERS
     case '/invite':
-      console.log('Inviting members');
-
-      if (splitAction[1] === undefined) {
-        console.log('ERROR - THERE IS NO USER SPECIFIED');
+      // If the channel is private, only the admin can invite members
+      if (
+        channelStore.currentActiveChannel?.type === ChannelType.Private &&
+        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        useNotifications('error', 'You do not have enough rights');
         break;
       }
 
-      const newUser = {
-        id: 3,
-        nickName: splitAction[1],
-        avatar: '/blankProfile.jpg',
-        joined: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-      };
+      // Parse the message
+      // If no user
+      if (splitAction[1] === undefined) {
+        useNotifications('error', 'No user was specified');
+        break;
+      }
 
-      conversationStore.addUser(newUser);
+      // Find the user
+      const foundUser = userStore.findUserByNickname(splitAction[1]);
+
+      // If no user found throw error
+      if (!foundUser) {
+        useNotifications('error', 'User not found');
+        break;
+      }
+
+      // Call method for adding memebr
+      channelStore.inviteMember(foundUser);
+
+      useNotifications('add', `${foundUser.nickName} has joined the channel`);
+      break;
+
+    // REVOKE USER
+    case '/revoke':
+      // Check if user is admin
+      if (
+        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        useNotifications('error', 'You do not have enough rights');
+        break;
+      }
+
+      // User validation as before
+      if (splitAction[1] === undefined) {
+        useNotifications('error', 'No user was specified');
+        break;
+      }
+
+      // Find the user
+      const userToRevoke = userStore.findUserByNickname(splitAction[1]);
+
+      // If no user found throw error
+      if (!userToRevoke) {
+        useNotifications('error', 'User not found');
+        break;
+      }
+
+      // Filter the revoked user from the list of members
+      const channelUsers = channelStore.currentChannelMembers;
+      const remainingUsers = channelUsers.filter(
+        (user) => user !== userToRevoke
+      );
+
+      channelStore.currentChannelMembers = remainingUsers;
 
       useNotifications(
-        `${splitAction[1]} has joined the channel`,
-        '/blankProfile.jpg'
+        'info',
+        `${splitAction[1]} has been revoked out of the channel`
       );
       break;
 
+    // KICK A USER
     case '/kick':
-      console.log('Kicking members');
+      // Check if user is admin, if admin immediately remove from channel
+      if (
+        userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        // User validation
+        if (splitAction[1] === undefined) {
+          useNotifications('error', 'No user was specified');
+          break;
+        }
 
-      if (splitAction[1] === undefined) {
-        console.log('ERROR - THERE IS NO USER SPECIFIED');
-        break;
+        const userToKick = userStore.findUserByNickname(splitAction[1]);
+
+        // Throw error if no user found
+        if (!userToKick) {
+          useNotifications('error', 'User not found');
+          break;
+        }
+
+        // Remove from list of members
+        const users = channelStore.currentChannelMembers;
+        const newUsers = users.filter((user) => user !== userToKick);
+
+        channelStore.currentChannelMembers = newUsers;
+
+        useNotifications(
+          'info',
+          `${splitAction[1]} has been kicked out of the channel`
+        );
+        // If not admin, add penalty to the user
+      } else {
+        // User validation
+        if (splitAction[1] === undefined) {
+          useNotifications('error', 'No user was specified');
+          break;
+        }
+
+        const userToKick = userStore.findUserByNickname(splitAction[1]);
+
+        if (!userToKick) {
+          useNotifications('error', 'User not found');
+          break;
+        }
+
+        // Function to add penalization or kick if user has already been penalized 3 times
+        channelStore.kickMemberFromChannel(
+          userToKick.id,
+          channelStore.currentActiveChannel!.id,
+          userToKick.nickName
+        );
       }
-
-      const userToKick = splitAction[1];
-      const users = conversationStore.members;
-      const newUsers = users.filter((user) => user.nickName !== userToKick);
-
-      conversationStore.members = newUsers;
-
-      useNotifications(
-        `${splitAction[1]} just left the channel`,
-        '/blankProfile.jpg'
-      );
       break;
 
+    // JOIN A CHANNEL
     case '/join':
-      console.log('Joining channel');
-
+      // Channel input validation
       if (splitAction[1] === undefined) {
-        console.log('ERROR - THERE IS NO CHANNEL SPECIFIED');
+        useNotifications('error', 'No channel was specified');
         break;
       }
 
-      let privateChannel = false;
-      if (splitAction[2] !== undefined && splitAction[2] === 'private') {
-        console.log(`third param - ${splitAction[2]}`);
-        privateChannel = true;
+      // Find the channel
+      const channel = channelStore.getChannelByName(splitAction[1]);
+      // If channel exists try to join
+      if (channel) {
+        // If private cannot join
+        if (channel.type === ChannelType.Private) {
+          useNotifications(
+            'error',
+            'The channel you are trying to join is a private one'
+          );
+          break;
+        }
+        // If public join channel
+        channelStore.joinChannel(userStore.currentUserData!, channel);
+      } else {
+        // Determine if created channel should be private
+        let privateChannel = false;
+        if (splitAction[2] !== undefined && splitAction[2] === 'private') {
+          privateChannel = true;
+        }
+
+        // Create the new channel
+        const newChannel: Channel = {
+          id: '',
+          name: splitAction[1],
+          type: privateChannel ? ChannelType.Private : ChannelType.Public,
+          createdBy: userStore.currentUserData!.id,
+          numberOfUsers: 1,
+          numberOfMessages: 0,
+          lastActive: '',
+          createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+          updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
+          deletedAt: '',
+        };
+
+        channelStore.addChannel(newChannel, userStore.currentUserData!);
+
+        useNotifications('add', `Channel ${splitAction[1]} has been created`);
+      }
+      break;
+
+    // CANCEL MEMBERSHIP TO CHANNEL
+    case '/cancel':
+      // If admin cancel the whole channel
+      if (
+        userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        channelStore.cancelChannel(channelStore.currentActiveChannel?.id);
+        channelStore.currentActiveChannel = null;
+        // else only leave channel
+      } else {
+        channelStore.removeMember(userStore.currentUserData?.id);
+        channelStore.currentActiveChannel = null;
+      }
+      break;
+
+    // QUIT CHANNEL
+    case '/quit':
+      // Check if admin rights
+      if (
+        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
+      ) {
+        useNotifications('error', 'You do not have enough rights');
+        break;
       }
 
-      const newChannel = {
-        id: 3,
-        name: splitAction[1],
-        avatar:
-          'https://static-00.iconduck.com/assets.00/vue-icon-2048x1766-ntogpmti.png',
-        caption: '',
-        time: '',
-        private: privateChannel,
-      };
-
-      channelStore.addChannel(newChannel);
-
-      useNotifications(`Channel ${splitAction[1]} has been created`);
+      // Delete the whole channel
+      channelStore.cancelChannel(channelStore.currentActiveChannel?.id);
+      channelStore.currentActiveChannel = null;
 
       break;
+
+    // If not action found
     default:
-      console.log('No action found');
+      useNotifications('error', 'No action found');
   }
 };
 
-const handleSendMessage = (message: string) => {
-  console.log('Sending message:', messageData.value);
-  const timeStamp = Date.now();
+// Handle mention click
+const handleMentionClick = (id: string): void => {
+  // Find the member by id
+  const member = channelStore.currentChannelMembers.find(
+    (member) => member.id === id
+  );
+  // Add it to the writing input
+  messageData.value += `${member?.nickName} `;
+  showMentionHelper.value = false;
 
-  const newMessage = {
-    id: 1,
-    name: 'me',
-    avatar: '/blankProfileReverse.jpg',
-    text: [message],
-    stamp: date.formatDate(timeStamp, 'HH:mm'),
-    sent: true,
-    bgColor: 'amber-7',
-  };
-
-  conversationStore.addMessage(newMessage);
+  // Focus back on the input field
+  // @ts-expect-error Unkown property
+  actionInputField.value?.focus();
 };
 </script>
 

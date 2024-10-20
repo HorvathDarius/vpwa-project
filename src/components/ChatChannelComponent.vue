@@ -1,31 +1,92 @@
 <template>
-  <q-item dark clickable v-ripple>
-    <q-item-section avatar>
-      <q-avatar>
-        <img :src="channel?.avatar" />
-      </q-avatar>
-    </q-item-section>
-
+  <q-item
+    dark
+    clickable
+    v-ripple
+    class="q-pa-md"
+    @click="() => handleChannelClick(channel as Channel)"
+  >
     <q-item-section>
-      <q-item-label lines="1">
+      <q-item-label lines="1" class="text-bold">
         {{ channel?.name }}
+        <q-icon
+          v-if="channel?.type === 'private'"
+          name="lock_person"
+          class="q-ml-xs"
+        />
       </q-item-label>
-      <q-item-label class="conversation__summary" caption>
-        {{ channel?.caption }}
+      <q-item-label class="conversation__summary" caption v-if="pending">
+        Pending Invitation
       </q-item-label>
     </q-item-section>
 
-    <q-item-section side>
-      <q-item-label caption>
-        {{ channel?.time }}
-      </q-item-label>
-      <q-icon name="keyboard_arrow_down" />
+    <div class="row" v-if="pending">
+      <q-item-section side>
+        <q-btn
+          rounded
+          color="green-8"
+          icon="check"
+          dense
+          @click="(event) => handleInvitationClick(event, 'accept', channel!.id)"
+        />
+      </q-item-section>
+      <q-item-section side>
+        <q-btn
+          rounded
+          color="red-8"
+          icon="close"
+          dense
+          @click="
+            (event) => handleInvitationClick(event, 'decline', channel!.id)
+          "
+        />
+      </q-item-section>
+    </div>
+    <q-item-section side v-else>
+      <q-btn round icon="more_vert" flat dense />
     </q-item-section>
   </q-item>
 </template>
 
 <script setup lang="ts">
-const { channel } = defineProps({
+import { useChannelStore } from 'src/stores/channel-store';
+import { useUserStore } from 'src/stores/user-store';
+import { Channel } from './models';
+import { useNotifications } from 'src/utils/useNotifications';
+
+const userStore = useUserStore();
+const channelStore = useChannelStore();
+const { channel, pending } = defineProps({
   channel: Object,
+  pending: Boolean,
 });
+
+// Handler for invitation response
+const handleInvitationClick = (
+  e: Event,
+  decision: string,
+  channelId: string
+) => {
+  console.log('Invitation Clicked');
+  e.stopPropagation();
+
+  if (decision === 'accept') {
+    console.log('Accepting Invitation');
+    channelStore.acceptInvitation(userStore.currentUserData!.id, channelId);
+  } else {
+    console.log('Declining Invitation');
+    channelStore.declineInvitation(userStore.currentUserData!.id, channelId);
+  }
+};
+
+// Switch to channel
+const handleChannelClick = (channel: Channel) => {
+  // If try to join channel while still being invited
+  if (pending) {
+    useNotifications('error', 'You are not a member of the channel yet');
+    return;
+  }
+  // Set current channel
+  channelStore.setCurrentActiveChannel(channel);
+};
 </script>

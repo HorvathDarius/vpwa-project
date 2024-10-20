@@ -1,95 +1,93 @@
 <template>
   <div class="user-menu-container">
-    <q-card-section class="q-pt-none">
-      <q-input
-        standout
-        class="q-mt-md text-black"
-        bg-color="white"
-        style="min-width: 100%"
-        input-style="color: black;"
-        v-model="user.fullName"
-        label="Full Name"
-      />
-      <q-input
-        standout
-        class="q-mt-md text-black"
-        bg-color="white"
-        style="min-width: 100%"
-        input-style="color: black;"
-        v-model="user.email"
-        label="Email"
-        type="email"
-        @input="console.log('email', user.email)"
-      />
-      <q-input
-        standout
-        class="q-mt-md text-black"
-        bg-color="white"
-        style="min-width: 100%"
-        input-style="color: black;"
-        v-model="user.username"
-        label="Username"
-        @input="console.log('username', user.username)"
-      />
-      <q-select
-        standout
-        class="q-mt-md text-black"
-        bg-color="white"
-        style="min-width: 100%"
-        input-style="color: black;"
-        v-model="user.status"
-        :options="statusOptions"
-        label="Status"
-        @input="console.log('status', user.status)"
-      />
-      <q-select
-        standout
-        class="q-mt-md text-black"
-        bg-color="white"
-        style="min-width: 100%"
-        input-style="color: black;"
-        v-model="user.notificationSetting"
-        :options="notificationOptions"
-        label="Notification Setting"
-        @input="console.log('notificationSetting', user.notificationSetting)"
-      />
-    </q-card-section>
+    <q-form @submit="onSubmit">
+      <q-card-section class="q-pt-none">
+        <q-input
+          standout
+          class="q-mt-md text-black"
+          bg-color="white"
+          style="min-width: 100%"
+          input-style="color: black;"
+          v-model="user.fullName"
+          label="Full Name"
+        />
+        <q-input
+          standout
+          class="q-mt-md text-black"
+          bg-color="white"
+          style="min-width: 100%"
+          input-style="color: black;"
+          v-model="user.email"
+          label="Email"
+          type="email"
+          @input="console.log('email', user.email)"
+        />
+        <q-input
+          standout
+          class="q-mt-md text-black"
+          bg-color="white"
+          style="min-width: 100%"
+          input-style="color: black;"
+          v-model="user.nickName"
+          label="Username"
+          @input="console.log('username', user.nickName)"
+        />
+        <q-select
+          standout
+          class="q-mt-md text-black"
+          bg-color="white"
+          style="min-width: 100%"
+          input-style="color: black;"
+          v-model="user.status"
+          :options="statusOptions"
+          label="Status"
+          @input="console.log('status', user.status)"
+        />
+        <q-select
+          standout
+          class="q-mt-md text-black"
+          bg-color="white"
+          style="min-width: 100%"
+          input-style="color: black;"
+          v-model="user.notificationSetting"
+          :options="notificationOptions"
+          label="Notification Setting"
+          @input="console.log('notificationSetting', user.notificationSetting)"
+        />
+      </q-card-section>
 
-    <q-card-section
-      ><q-btn color="white" text-color="black" label="Cancel" class="q-mr-md" />
-      <q-btn color="primary" label="Save"
-    /></q-card-section>
+      <q-card-section>
+        <q-btn
+          color="white"
+          text-color="black"
+          label="Cancel"
+          class="q-mr-md"
+          v-close-popup
+        />
+        <q-btn color="primary" label="Save" type="submit" v-close-popup />
+      </q-card-section>
+
+      <q-card-section
+        ><q-btn
+          style="background-color: rgba(255, 0, 0, 0.7)"
+          label="Log out"
+          @click="handleLogout"
+        ></q-btn
+      ></q-card-section>
+    </q-form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from 'src/stores/user-store';
+import { User } from './models';
 
-const props = defineProps({
-  fullName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-  },
-  passwordHash: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    required: true,
-  },
-  notificationSetting: {
-    type: String,
-    required: true,
-  },
+const userStore = useUserStore();
+const router = useRouter();
+
+defineProps({
   statusOptions: {
     type: Array,
     required: true,
@@ -102,19 +100,29 @@ const props = defineProps({
 
 // Local state for user data
 const user = ref({
-  fullName: props.fullName,
-  email: props.email,
-  username: props.username,
-  passwordHash: props.passwordHash,
-  status: props.status,
-  notificationSetting: props.notificationSetting,
+  id: userStore.currentUserData?.id,
+  fullName: userStore.currentUserData?.fullName,
+  email: userStore.currentUserData?.email,
+  nickName: userStore.currentUserData?.nickName,
+  passwordHash: userStore.currentUserData?.passwordHash,
+  status: userStore.currentUserData?.status,
+  notificationSetting: userStore.currentUserData?.notificationSetting,
 });
+
+const onSubmit = () => {
+  console.log('User data:', user.value);
+  userStore.updateUserSettings(user.value as User);
+};
+
+const handleLogout = () => {
+  userStore.logout();
+  router.push('/login');
+};
 </script>
 
 <style scoped>
 .user-menu-container {
   width: 100%;
-  max-width: 24rem;
   padding: 2rem;
   overflow-y: auto; /* Enable vertical scrolling */
 }
