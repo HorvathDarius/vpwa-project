@@ -15,7 +15,9 @@
               @load="loadMoreMessages"
             >
               <q-chat-message
-                v-for="message in messageStore.messages"
+                v-for="message in messageStore.getMessages(
+                  userStore.currentUserData!.status
+                )"
                 :sent="message.userID == userStore.currentUserData?.id"
                 :class="
                   message.userID == userStore.currentUserData?.id
@@ -115,7 +117,7 @@ const messageStore = useMessageStore();
 const channelStore = useChannelStore();
 const userStore = useUserStore();
 
-const loadMoreMessages = (index, done) => {
+const loadMoreMessages = (index: number, done: () => void) => {
   setTimeout(() => {
     // messageStore.loadPartOfMessages(0, 10);
     done();

@@ -15,11 +15,11 @@
 <script setup lang="ts">
 const showDialog = defineModel();
 
-defineProps({
+const { title } = defineProps({
   title: {
     type: String,
     required: false,
-    default: 'Title',
+    default: 'Modal',
   },
 });
 </script>
