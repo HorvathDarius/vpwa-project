@@ -10,7 +10,7 @@
             <q-infinite-scroll
               v-if="messageStore.messages.length > 0"
               reverse
-              :offset="200"
+              :offset="250"
               class="q-px-lg"
               @load="loadMoreMessages"
             >
@@ -115,8 +115,12 @@ const messageStore = useMessageStore();
 const channelStore = useChannelStore();
 const userStore = useUserStore();
 
-const loadMoreMessages = () => {
-  console.log('Loading more messages...');
+const loadMoreMessages = (index, done) => {
+  setTimeout(() => {
+    // messageStore.loadPartOfMessages(0, 10);
+    done();
+    console.log('DONE');
+  }, 2000);
 };
 
 const handleMouseHover = () => {

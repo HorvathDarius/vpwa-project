@@ -47,20 +47,30 @@ const handleTimingMessage = () => {
     if (userStore.currentUserData!.status === 'Do not disturb') {
       return;
     }
-    // if (displayNotification) {
-    useNotifications('mention', 'Martin mentioned you', '');
-    useNotifications(
-      'message',
-      'Martin messagged you',
-      trimMessage(
-        'This is a very very VERY long message that surely will not be displayed all'
-      )
-    );
-    // }
+    if (displayNotification) {
+      useNotifications('mention', 'Martin mentioned you', '');
+      useNotifications(
+        'message',
+        'Martin messagged you',
+        trimMessage(
+          'This is a very very VERY long message that surely will not be displayed all'
+        )
+      );
+    }
   }, 1000);
 };
 
-handleTimingMessage();
+const handleCheckChannelInactive = () => {
+  let intervalId = 0;
+  setInterval(() => {
+    intervalId++;
+    console.log(`Timing message - ${intervalId}`);
+    channelStore.checkChannelsInactive();
+  }, 5000);
+};
+
+// handleTimingMessage();
+handleCheckChannelInactive();
 
 onBeforeMount(() => {
   console.log('ChatPage mounted');

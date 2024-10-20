@@ -121,6 +121,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useChannelStore } from 'src/stores/channel-store';
+import { useNotifications } from 'src/utils/useNotifications';
 
 const userStore = useUserStore();
 const channelsStore = useChannelStore();
@@ -154,6 +155,11 @@ const passwordRepeat = ref('');
 
 const submitHandler = (): void => {
   if (props.isRegister === true) {
+    if (userStore.findUserByNickname(username.value)) {
+      useNotifications('error', 'Username already exists');
+      return;
+    }
+
     userStore.register(
       email.value,
       fullName.value,
