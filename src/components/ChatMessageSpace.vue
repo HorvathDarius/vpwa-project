@@ -38,7 +38,12 @@
                 :bg-color="
                   message.userID == userStore.currentUserData?.id
                     ? 'blue-4'
-                    : 'grey-5'
+                    : messageStore.isUserMentioned(
+                        userStore.currentUserData.id,
+                        message.id
+                      )
+                    ? 'orange-4'
+                    : 'grey-4'
                 "
               />
               <q-chat-message

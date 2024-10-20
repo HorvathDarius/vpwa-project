@@ -120,10 +120,8 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
-import { useChannelStore } from 'src/stores/channel-store';
 
 const userStore = useUserStore();
-const channelsStore = useChannelStore();
 
 const props = defineProps({
   heading: {

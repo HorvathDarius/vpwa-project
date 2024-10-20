@@ -137,7 +137,7 @@ import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
-import { Channel, Message, ChannelType } from './models';
+import { Channel, ChannelType } from './models';
 
 const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
@@ -406,22 +406,12 @@ const handleAction = (message: string): void => {
 };
 
 const handleSendMessage = (message: string): void => {
-  console.log('Sending message:', messageData.value);
-  const timeStamp = Date.now();
-
-  const newMessage: Message = {
-    id: '1',
-    userID: userStore.currentUserData?.id || 'me',
-    channelID: channelStore.currentActiveChannel?.id || '',
-    content: message,
-    status: '',
-    sentAt: date.formatDate(timeStamp, 'HH:mm'),
-    createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-    updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-    deletedAt: '',
-  };
-
-  messageStore.addMessage(newMessage);
+  messageStore.addMessage(
+    userStore.currentUserData!.id,
+    channelStore.currentActiveChannel!.id,
+    message,
+    ''
+  );
 };
 
 const handleMentionClick = (id: string): void => {

@@ -11,7 +11,7 @@ export const usersMock: User[] = [
     nickName: 'User1',
     email: 'user1@example.com',
     passwordHash: 'hashedpassword',
-    status: UserStatus.Active,
+    status: UserStatus.DND,
     notificationSetting: UserNotificationSetting.Off,
     createdAt: '2024-10-19T13:31:48.632332',
     updatedAt: '2024-10-19T13:31:48.632342',
