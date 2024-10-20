@@ -41,7 +41,7 @@
                   message.userID == userStore.currentUserData?.id
                     ? 'blue-4'
                     : messageStore.isUserMentioned(
-                        userStore.currentUserData.id,
+                        userStore.currentUserData!.id,
                         message.id
                       )
                     ? 'orange-4'
