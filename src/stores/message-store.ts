@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { date } from 'quasar';
-import { Message, User, UserChannelStatus } from '../components/models';
+import { Message, User, UserChannelStatus, UserStatus } from '../components/models';
 import { messagesMock } from 'src/mocks/messagesMock';
 import { mentionsMock } from 'src/mocks/mentionsMock';
 import { userChannelsMock } from 'src/mocks/userChannelMock';
@@ -15,6 +15,7 @@ export const useMessageStore = defineStore('messages', () => {
    * State
    */
   const messages = ref<Message[]>([]);
+  const displayedMessages = ref<Message[]>([]);
 
   /**
    * Getters
@@ -49,9 +50,6 @@ export const useMessageStore = defineStore('messages', () => {
   }
 
   function loadMessages(channelID: string) {
-    console.log('Loading messages for channel:', channelID);
-    console.log('Messages:', messagesMock);
-
     const filteredMessages: Message[] = messagesMock.filter(
       (message) => message.channelID === channelID
     );
@@ -61,11 +59,33 @@ export const useMessageStore = defineStore('messages', () => {
     messages.value = filteredMessages;
   }
 
+
   function isUserMentioned(userID: string, messageID: string): boolean {
     // endpoint call
     return mentionsMock.some(
       (mention) => mention.userID === userID && mention.messageID === messageID
     );
+  }
+
+  // Function used to return visible messages
+  function getMessages(userStatus: UserStatus) {
+    // If user is online, return all messages
+    if (userStatus !== UserStatus.Offline) {
+      return messages.value;
+    // Else return a saved conversation from function saveActualConversation()
+    } else {
+      return displayedMessages.value;
+    }
+  }
+
+  // This function is called whenever a user changes status
+  function saveActualConversation(status: UserStatus) {
+    // for when he goes offline, save a snapshot of the current convo
+    if (status === UserStatus.Offline) {
+      messages.value.forEach((message) =>
+        displayedMessages.value.push(message)
+      );
+    }
   }
 
   /**
@@ -74,11 +94,14 @@ export const useMessageStore = defineStore('messages', () => {
   return {
     // state
     messages,
+    displayedMessages,
 
     //actions
     addMessage,
     loadMessages,
     isUserMentioned,
+    getMessages,
+    saveActualConversation,
   };
 });
 

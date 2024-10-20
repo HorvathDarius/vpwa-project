@@ -210,7 +210,9 @@ const handleAction = (message: string): void => {
       break;
 
     case '/invite':
+      // If the channel is private, only the admin can invite members
       if (
+        channelStore.currentActiveChannel?.type === ChannelType.Private &&
         !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
       ) {
         console.log('ERROR - NOT ENOUGH RIGHTS');
@@ -422,6 +424,7 @@ const handleMentionClick = (id: string): void => {
   messageData.value += `${member?.nickName} `;
   showMentionHelper.value = false;
 
+  // @ts-expect-error Unkown property
   actionInputField.value?.focus();
 };
 </script>

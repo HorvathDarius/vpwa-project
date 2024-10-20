@@ -56,8 +56,14 @@ export const useChannelStore = defineStore('channels', () => {
   }
 
   function cancelChannel(channelID: string | undefined) {
+    allChannels.value = allChannels.value.filter(
+      (channel) => channel.id !== channelID
+    );
     availableChannels.value = availableChannels.value.filter(
       (channel) => channel.id !== channelID
+    );
+    userChannelRecords.value = userChannelRecords.value.filter(
+      (record) => record.channelID !== channelID
     );
   }
 
@@ -241,6 +247,28 @@ export const useChannelStore = defineStore('channels', () => {
     messageStore.loadMessages(channel.id);
   }
 
+  function checkChannelsInactive() {
+    console.log('CHECKING CHANNEL INNACTIVE');
+    console.log(allChannels.value);
+    const channelsToRemove: Channel[] = [];
+    allChannels.value.forEach((channel) => {
+      // Calculate difference in days
+      // Calculation taken from https://www.geeksforgeeks.org/how-to-calculate-the-number-of-days-between-two-dates-in-javascript/
+      const nowDate = new Date();
+      const lastActiveDate = new Date(channel.lastActive);
+      const diffInTime = (nowDate.getTime() - lastActiveDate.getTime()) / 1000;
+      const diffInDays = diffInTime / (3600 * 24);
+
+      if (diffInDays >= 30) {
+        console.log('CHANNEL INACTIVE');
+        channelsToRemove.push(channel);
+      }
+    });
+    channelsToRemove.forEach((channel) => {
+      cancelChannel(channel.id);
+    });
+  }
+
   /**
    * Return
    */
@@ -264,6 +292,7 @@ export const useChannelStore = defineStore('channels', () => {
     kickMemberFromChannel,
     loadPendingChannels,
     setCurrentActiveChannel,
+    checkChannelsInactive,
   };
 });
 

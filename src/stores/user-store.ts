@@ -6,6 +6,7 @@ import {
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { usersMock } from 'src/mocks/usersMock';
+import { useMessageStore } from './message-store';
 
 /* 
 Store
@@ -14,6 +15,8 @@ export const useUserStore = defineStore('users', () => {
   /**
    * State
    */
+  const messageStore = useMessageStore();
+
   const allUsers = ref<User[]>(usersMock);
   const currentUserData = ref<User | undefined>(usersMock[0]);
 
@@ -49,6 +52,7 @@ export const useUserStore = defineStore('users', () => {
     password: string
   ) {
     const newUserID = getHighestUserID(usersMock) + 1;
+
     usersMock.push({
       id: newUserID.toString(),
       fullName: fullName,
@@ -61,9 +65,10 @@ export const useUserStore = defineStore('users', () => {
       updatedAt: 'now',
       deletedAt: '',
     });
+    login(userEmail, password);
   }
 
-  function updateUserSettings(userData: any) {
+  function updateUserSettings(userData: User) {
     currentUserData.value = {
       ...currentUserData.value,
       fullName: userData.fullName,
@@ -73,6 +78,9 @@ export const useUserStore = defineStore('users', () => {
       status: userData.status,
       notificationSetting: userData.notificationSetting,
     } as User;
+
+    // Set the messages to not receive any new messages if offline
+    messageStore.saveActualConversation(currentUserData.value.status);
   }
 
   function logout() {
