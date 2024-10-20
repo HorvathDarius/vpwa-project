@@ -69,18 +69,18 @@ export const useUserStore = defineStore('users', () => {
   }
 
   function updateUserSettings(userData: User) {
-    currentUserData.value = {
-      ...currentUserData.value,
-      fullName: userData.fullName,
-      email: userData.email,
-      nickName: userData.nickName,
-      passwordHash: userData.passwordHash,
-      status: userData.status,
-      notificationSetting: userData.notificationSetting,
-    } as User;
+    const user = allUsers.value.find((user) => user.id === userData.id);
+
+    user!.fullName = userData.fullName;
+    user!.email = userData.email;
+    user!.nickName = userData.nickName;
+    user!.status = userData.status;
+    user!.notificationSetting = userData.notificationSetting;
+
+    currentUserData.value = user;
 
     // Set the messages to not receive any new messages if offline
-    messageStore.saveActualConversation(currentUserData.value.status);
+    messageStore.saveActualConversation(currentUserData.value!.status);
   }
 
   function logout() {

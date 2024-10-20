@@ -40,6 +40,17 @@
       >
         <q-item-section>
           <q-avatar>
+            <q-badge
+              floating
+              :color="
+                member.status === UserStatus.Active
+                  ? 'green'
+                  : member.status === UserStatus.DND
+                  ? 'orange'
+                  : 'red'
+              "
+              rounded
+            />
             <img src="/blankProfile.jpg" />
           </q-avatar>
         </q-item-section>
@@ -95,6 +106,17 @@
             >
               <q-item-section avatar>
                 <q-avatar>
+                  <q-badge
+                    floating
+                    :color="
+                      member.status === UserStatus.Active
+                        ? 'green'
+                        : member.status === UserStatus.DND
+                        ? 'orange'
+                        : 'red'
+                    "
+                    rounded
+                  />
                   <img src="/blankProfile.jpg" />
                 </q-avatar>
               </q-item-section>
@@ -137,7 +159,7 @@ import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
-import { Channel, ChannelType } from './models';
+import { Channel, ChannelType, UserStatus } from './models';
 
 const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
@@ -427,6 +449,7 @@ const handleMentionClick = (id: string): void => {
   // @ts-expect-error Unkown property
   actionInputField.value?.focus();
 };
+
 </script>
 
 <style>
