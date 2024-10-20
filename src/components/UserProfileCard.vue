@@ -66,16 +66,26 @@
         />
         <q-btn color="primary" label="Save" type="submit" v-close-popup />
       </q-card-section>
+
+      <q-card-section
+        ><q-btn
+          style="background-color: rgba(255, 0, 0, 0.7)"
+          label="Log out"
+          @click="handleLogout"
+        ></q-btn
+      ></q-card-section>
     </q-form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { User } from './models';
 
 const userStore = useUserStore();
+const router = useRouter();
 
 defineProps({
   statusOptions: {
@@ -101,6 +111,11 @@ const user = ref({
 const onSubmit = () => {
   console.log('User data:', user.value);
   userStore.updateUserSettings(user.value as User);
+};
+
+const handleLogout = () => {
+  userStore.logout();
+  router.push('/login');
 };
 </script>
 
