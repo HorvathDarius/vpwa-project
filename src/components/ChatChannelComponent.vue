@@ -7,13 +7,32 @@
     @click="() => handleChannelClick(channel as Channel)"
   >
     <q-item-section>
-      <q-item-label lines="1" class="text-bold">
+      <q-item-label lines="1" class="text-bold text-h6">
         {{ channel?.name }}
+        <q-icon
+          v-if="userStore.checkUserRights(channel?.createdBy)"
+          name="star"
+          style="
+            vertical-align: top;
+            background-color: rgba(252, 186, 3, 0.9);
+            padding: 0.1rem;
+            border-radius: 0.25rem;
+          "
+          class="q-ml-xs"
+          ><q-tooltip> You are admin in this channel. </q-tooltip></q-icon
+        >
         <q-icon
           v-if="channel?.type === 'private'"
           name="lock_person"
+          style="
+            vertical-align: top;
+            background-color: rgba(140, 3, 252, 0.9);
+            padding: 0.1rem;
+            border-radius: 0.25rem;
+          "
           class="q-ml-xs"
-        />
+          ><q-tooltip> This is a private channel. </q-tooltip></q-icon
+        >
       </q-item-label>
       <q-item-label class="conversation__summary" caption v-if="pending">
         Pending Invitation
