@@ -100,14 +100,14 @@
       <div class="full-width q-pb-md">
         <p v-if="!isRegister" class="text-left text-grey-1 q-mt-md">
           Don't have an account?
-          <router-link to="/register" class="text-blue-2">
+          <router-link to="/auth/register" class="text-blue-2">
             Register here
           </router-link>
         </p>
 
         <p v-else class="text-left text-grey-1 q-mt-md">
           Already have an account?
-          <router-link to="/login" class="text-blue-2">
+          <router-link to="/auth/login" class="text-blue-2">
             Login here
           </router-link>
         </p>
@@ -121,6 +121,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
 import { useNotifications } from 'src/utils/useNotifications';
+import { LoginCredentials, RegisterData } from 'src/contracts';
 
 const userStore = useUserStore();
 
@@ -162,12 +163,20 @@ const submitHandler = (): void => {
     }
 
     // Create user
-    userStore.register(
-      email.value,
-      fullName.value,
-      username.value,
-      password.value
-    );
+    // userStore.register(
+    //   email.value,
+    //   fullName.value,
+    //   username.value,
+    //   password.value
+    // );
+
+    userStore.register2({
+      email: email.value,
+      fullName: fullName.value,
+      nickName: username.value,
+      password: password.value,
+      passwordConfirmation: password.value,
+    } as RegisterData);
 
     // Redirect
     router.push('/');
@@ -175,7 +184,13 @@ const submitHandler = (): void => {
   }
 
   // If login, perform login action
-  userStore.login(email.value, password.value);
+  const credentials: LoginCredentials = {
+    email: email.value,
+    password: password.value,
+    remember: true,
+  };
+  // userStore.login(email.value, password.value);
+  userStore.login2(credentials);
 
   // Handle form submission
   console.table({
@@ -187,7 +202,7 @@ const submitHandler = (): void => {
   });
 
   // Redirect to main app
-  if (userStore.currentUserData) {
+  if (userStore.isAuthenticated()) {
     router.push('/');
     return;
   }
