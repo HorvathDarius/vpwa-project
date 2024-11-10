@@ -139,7 +139,7 @@ const toggleDropdownMenu = (e: Event) => {
 
 // Logout, clear session
 const handleLogout = () => {
-  userStore.logout2();
+  userStore.logout();
   router.push('/auth/login');
 };
 </script>
