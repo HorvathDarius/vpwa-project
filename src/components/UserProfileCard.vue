@@ -100,13 +100,13 @@ defineProps({
 
 // Local state for user data
 const user = ref({
-  id: userStore.currentUserData?.id,
-  fullName: userStore.currentUserData?.fullName,
-  email: userStore.currentUserData?.email,
-  nickName: userStore.currentUserData?.nickName,
-  passwordHash: userStore.currentUserData?.passwordHash,
-  status: userStore.currentUserData?.status,
-  notificationSetting: userStore.currentUserData?.notificationSetting,
+  id: userStore.authInfo.user!.id,
+  fullName: userStore.authInfo.user!.fullName,
+  email: userStore.authInfo.user!.email,
+  nickName: userStore.authInfo.user!.nickName,
+  passwordHash: userStore.authInfo.user!.passwordHash,
+  status: userStore.authInfo.user!.status,
+  notificationSetting: userStore.authInfo.user!.notificationSetting,
 });
 
 const onSubmit = () => {
@@ -116,7 +116,7 @@ const onSubmit = () => {
 
 const handleLogout = () => {
   userStore.logout();
-  router.push('/login');
+  router.push('/auth/login');
 };
 </script>
 

@@ -59,13 +59,13 @@
             style="overflow-y: auto; max-height: 60vh"
           >
             <UserProfileCard
-              :full-name="currentlyLoggedUserMock.fullName"
-              :email="currentlyLoggedUserMock.email"
-              :username="currentlyLoggedUserMock.username"
-              :password-hash="currentlyLoggedUserMock.passwordHash"
-              :status="currentlyLoggedUserMock.status"
+              :full-name="currentUser!.fullName"
+              :email="currentUser!.email"
+              :username="currentUser!.nickName"
+              :password-hash="currentUser!.passwordHash"
+              :status="currentUser!.status"
               :notification-setting="
-                currentlyLoggedUserMock.notificationSetting
+                currentUser!.notificationSetting
               "
               :status-options="userStatus"
               :notification-options="notificationSetting"
@@ -83,20 +83,15 @@ import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
 import { useChannelStore } from 'src/stores/channel-store';
+import { useUserStore } from 'src/stores/user-store';
 
 const showModalChannelWindow = ref(false);
 const tab = ref('channels');
 const { channels } = defineProps(['channels']);
 const channelStore = useChannelStore();
+const userStore = useUserStore();
 
-const currentlyLoggedUserMock = ref({
-  fullName: 'John Doe',
-  email: 'john.doe@gmail.com',
-  username: 'johny123',
-  passwordHash: 'b2c701af',
-  status: 'active',
-  notificationSetting: 'all',
-});
+const currentUser = ref(userStore.authInfo.user);
 
 const userStatus = ['active', 'idle', 'offline'];
 const notificationSetting = ['all', 'mentionsOnly', 'off'];
