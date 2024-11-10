@@ -53,7 +53,7 @@ if (userStore.currentUserData) {
       channelStore.checkChannelsInactive();
     }, 5000);
   };
-  handleCheckChannelInactive();
+  // handleCheckChannelInactive();
 
   // These are mock functions used to simulate app behavior
   // They will likely not be used in the final implementaiton, or they will be replaced by other functions
@@ -102,8 +102,8 @@ if (userStore.currentUserData) {
     }, 3000);
   };
 
-  handleTimingMessage();
-  handleAutomaticMessage();
+  // handleTimingMessage();
+  // handleAutomaticMessage();
 
   // Loads channels for the user before mounting main component
   onBeforeMount(() => {

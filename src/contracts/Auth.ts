@@ -1,3 +1,15 @@
+export enum UserStatus {
+  Active = 'Active',
+  Offline = 'Offline',
+  DND = 'Do not disturb',
+}
+
+export enum UserNotificationSetting {
+  ShowAll = 'all',
+  ShowMentions = 'mentionsOnly',
+  Off = 'off',
+}
+
 export interface ApiToken {
   type: 'bearer'
   token: string
@@ -20,8 +32,14 @@ export interface LoginCredentials {
 }
 
 export interface User {
-  id: number
-  email: string
-  createdAt: string,
-  updatedAt: string
+  id: string; // uuid
+  fullName: string;
+  nickName: string;
+  email: string;
+  passwordHash: string; // idk if we should put this here?
+  status: UserStatus;
+  notificationSetting: UserNotificationSetting;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
 }

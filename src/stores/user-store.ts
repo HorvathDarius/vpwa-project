@@ -1,7 +1,7 @@
 import {
   User,
-} from '../components/models';
-import { ref } from 'vue';
+} from '../contracts/Auth';
+import { Ref, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { usersMock } from 'src/mocks/usersMock';
 import { useMessageStore } from './message-store';
@@ -25,11 +25,11 @@ export const useUserStore = defineStore('users', () => {
 
   const allUsers = ref<User[]>(usersMock);
   const currentUserData = ref<User | undefined>(usersMock[0]);
-  const state: AuthStateInterface = {
+  const authInfo: Ref<AuthStateInterface> = ref<AuthStateInterface>({
     user: null,
     status: 'pending',
     errors: []
-  }
+  })
 
   /**
    * Getters
@@ -78,30 +78,32 @@ export const useUserStore = defineStore('users', () => {
    * AUTHENTICATION
    */
   function authneticationStart() {
-    state.status = 'pending';
-    state.errors = [];
+    authInfo.value.status = 'pending';
+    authInfo.value.errors = [];
   }
   function authenticationSuccess(user: User | null) {
-    state.status = 'success';
-    state.user = user;
+    authInfo.value.status = 'success';
+    authInfo.value.user = user;
   }
-  function authenticationError(errors) {
-    state.status = 'error';
-    state.errors = errors;
+  function authenticationError(errors: { message: string, field?: string}[]) {
+    authInfo.value.status = 'error';
+    authInfo.value.errors = errors;
   }
 
   function isAuthenticated() {
-    return state.user !== null;
+    return authInfo.value.user !== null;
   }
 
   async function checkUser() {
     try {
+      console.log('checkUser');
       authneticationStart();
       const user = await authService.me();
       authenticationSuccess(user);
+      console.table(authInfo.value.user)
       return user !== null;
     } catch (error) {
-      authenticationError(error);
+      authenticationError(error as { message: string, field?: string}[]);
       throw error;
     } 
   }
@@ -112,9 +114,9 @@ export const useUserStore = defineStore('users', () => {
       const user = await authService.register(form)
       authenticationSuccess(null);
       return user
-    } catch (err) {
-      authenticationError(err);
-      throw err
+    } catch (error) {
+      authenticationError(error as { message: string, field?: string}[]);
+      throw error
     }
   }
   async function login(credentials: LoginCredentials) {
@@ -125,9 +127,9 @@ export const useUserStore = defineStore('users', () => {
       // save api token to local storage and notify listeners
       authManager.setToken(apiToken.token)
       return apiToken
-    } catch (err) {
-      authenticationError(err);
-      throw err
+    } catch (error) {
+      authenticationError(error as { message: string, field?: string}[]);
+      throw error
     }
   }
   async function logout() {
@@ -137,9 +139,9 @@ export const useUserStore = defineStore('users', () => {
       authenticationSuccess(null);
       // remove api token and notify listeners
       authManager.removeToken()
-    } catch (err) {
-      authenticationError(err);
-      throw err
+    } catch (error) {
+      authenticationError(error as { message: string, field?: string}[]);
+      throw error
     }
   }
 
@@ -149,7 +151,7 @@ export const useUserStore = defineStore('users', () => {
   return {
     // state
     currentUserData,
-    state,
+    authInfo,
 
     // actions
     findUserByID,
