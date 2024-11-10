@@ -1,7 +1,5 @@
 import {
   User,
-  UserNotificationSetting,
-  UserStatus,
 } from '../components/models';
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
@@ -60,41 +58,6 @@ export const useUserStore = defineStore('users', () => {
     return currentUserData.value?.id === channelCreatorID;
   }
 
-  // Login a user
-  function login(userEmail: string, password: string) {
-    // Set user as current logged in user
-    currentUserData.value = usersMock.find(
-      (user) => user.email === userEmail && user.passwordHash === password
-    );
-  }
-
-  // Register a new user
-  function register(
-    userEmail: string,
-    fullName: string,
-    username: string,
-    password: string
-  ) {
-    // Get next id
-    const newUserID = getHighestUserID(usersMock) + 1;
-
-    // Add new user to the mock DB
-    usersMock.push({
-      id: newUserID.toString(),
-      fullName: fullName,
-      email: userEmail,
-      nickName: username,
-      passwordHash: password,
-      status: UserStatus.Active,
-      notificationSetting: UserNotificationSetting.ShowAll,
-      createdAt: 'now',
-      updatedAt: 'now',
-      deletedAt: '',
-    });
-    // Log in the user
-    login(userEmail, password);
-  }
-
   // Update the user settings
   function updateUserSettings(userData: User) {
     const user = allUsers.value.find((user) => user.id === userData.id);
@@ -109,11 +72,6 @@ export const useUserStore = defineStore('users', () => {
 
     // Set the messages to not receive any new messages if offline
     messageStore.saveActualConversation(currentUserData.value!.status);
-  }
-
-  // Remove the current session
-  function logout() {
-    currentUserData.value = undefined;
   }
 
   /**
@@ -148,7 +106,7 @@ export const useUserStore = defineStore('users', () => {
     } 
   }
 
-  async function register2( form: RegisterData) {
+  async function register( form: RegisterData) {
     try {
       authneticationStart()
       const user = await authService.register(form)
@@ -159,7 +117,7 @@ export const useUserStore = defineStore('users', () => {
       throw err
     }
   }
-  async function login2(credentials: LoginCredentials) {
+  async function login(credentials: LoginCredentials) {
     try {
       authneticationStart()
       const apiToken = await authService.login(credentials)
@@ -172,7 +130,7 @@ export const useUserStore = defineStore('users', () => {
       throw err
     }
   }
-  async function logout2() {
+  async function logout() {
     try {
       authneticationStart()
       await authService.logout()
@@ -198,10 +156,7 @@ export const useUserStore = defineStore('users', () => {
     findUserByNickname,
     getUserData,
     checkUserRights,
-    login,
-    register,
     updateUserSettings,
-    logout,
 
     // auth
     authneticationStart,
@@ -209,17 +164,12 @@ export const useUserStore = defineStore('users', () => {
     authenticationError,
     isAuthenticated,
     checkUser,
-    register2,
-    login2,
-    logout2
+    register,
+    login,
+    logout
   };
 });
 
 /* 
 Controller
 */
-
-// only helper for 1st assignment
-const getHighestUserID = (users: User[]): number => {
-  return Math.max(...users.map((user) => parseInt(user.id, 10)));
-};
