@@ -7,6 +7,7 @@ import { usersMock } from 'src/mocks/usersMock';
 import { useMessageStore } from './message-store';
 import { authManager, authService } from 'src/services';
 import { LoginCredentials, RegisterData } from 'src/contracts';
+import { useChannelStore } from './channel-store';
 
 interface AuthStateInterface {
   user: User | null,
@@ -22,6 +23,7 @@ export const useUserStore = defineStore('users', () => {
    * State
    */
   const messageStore = useMessageStore();
+  const channelStore = useChannelStore();
 
   const allUsers = ref<User[]>(usersMock);
   const currentUserData = ref<User | undefined>(usersMock[0]);
@@ -99,6 +101,9 @@ export const useUserStore = defineStore('users', () => {
       console.log('checkUser');
       authneticationStart();
       const user = await authService.me();
+      // if (user?.id !== authInfo.value.user?.id) {
+      //   await channelStore.join('');
+      // }
       authenticationSuccess(user);
       console.table(authInfo.value.user)
       return user !== null;
@@ -107,7 +112,6 @@ export const useUserStore = defineStore('users', () => {
       throw error;
     } 
   }
-
   async function register( form: RegisterData) {
     try {
       authneticationStart()
@@ -136,6 +140,7 @@ export const useUserStore = defineStore('users', () => {
     try {
       authneticationStart()
       await authService.logout()
+      await channelStore.leave(null);
       authenticationSuccess(null);
       // remove api token and notify listeners
       authManager.removeToken()

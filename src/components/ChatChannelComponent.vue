@@ -107,5 +107,7 @@ const handleChannelClick = (channel: Channel) => {
   }
   // Set current channel
   channelStore.setCurrentActiveChannel(channel);
+  channelStore.join(channel.name);
+  channelStore.setActive(channel.name);
 };
 </script>
