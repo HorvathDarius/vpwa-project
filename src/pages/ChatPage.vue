@@ -1,9 +1,9 @@
 <template>
   <div class="transparent see-through-style">
     <div class="row transparent">
-      <ChatHeader :channels="channelStore.availableChannels" />
+      <ChatHeader :channels="channelStore.channelState.active" />
 
-      <ChatDrawer :channels="channelStore.availableChannels" />
+      <ChatDrawer :channels="() => channelStore.joinedChannels()" />
 
       <ChatMessageSpace />
     </div>
@@ -46,14 +46,14 @@ watch(
 if (userStore.currentUserData) {
   // Scheduler to check if channels are inactive
   const handleCheckChannelInactive = () => {
-    let intervalId = 0;
+    // let intervalId = 0;
     setInterval(() => {
-      intervalId++;
-      console.log(`Timing message - ${intervalId}`);
+      // intervalId++;
+      // console.log(`Timing message - ${intervalId}`);
       channelStore.checkChannelsInactive();
     }, 5000);
   };
-  // handleCheckChannelInactive();
+  handleCheckChannelInactive();
 
   // These are mock functions used to simulate app behavior
   // They will likely not be used in the final implementaiton, or they will be replaced by other functions
@@ -96,14 +96,14 @@ if (userStore.currentUserData) {
     let intervalId = 100;
     setInterval(() => {
       const message = 'This is an automatic message - ' + intervalId;
-      console.log('Adding automatic message:', intervalId);
+      // console.log('Adding automatic message:', intervalId);
       intervalId++;
       messageStore.addMessage('2', '1', message, '');
     }, 3000);
   };
 
-  // handleTimingMessage();
-  // handleAutomaticMessage();
+  handleTimingMessage();
+  handleAutomaticMessage();
 
   // Loads channels for the user before mounting main component
   onBeforeMount(() => {

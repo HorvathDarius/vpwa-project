@@ -1,3 +1,6 @@
+import { Channel } from 'src/components/models'
+
+
 export enum UserStatus {
   Active = 'Active',
   Offline = 'Offline',
@@ -42,4 +45,5 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  channels: Channel[];
 }

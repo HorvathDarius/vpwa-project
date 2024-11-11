@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { Ref, ref } from 'vue';
 import { defineStore } from 'pinia';
 import {
   Channel,
@@ -12,6 +12,15 @@ import { userChannelsMock } from 'src/mocks/userChannelMock';
 import { usersMock } from 'src/mocks/usersMock';
 import { useMessageStore } from './message-store';
 import { useNotifications } from 'src/utils/useNotifications';
+import { RawMessage, SerializedMessage } from 'src/contracts';
+import { channelService } from 'src/services';
+
+export interface ChannelStateInterface {
+  loading: boolean;
+  error: Error | null;
+  messages: { [channel: string]: SerializedMessage[] };
+  active: string | null;
+}
 
 /* 
 Store
@@ -22,11 +31,18 @@ export const useChannelStore = defineStore('channels', () => {
    */
   const allChannels = ref<Channel[]>(channelsMock);
   const userChannelRecords = ref<UserChannel[]>(userChannelsMock);
-  const availableChannels = ref<Channel[]>(channelsMock);
+  const availableChannels = ref<Channel[]>();
   const pendingChannels = ref<Channel[]>([]);
   const currentChannelMembers = ref<User[]>([]);
   const currentActiveChannel = ref<Channel | null>(null);
   const messageStore = useMessageStore();
+
+  const channelState: Ref<ChannelStateInterface> = ref({
+    loading: false,
+    error: null,
+    messages: {},
+    active: null,
+  })
 
   /**
    * Getters
@@ -321,6 +337,96 @@ export const useChannelStore = defineStore('channels', () => {
     });
   }
 
+  async function getAll() {
+    try {
+      const channels = await channelService.getAll(); 
+      availableChannels.value = channels;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  /**
+   * MUTATIONS
+   */
+  function loadingStart() {
+    channelState.value.loading = true;
+    channelState.value.error = null;
+  }
+
+  function loadingSuccess({ channel, messages }: { channel: string, messages: SerializedMessage[] }) {
+    channelState.value.loading = false;
+    channelState.value.messages[channel] = messages;
+  }
+
+  function loadingError(error: Error) {
+    channelState.value.loading = false;
+    channelState.value.error = error;
+  }
+
+  function clearChannel(channel: string) {
+    delete channelState.value.messages[channel]
+  }
+
+  function setActive(channel: string) {
+    channelState.value.active = channel;
+  }
+
+  function newMessage({ channel, message }: { channel: string, message: SerializedMessage }) {
+    channelState.value.messages[channel].push(message);
+  }
+
+  /**
+   * ACTIONS
+   */
+  async function join(channel: string) {
+    try {
+      loadingStart();
+      const messages = await channelService.join(channel).loadMessages();
+      loadingSuccess({ channel, messages });
+    } catch (error) {
+      loadingError(error as Error);
+      throw error;
+    }
+  }
+
+  async function leave(channel: string | null) {
+    const leaving: string[] = channel !== null ? [channel] : joinedChannels();
+
+    leaving.forEach((channel) => {
+      channelService.leave(channel);
+      clearChannel(channel);
+    })
+  }
+
+  async function addMessage({channel, message}: {channel: string, message: RawMessage}) {
+    console.log(channel);
+    console.log(message);
+    const newMessageVariable = await channelService.in(channel)?.addMessage(message);
+    newMessage({ channel, message: newMessageVariable as SerializedMessage });
+  } 
+
+  /**
+   * GETTERS
+   */
+  function joinedChannels() {
+    console.log(Object.keys(channelState.value.messages));
+    return Object.keys(channelState.value.messages);
+  }
+
+  function currentMessages() {
+    return channelState.value.active !== null ? channelState.value.messages[channelState.value.active] : [];
+  }
+
+  function lastMessageOf() {
+    return (channel: string) => {
+      const messages = channelState.value.messages[channel];
+      return messages.length > 0 ? messages[messages.length - 1] : null;
+    }
+  }
+
+
   /**
    * Return
    */
@@ -345,6 +451,28 @@ export const useChannelStore = defineStore('channels', () => {
     loadPendingChannels,
     setCurrentActiveChannel,
     checkChannelsInactive,
+
+    channelState,
+
+    getAll,
+
+    // mutations
+    loadingStart,
+    loadingSuccess,
+    loadingError,
+    clearChannel,
+    setActive,
+    newMessage,
+
+    // actions
+    join,
+    leave,
+    addMessage,
+
+    // getters
+    joinedChannels,
+    currentMessages,
+    lastMessageOf,
   };
 });
 

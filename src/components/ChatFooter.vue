@@ -154,7 +154,6 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue';
 import { date } from 'quasar';
-import { useMessageStore } from 'src/stores/message-store';
 import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
@@ -166,7 +165,6 @@ const messageData = ref('');
 const showActionHelper = ref(false);
 const showMentionHelper = ref(false);
 const showListOfMembers = ref(false);
-const messageStore = useMessageStore();
 const channelStore = useChannelStore();
 const userStore = useUserStore();
 
@@ -205,12 +203,16 @@ const handleMessageSubmit = (): void => {
   if (message[0] === '/') {
     handleAction(message);
   } else {
-    messageStore.addMessage(
-      userStore.currentUserData!.id,
-      channelStore.currentActiveChannel!.id,
+    // messageStore.addMessage(
+    //   userStore.currentUserData!.id,
+    //   channelStore.currentActiveChannel!.id,
+    //   message,
+    //   ''
+    // );
+    channelStore.addMessage({
+      channel: channelStore.channelState.active as string,
       message,
-      ''
-    );
+    });
   }
 
   // Clear after submit
