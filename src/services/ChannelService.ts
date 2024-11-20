@@ -1,4 +1,4 @@
-import { RawMessage, SerializedMessage } from 'src/contracts';
+import { RawMessage, SerializedMessage, User } from 'src/contracts';
 import { BootParams, SocketManager } from './SocketManager';
 import { useChannelStore } from 'src/stores/channel-store';
 import { Channel } from 'src/components/models';
@@ -19,8 +19,8 @@ class ChannelSocketManager extends SocketManager {
     });
   }
 
-  public addMessage(message: RawMessage): Promise<SerializedMessage> {
-    return this.emitAsync('addMessage', message);
+  public addMessage(message: RawMessage, mention: number): Promise<SerializedMessage> {
+    return this.emitAsync('addMessage', message, mention);
   }
 
   public loadMessages(): Promise<SerializedMessage[]> {
@@ -61,6 +61,39 @@ class ChannelService {
   async getAll(): Promise<Channel[]> {
     const response = await api.get<Channel[]>('channels');
     return response.data;
+  }
+
+  async joinChannel(channelName: string, channelType: string): Promise<Channel> {
+    const response = await api.post('channels/join', { channelName, channelType });
+    return response.data;
+  }
+
+  async inviteUser(channelName: string, nickName: string): Promise<void> {
+    await api.post('channels/invite', { channelName, nickName });
+  }
+
+  async removeUser(channelName: string, nickName: string, userChannelStatus: string): Promise<string> {
+    const response = await api.patch('channels/users/status', { channelName, nickName, userChannelStatus });
+    return response.data;
+  }
+
+  async kickUser(channelName: string, nickName: string, userChannelStatus: string): Promise<string> {
+    const response = await api.patch('channels/users/status', { channelName, nickName, userChannelStatus });
+    return response.data;
+  }
+
+  async getChannelUsers(channelName: string): Promise<User[]> {
+    const response = await api.get('channel/users', { params: { channelName } });
+    return response.data;
+  }
+
+  async getPendingChannels(): Promise<Channel[]> {
+    const response = await api.get('channels/pending', {});
+    return response.data;
+  }
+
+  async resolveChannelInvite(channelId: string, accept: boolean): Promise<void> {
+    await api.post('channels/invite/resolve', { channelId, accept });
   }
 }
 

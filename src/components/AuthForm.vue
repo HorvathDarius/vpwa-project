@@ -120,7 +120,6 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
-import { useNotifications } from 'src/utils/useNotifications';
 import { LoginCredentials, RegisterData } from 'src/contracts';
 
 const userStore = useUserStore();
@@ -156,12 +155,6 @@ const passwordRepeat = ref('');
 const submitHandler = (): void => {
   // Check if registering
   if (props.isRegister === true) {
-    // Check if nickname is unique
-    if (userStore.findUserByNickname(username.value)) {
-      useNotifications('error', 'Username already exists');
-      return;
-    }
-
     const credentials: RegisterData = {
       email: email.value,
       fullName: fullName.value,

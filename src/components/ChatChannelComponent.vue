@@ -10,7 +10,7 @@
       <q-item-label lines="1" class="text-bold text-h6">
         {{ channel?.name }}
         <q-icon
-          v-if="userStore.checkUserRights(channel?.createdBy)"
+          v-if="channel?.createdBy === userStore.authInfo.user?.id"
           name="star"
           style="
             vertical-align: top;
@@ -89,13 +89,7 @@ const handleInvitationClick = (
   console.log('Invitation Clicked');
   e.stopPropagation();
 
-  if (decision === 'accept') {
-    console.log('Accepting Invitation');
-    channelStore.acceptInvitation(userStore.currentUserData!.id, channelId);
-  } else {
-    console.log('Declining Invitation');
-    channelStore.declineInvitation(userStore.currentUserData!.id, channelId);
-  }
+  channelStore.respondToInvitation(decision, channelId);
 };
 
 // Switch to channel
@@ -106,8 +100,8 @@ const handleChannelClick = (channel: Channel) => {
     return;
   }
   // Set current channel
-  channelStore.setCurrentActiveChannel(channel);
   channelStore.join(channel.name);
   channelStore.setActive(channel.name);
+  channelStore.preloadChannelInfo();
 };
 </script>
