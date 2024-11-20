@@ -5,45 +5,42 @@
         <div class="absolute-full">
           <q-scroll-area
             style="height: 85%"
-            v-if="channelStore.currentActiveChannel"
+            v-if="channelStore.channelState.active"
           >
             <q-infinite-scroll
-              v-if="messageStore.messages.length > 0"
+              v-if="channelStore.channelState.active"
               reverse
               :offset="250"
               class="q-px-lg"
               @load="loadMoreMessages"
             >
               <q-chat-message
-                v-for="message in messageStore.getMessages(
-                  userStore.currentUserData!.status
-                )"
-                :sent="message.userID == userStore.currentUserData?.id"
+                v-for="message in messages[channelStore.channelState.active]"
+                :sent="message.createdBy === userStore.authInfo.user?.id"
                 :class="
-                  message.userID == userStore.currentUserData?.id
+                  message.createdBy === userStore.authInfo.user?.id
                     ? 'text-blue-3'
                     : 'text-grey-1'
                 "
                 :key="message.id"
                 :name="
-                  message.userID === userStore.currentUserData?.id
-                    ? 'me'
-                    : userStore.findUserByID(message.userID)!.nickName
+                  message.createdBy === userStore.authInfo.user?.id
+                    ? userStore.authInfo.user?.nickName
+                    : channelStore.activeChannelsMembers.find(
+                        (member) => member.id === message.createdBy
+                      )?.nickName
                 "
                 :avatar="
-                  message.userID == userStore.currentUserData?.id
+                  message.createdBy === userStore.authInfo.user?.id
                     ? '/blankProfileReverse.jpg'
                     : '/blankProfile.jpg'
                 "
                 :text="[message.content as any]"
-                :stamp="message.sentAt"
+                :stamp="message.createdAt"
                 :bg-color="
-                  message.userID == userStore.currentUserData?.id
+                  message.createdBy === userStore.authInfo.user?.id
                     ? 'blue-4'
-                    : messageStore.isUserMentioned(
-                        userStore.currentUserData!.id,
-                        message.id
-                      )
+                    : message.mentions === userStore.authInfo.user?.id
                     ? 'orange-4'
                     : 'grey-4'
                 "
@@ -113,19 +110,17 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ChatFooter from './ChatFooter.vue';
-import { useMessageStore } from '../stores/message-store';
 import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 
 const showTypingMessage = ref(false);
-const messageStore = useMessageStore();
 const channelStore = useChannelStore();
 const userStore = useUserStore();
+const messages = channelStore.channelState.messages;
 
 const loadMoreMessages = (index: number, done: () => void) => {
   setTimeout(() => {
     done();
-    // console.log('DONE');
   }, 2000);
 };
 

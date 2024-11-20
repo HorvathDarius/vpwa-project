@@ -31,6 +31,10 @@ class AuthService {
   async logout (): Promise<void> {
     await api.post('auth/logout')
   }
+
+  async update(data: any): Promise<User> {
+    return await api.post('auth/update', data);
+  }
 }
 
-export default new AuthService()
+export default new AuthService();

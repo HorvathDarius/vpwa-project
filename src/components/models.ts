@@ -7,9 +7,9 @@ export enum ChannelType {
 }
 
 export enum UserStatus {
-  Active = 'Active',
-  Offline = 'Offline',
-  DND = 'Do not disturb',
+  Active = 'active',
+  Offline = 'offline',
+  DND = 'do not disturb',
 }
 
 export enum UserNotificationSetting {

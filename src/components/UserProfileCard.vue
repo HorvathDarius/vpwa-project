@@ -82,7 +82,6 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
-import { User } from './models';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -100,18 +99,18 @@ defineProps({
 
 // Local state for user data
 const user = ref({
-  id: userStore.authInfo.user!.id,
   fullName: userStore.authInfo.user!.fullName,
   email: userStore.authInfo.user!.email,
   nickName: userStore.authInfo.user!.nickName,
-  passwordHash: userStore.authInfo.user!.passwordHash,
   status: userStore.authInfo.user!.status,
   notificationSetting: userStore.authInfo.user!.notificationSetting,
 });
 
 const onSubmit = () => {
-  console.log('User data:', user.value);
-  userStore.updateUserSettings(user.value as User);
+  userStore.updateUserSettings({
+    status: user.value.status,
+    notificationSetting: user.value.notificationSetting,
+  } as any);
 };
 
 const handleLogout = () => {

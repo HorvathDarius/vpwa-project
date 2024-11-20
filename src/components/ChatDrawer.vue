@@ -110,7 +110,7 @@ import { User } from '../contracts/Auth';
 const userStore = useUserStore();
 const router = useRouter();
 
-const userStatus = ['Active', 'Do not disturb', 'Offline'];
+const userStatus = ['active', 'do not disturb', 'offline'];
 const notificationSetting = ['all', 'mentionsOnly', 'off'];
 
 const showProfileModal = ref(false);

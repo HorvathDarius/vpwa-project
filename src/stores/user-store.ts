@@ -3,8 +3,6 @@ import {
 } from '../contracts/Auth';
 import { Ref, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { usersMock } from 'src/mocks/usersMock';
-import { useMessageStore } from './message-store';
 import { authManager, authService } from 'src/services';
 import { LoginCredentials, RegisterData } from 'src/contracts';
 import { useChannelStore } from './channel-store';
@@ -22,11 +20,8 @@ export const useUserStore = defineStore('users', () => {
   /**
    * State
    */
-  const messageStore = useMessageStore();
   const channelStore = useChannelStore();
 
-  const allUsers = ref<User[]>(usersMock);
-  const currentUserData = ref<User | undefined>(usersMock[0]);
   const authInfo: Ref<AuthStateInterface> = ref<AuthStateInterface>({
     user: null,
     status: 'pending',
@@ -40,40 +35,22 @@ export const useUserStore = defineStore('users', () => {
   /**
    * Actions
    */
-  // Find users by ID
-  function findUserByID(userID: string) {
-    return allUsers.value.find((user) => user.id === userID);
-  }
-
-  // Find user by nickname
-  function findUserByNickname(nickname: string) {
-    return allUsers.value.find((user) => user.nickName === nickname);
-  }
-
-  // Get data about a user based on id
-  function getUserData(userID: string) {
-    currentUserData.value = usersMock.filter((user) => user.id === userID)[0]; // user.id is unique in DB
-  }
 
   // Check if user has admin rights for channel
-  function checkUserRights(channelCreatorID: string | undefined) {
-    return currentUserData.value?.id === channelCreatorID;
+  function checkUserRights(channelName: string) {
+    const channel = authInfo.value.user?.channels.find(c => c.name === channelName);
+    return channel?.createdBy === authInfo.value.user?.id;
   }
 
   // Update the user settings
-  function updateUserSettings(userData: User) {
-    const user = allUsers.value.find((user) => user.id === userData.id);
-
-    user!.fullName = userData.fullName;
-    user!.email = userData.email;
-    user!.nickName = userData.nickName;
-    user!.status = userData.status;
-    user!.notificationSetting = userData.notificationSetting;
-
-    currentUserData.value = user;
-
-    // Set the messages to not receive any new messages if offline
-    messageStore.saveActualConversation(currentUserData.value!.status);
+  async function updateUserSettings(userData: User) {
+    console.table(userData);
+    try {
+      await authService.update(userData);
+      checkUser();
+    } catch (error) {
+      throw error
+    }
   }
 
   /**
@@ -106,9 +83,10 @@ export const useUserStore = defineStore('users', () => {
       // }
       authenticationSuccess(user);
       console.table(authInfo.value.user)
+      channelStore.loadPendingChannels();
       return user !== null;
     } catch (error) {
-      authenticationError(error as { message: string, field?: string}[]);
+      // authenticationError(error as { message: string, field?: string}[]);
       throw error;
     } 
   }
@@ -155,13 +133,9 @@ export const useUserStore = defineStore('users', () => {
    */
   return {
     // state
-    currentUserData,
     authInfo,
 
     // actions
-    findUserByID,
-    findUserByNickname,
-    getUserData,
     checkUserRights,
     updateUserSettings,
 
@@ -173,7 +147,7 @@ export const useUserStore = defineStore('users', () => {
     checkUser,
     register,
     login,
-    logout
+    logout,
   };
 });
 
