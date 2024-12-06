@@ -4,6 +4,7 @@ import { authManager, authService } from 'src/services';
 import { User, LoginCredentials, RegisterData } from 'src/contracts';
 import { useChannelStore } from './channel-store';
 import { channelService } from 'src/services';
+import { userService } from 'src/services';
 
 interface AuthStateInterface {
   user: User | null;
@@ -85,6 +86,7 @@ export const useUserStore = defineStore('users', () => {
       console.table(authInfo.value.user);
       channelStore.loadPendingChannels();
       channelStore.getAll();
+      userService.join();
       user?.channels.forEach((channel) => {
         channelService.join(channel.name);
       });
