@@ -1,16 +1,13 @@
-import {
-  User,
-} from '../contracts/Auth';
 import { Ref, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { authManager, authService } from 'src/services';
-import { LoginCredentials, RegisterData } from 'src/contracts';
+import { User, LoginCredentials, RegisterData } from 'src/contracts';
 import { useChannelStore } from './channel-store';
 
 interface AuthStateInterface {
-  user: User | null,
-  status: 'pending' | 'success' | 'error',
-  errors: { message: string, field?: string}[]
+  user: User | null;
+  status: 'pending' | 'success' | 'error';
+  errors: { message: string; field?: string }[];
 }
 
 /* 
@@ -25,8 +22,8 @@ export const useUserStore = defineStore('users', () => {
   const authInfo: Ref<AuthStateInterface> = ref<AuthStateInterface>({
     user: null,
     status: 'pending',
-    errors: []
-  })
+    errors: [],
+  });
 
   /**
    * Getters
@@ -38,7 +35,9 @@ export const useUserStore = defineStore('users', () => {
 
   // Check if user has admin rights for channel
   function checkUserRights(channelName: string) {
-    const channel = authInfo.value.user?.channels.find(c => c.name === channelName);
+    const channel = authInfo.value.user?.channels.find(
+      (c) => c.name === channelName
+    );
     return channel?.createdBy === authInfo.value.user?.id;
   }
 
@@ -49,7 +48,7 @@ export const useUserStore = defineStore('users', () => {
       await authService.update(userData);
       checkUser();
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -64,7 +63,7 @@ export const useUserStore = defineStore('users', () => {
     authInfo.value.status = 'success';
     authInfo.value.user = user;
   }
-  function authenticationError(errors: { message: string, field?: string}[]) {
+  function authenticationError(errors: { message: string; field?: string }[]) {
     authInfo.value.status = 'error';
     authInfo.value.errors = errors;
   }
@@ -82,49 +81,49 @@ export const useUserStore = defineStore('users', () => {
       //   await channelStore.join('');
       // }
       authenticationSuccess(user);
-      console.table(authInfo.value.user)
+      console.table(authInfo.value.user);
       channelStore.loadPendingChannels();
       return user !== null;
     } catch (error) {
       // authenticationError(error as { message: string, field?: string}[]);
       throw error;
-    } 
+    }
   }
-  async function register( form: RegisterData) {
+  async function register(form: RegisterData) {
     try {
-      authneticationStart()
-      const user = await authService.register(form)
+      authneticationStart();
+      const user = await authService.register(form);
       authenticationSuccess(null);
-      return user
+      return user;
     } catch (error) {
-      authenticationError(error as { message: string, field?: string}[]);
-      throw error
+      authenticationError(error as { message: string; field?: string }[]);
+      throw error;
     }
   }
   async function login(credentials: LoginCredentials) {
     try {
-      authneticationStart()
-      const apiToken = await authService.login(credentials)
+      authneticationStart();
+      const apiToken = await authService.login(credentials);
       authenticationSuccess(null);
       // save api token to local storage and notify listeners
-      authManager.setToken(apiToken.token)
-      return apiToken
+      authManager.setToken(apiToken.token);
+      return apiToken;
     } catch (error) {
-      authenticationError(error as { message: string, field?: string}[]);
-      throw error
+      authenticationError(error as { message: string; field?: string }[]);
+      throw error;
     }
   }
   async function logout() {
     try {
-      authneticationStart()
-      await authService.logout()
+      authneticationStart();
+      await authService.logout();
       await channelStore.leave(null);
       authenticationSuccess(null);
       // remove api token and notify listeners
-      authManager.removeToken()
+      authManager.removeToken();
     } catch (error) {
-      authenticationError(error as { message: string, field?: string}[]);
-      throw error
+      authenticationError(error as { message: string; field?: string }[]);
+      throw error;
     }
   }
 

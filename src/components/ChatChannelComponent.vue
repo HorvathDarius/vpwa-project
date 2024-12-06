@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
-import { Channel } from './models';
+import { Channel } from 'src/contracts/index';
 import { useNotifications } from 'src/utils/useNotifications';
 
 const userStore = useUserStore();

@@ -158,7 +158,7 @@ import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
-import { UserStatus } from './models';
+import { UserStatus } from 'src/contracts/index';
 
 const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');

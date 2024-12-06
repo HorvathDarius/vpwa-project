@@ -1,7 +1,7 @@
 import { RawMessage, SerializedMessage, User } from 'src/contracts';
 import { BootParams, SocketManager } from './SocketManager';
 import { useChannelStore } from 'src/stores/channel-store';
-import { Channel } from 'src/components/models';
+import { Channel } from 'src/contracts/index';
 import { api } from 'src/boot/axios';
 
 // creating instance of this class automatically connects to given socket.io namespace
@@ -9,17 +9,20 @@ import { api } from 'src/boot/axios';
 // you have access to socket.io socket using this.socket
 class ChannelSocketManager extends SocketManager {
   channelStore = useChannelStore();
-  
-  public subscribe({  }: BootParams): void {
+
+  public subscribe({}: BootParams): void {
     const channel = this.namespace.split('/').pop() as string;
 
     this.socket.on('message', (message: SerializedMessage) => {
       // store.commit('channels/NEW_MESSAGE', { channel, message });
-      this.channelStore.newMessage({channel, message});
+      this.channelStore.newMessage({ channel, message });
     });
   }
 
-  public addMessage(message: RawMessage, mention: number): Promise<SerializedMessage> {
+  public addMessage(
+    message: RawMessage,
+    mention: number
+  ): Promise<SerializedMessage> {
     return this.emitAsync('addMessage', message, mention);
   }
 
@@ -63,8 +66,14 @@ class ChannelService {
     return response.data;
   }
 
-  async joinChannel(channelName: string, channelType: string): Promise<Channel> {
-    const response = await api.post('channels/join', { channelName, channelType });
+  async joinChannel(
+    channelName: string,
+    channelType: string
+  ): Promise<Channel> {
+    const response = await api.post('channels/join', {
+      channelName,
+      channelType,
+    });
     return response.data;
   }
 
@@ -72,18 +81,36 @@ class ChannelService {
     await api.post('channels/invite', { channelName, nickName });
   }
 
-  async removeUser(channelName: string, nickName: string, userChannelStatus: string): Promise<string> {
-    const response = await api.patch('channels/users/status', { channelName, nickName, userChannelStatus });
+  async removeUser(
+    channelName: string,
+    nickName: string,
+    userChannelStatus: string
+  ): Promise<string> {
+    const response = await api.patch('channels/users/status', {
+      channelName,
+      nickName,
+      userChannelStatus,
+    });
     return response.data;
   }
 
-  async kickUser(channelName: string, nickName: string, userChannelStatus: string): Promise<string> {
-    const response = await api.patch('channels/users/status', { channelName, nickName, userChannelStatus });
+  async kickUser(
+    channelName: string,
+    nickName: string,
+    userChannelStatus: string
+  ): Promise<string> {
+    const response = await api.patch('channels/users/status', {
+      channelName,
+      nickName,
+      userChannelStatus,
+    });
     return response.data;
   }
 
   async getChannelUsers(channelName: string): Promise<User[]> {
-    const response = await api.get('channel/users', { params: { channelName } });
+    const response = await api.get('channel/users', {
+      params: { channelName },
+    });
     return response.data;
   }
 
@@ -92,7 +119,10 @@ class ChannelService {
     return response.data;
   }
 
-  async resolveChannelInvite(channelId: string, accept: boolean): Promise<void> {
+  async resolveChannelInvite(
+    channelId: string,
+    accept: boolean
+  ): Promise<void> {
     await api.post('channels/invite/resolve', { channelId, accept });
   }
 }
