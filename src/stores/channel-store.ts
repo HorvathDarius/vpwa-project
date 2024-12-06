@@ -68,6 +68,12 @@ export const useChannelStore = defineStore('channels', () => {
     }
   }
 
+  function handleChannelListChange(channelName: string) {
+    if (channelState.value.active === channelName) {
+      channelState.value.active = null;
+    }
+  }
+
   // Invite a member to a channel
   async function inviteUser(nickName: string) {
     try {
@@ -316,7 +322,7 @@ export const useChannelStore = defineStore('channels', () => {
     kickMemberFromChannel,
     loadPendingChannels,
     preloadChannelInfo,
-
+    handleChannelListChange,
     channelState,
 
     getAll,

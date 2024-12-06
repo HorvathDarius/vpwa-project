@@ -8,6 +8,7 @@ import { BootParams, SocketManager } from './SocketManager';
 import { useChannelStore } from 'src/stores/channel-store';
 import { Channel } from 'src/contracts/index';
 import { api } from 'src/boot/axios';
+import { useNotifications } from 'src/utils/useNotifications';
 
 // creating instance of this class automatically connects to given socket.io namespace
 // subscribe is called with boot params, so you can use it to dispatch actions for socket events
@@ -24,12 +25,17 @@ class ChannelSocketManager extends SocketManager {
     });
 
     // When list of channels change
-    this.socket.on('channelListModified', () => {
+    this.socket.on('channelListModified', (channelName: string) => {
       this.channelStore.getAll();
+      this.channelStore.handleChannelListChange(channelName);
+      useNotifications(
+        'error',
+        `Your membership in channel ${channelName} was cacelled.`
+      );
     });
 
     // When new invitations arrive
-    this.socket.on('newInvite', () => {
+    this.socket.on('newInvite', (channelName: string) => {
       this.channelStore.loadPendingChannels();
     });
   }

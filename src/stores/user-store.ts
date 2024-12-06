@@ -83,13 +83,14 @@ export const useUserStore = defineStore('users', () => {
       // }
       authenticationSuccess(user);
       console.table(authInfo.value.user);
-      await channelStore.loadPendingChannels();
-      await channelStore.getAll();
+      channelStore.loadPendingChannels();
+      channelStore.getAll();
       user?.channels.forEach((channel) => {
         channelService.join(channel.name);
       });
       return user !== null;
     } catch (error) {
+      console.log('error');
       // authenticationError(error as { message: string, field?: string}[]);
       throw error;
     }
