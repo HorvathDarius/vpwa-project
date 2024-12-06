@@ -62,9 +62,6 @@
         />
       </q-item-section>
     </div>
-    <q-item-section side v-else>
-      <q-btn round icon="more_vert" flat dense />
-    </q-item-section>
   </q-item>
 </template>
 

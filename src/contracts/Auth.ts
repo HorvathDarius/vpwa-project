@@ -33,6 +33,11 @@ export interface LoginCredentials {
   remember: boolean;
 }
 
+export interface UpdateStatus {
+  status: UserStatus
+  notificationSetting: UserNotificationSetting
+}
+
 export interface User {
   id: number;
   fullName: string;
