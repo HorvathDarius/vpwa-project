@@ -120,7 +120,6 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
-import { useNotifications } from 'src/utils/useNotifications';
 import { LoginCredentials, RegisterData } from 'src/contracts';
 
 const userStore = useUserStore();
@@ -156,30 +155,15 @@ const passwordRepeat = ref('');
 const submitHandler = (): void => {
   // Check if registering
   if (props.isRegister === true) {
-    // Check if nickname is unique
-    if (userStore.findUserByNickname(username.value)) {
-      useNotifications('error', 'Username already exists');
-      return;
-    }
-
-    // Create user
-    // userStore.register(
-    //   email.value,
-    //   fullName.value,
-    //   username.value,
-    //   password.value
-    // );
-
-    userStore.register2({
+    const credentials: RegisterData = {
       email: email.value,
       fullName: fullName.value,
       nickName: username.value,
       password: password.value,
       passwordConfirmation: password.value,
-    } as RegisterData);
+    };
 
-    // Redirect
-    router.push('/');
+    userStore.register(credentials).then(() => router.push('/'));
     return;
   }
 
@@ -190,23 +174,8 @@ const submitHandler = (): void => {
     remember: true,
   };
   // userStore.login(email.value, password.value);
-  userStore.login2(credentials);
-
-  // Handle form submission
-  console.table({
-    email: email.value,
-    fullName: fullName.value,
-    username: username.value,
-    password: password.value,
-    passwordRepeat: passwordRepeat.value,
-  });
-
-  // Redirect to main app
-  if (userStore.isAuthenticated()) {
-    router.push('/');
-    return;
-  }
-  failLogin.value = true;
+  userStore.login(credentials).then(() => router.push('/'));
+  return;
 };
 </script>
 

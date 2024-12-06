@@ -32,11 +32,11 @@
     <q-scroll-area style="height: 400px; width: 200px" class="overflow-scroll">
       <q-item
         clickable
-        v-for="member in channelStore.currentChannelMembers.filter(
-          (member) => member.id !== userStore.currentUserData?.id
+        v-for="member in channelStore.activeChannelsMembers.filter(
+          (member) => member.id !== userStore.authInfo.user?.id
         )"
         :key="member.id"
-        @click="() => handleMentionClick(member.id)"
+        @click="() => handleMentionClick(member.nickName)"
       >
         <q-item-section>
           <q-avatar>
@@ -101,7 +101,7 @@
         <q-scroll-area style="height: 300px">
           <q-list separator dark>
             <q-item
-              v-for="member in channelStore.currentChannelMembers"
+              v-for="member in channelStore.activeChannelsMembers"
               :key="member.id"
             >
               <q-item-section avatar>
@@ -122,11 +122,12 @@
               </q-item-section>
               <q-item-section class="column">
                 <span>
+                  {{ member.id === userStore.authInfo.user?.id ? '(me)' : '' }}
                   {{
-                    member.id === userStore.currentUserData?.id ? '(me)' : ''
-                  }}
-                  {{
-                    member.id === channelStore.currentActiveChannel?.createdBy
+                    member.id ===
+                    userStore.authInfo.user?.channels.find(
+                      (c) => c.name === channelStore.channelState.active
+                    )?.createdBy
                       ? '(admin)'
                       : ''
                   }}
@@ -153,20 +154,17 @@
 
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue';
-import { date } from 'quasar';
-import { useMessageStore } from 'src/stores/message-store';
 import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
-import { Channel, ChannelType, UserStatus } from './models';
+import { UserStatus } from './models';
 
 const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
 const showActionHelper = ref(false);
 const showMentionHelper = ref(false);
 const showListOfMembers = ref(false);
-const messageStore = useMessageStore();
 const channelStore = useChannelStore();
 const userStore = useUserStore();
 
@@ -182,10 +180,11 @@ const commands = [
 
 // Check if user is admin in given channel and can see all commands
 const handleUserRights = () => {
-  if (!channelStore.currentActiveChannel) {
+  if (channelStore.channelState.active === null) {
     return [{ name: '/join', action: '', rights: '' }];
   }
-  if (userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)) {
+  console.log('ACTIVE - ', channelStore.channelState.active);
+  if (userStore.checkUserRights(channelStore.channelState?.active)) {
     return commands;
   } else {
     return commands.filter((command) => command.rights !== 'admin');
@@ -205,12 +204,30 @@ const handleMessageSubmit = (): void => {
   if (message[0] === '/') {
     handleAction(message);
   } else {
-    messageStore.addMessage(
-      userStore.currentUserData!.id,
-      channelStore.currentActiveChannel!.id,
-      message,
-      ''
-    );
+    if (!message.includes('@')) {
+      channelStore.addMessage({
+        channel: channelStore.channelState.active as string,
+        message,
+        mention: 0,
+      });
+
+      // Clear after submit
+      messageData.value = '';
+      return;
+    }
+    const content = message.split(' ');
+
+    const userName = content.filter((c) => c.startsWith('@'))[0].slice(1);
+
+    channelStore.activeChannelsMembers.forEach((u) => {
+      if (u.nickName === userName) {
+        channelStore.addMessage({
+          channel: channelStore.channelState.active as string,
+          message,
+          mention: Number(u.id),
+        });
+      }
+    });
   }
 
   // Clear after submit
@@ -249,43 +266,36 @@ const handleAction = (message: string): void => {
 
     // INVITE USERS
     case '/invite':
-      // If the channel is private, only the admin can invite members
-      if (
-        channelStore.currentActiveChannel?.type === ChannelType.Private &&
-        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
-      ) {
-        useNotifications('error', 'You do not have enough rights');
+      if (channelStore.channelState.active === null) {
+        useNotifications('error', 'No channel is active');
         break;
       }
-
       // Parse the message
-      // If no user
       if (splitAction[1] === undefined) {
         useNotifications('error', 'No user was specified');
         break;
       }
 
-      // Find the user
-      const foundUser = userStore.findUserByNickname(splitAction[1]);
+      const nickName = splitAction[1];
+      // Call method for adding memebr
+      channelStore.inviteUser(nickName);
+      break;
 
-      // If no user found throw error
-      if (!foundUser) {
-        useNotifications('error', 'User not found');
+    // KICK A USER
+    case '/kick':
+      // User validation
+      if (splitAction[1] === undefined) {
+        useNotifications('error', 'No user was specified');
         break;
       }
 
-      // Call method for adding memebr
-      channelStore.inviteMember(foundUser);
-
-      useNotifications('add', `${foundUser.nickName} has joined the channel`);
+      const userToKick = splitAction[1];
+      channelStore.kickMemberFromChannel(userToKick);
       break;
-
     // REVOKE USER
     case '/revoke':
       // Check if user is admin
-      if (
-        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
-      ) {
+      if (!userStore.checkUserRights(channelStore.channelState.active!)) {
         useNotifications('error', 'You do not have enough rights');
         break;
       }
@@ -297,80 +307,9 @@ const handleAction = (message: string): void => {
       }
 
       // Find the user
-      const userToRevoke = userStore.findUserByNickname(splitAction[1]);
+      const userToRevoke = splitAction[1];
 
-      // If no user found throw error
-      if (!userToRevoke) {
-        useNotifications('error', 'User not found');
-        break;
-      }
-
-      // Filter the revoked user from the list of members
-      const channelUsers = channelStore.currentChannelMembers;
-      const remainingUsers = channelUsers.filter(
-        (user) => user !== userToRevoke
-      );
-
-      channelStore.currentChannelMembers = remainingUsers;
-
-      useNotifications(
-        'info',
-        `${splitAction[1]} has been revoked out of the channel`
-      );
-      break;
-
-    // KICK A USER
-    case '/kick':
-      // Check if user is admin, if admin immediately remove from channel
-      if (
-        userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
-      ) {
-        // User validation
-        if (splitAction[1] === undefined) {
-          useNotifications('error', 'No user was specified');
-          break;
-        }
-
-        const userToKick = userStore.findUserByNickname(splitAction[1]);
-
-        // Throw error if no user found
-        if (!userToKick) {
-          useNotifications('error', 'User not found');
-          break;
-        }
-
-        // Remove from list of members
-        const users = channelStore.currentChannelMembers;
-        const newUsers = users.filter((user) => user !== userToKick);
-
-        channelStore.currentChannelMembers = newUsers;
-
-        useNotifications(
-          'info',
-          `${splitAction[1]} has been kicked out of the channel`
-        );
-        // If not admin, add penalty to the user
-      } else {
-        // User validation
-        if (splitAction[1] === undefined) {
-          useNotifications('error', 'No user was specified');
-          break;
-        }
-
-        const userToKick = userStore.findUserByNickname(splitAction[1]);
-
-        if (!userToKick) {
-          useNotifications('error', 'User not found');
-          break;
-        }
-
-        // Function to add penalization or kick if user has already been penalized 3 times
-        channelStore.kickMemberFromChannel(
-          userToKick.id,
-          channelStore.currentActiveChannel!.id,
-          userToKick.nickName
-        );
-      }
+      channelStore.removeMember(userToRevoke);
       break;
 
     // JOIN A CHANNEL
@@ -380,77 +319,42 @@ const handleAction = (message: string): void => {
         useNotifications('error', 'No channel was specified');
         break;
       }
+      // Get channel name
+      const channelName = splitAction[1];
 
-      // Find the channel
-      const channel = channelStore.getChannelByName(splitAction[1]);
-      // If channel exists try to join
-      if (channel) {
-        // If private cannot join
-        if (channel.type === ChannelType.Private) {
-          useNotifications(
-            'error',
-            'The channel you are trying to join is a private one'
-          );
-          break;
-        }
-        // If public join channel
-        channelStore.joinChannel(userStore.currentUserData!, channel);
-      } else {
-        // Determine if created channel should be private
-        let privateChannel = false;
-        if (splitAction[2] !== undefined && splitAction[2] === 'private') {
-          privateChannel = true;
-        }
-
-        // Create the new channel
-        const newChannel: Channel = {
-          id: '',
-          name: splitAction[1],
-          type: privateChannel ? ChannelType.Private : ChannelType.Public,
-          createdBy: userStore.currentUserData!.id,
-          numberOfUsers: 1,
-          numberOfMessages: 0,
-          lastActive: '',
-          createdAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-          updatedAt: date.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'),
-          deletedAt: '',
-        };
-
-        channelStore.addChannel(newChannel, userStore.currentUserData!);
-
-        useNotifications('add', `Channel ${splitAction[1]} has been created`);
+      // Check correct channel type is specified
+      if (
+        splitAction[2] !== undefined &&
+        splitAction[2] !== 'public' &&
+        splitAction[2] !== 'private'
+      ) {
+        useNotifications('error', 'Unrecognized channel type');
+        break;
       }
+
+      // Join the channel
+      let privateChannel = 'public';
+      if (splitAction[2] !== undefined && splitAction[2] === 'private') {
+        privateChannel = 'private';
+      }
+      channelStore.joinChannel(channelName, privateChannel);
       break;
 
     // CANCEL MEMBERSHIP TO CHANNEL
     case '/cancel':
       // If admin cancel the whole channel
-      if (
-        userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
-      ) {
-        channelStore.cancelChannel(channelStore.currentActiveChannel?.id);
-        channelStore.currentActiveChannel = null;
-        // else only leave channel
-      } else {
-        channelStore.removeMember(userStore.currentUserData?.id);
-        channelStore.currentActiveChannel = null;
-      }
+      channelStore.cancelChannel(userStore.authInfo.user!.nickName);
       break;
 
     // QUIT CHANNEL
     case '/quit':
       // Check if admin rights
-      if (
-        !userStore.checkUserRights(channelStore.currentActiveChannel?.createdBy)
-      ) {
+      if (!userStore.checkUserRights(channelStore.channelState.active!)) {
         useNotifications('error', 'You do not have enough rights');
         break;
       }
-
       // Delete the whole channel
-      channelStore.cancelChannel(channelStore.currentActiveChannel?.id);
-      channelStore.currentActiveChannel = null;
-
+      channelStore.cancelChannel(userStore.authInfo.user!.nickName);
       break;
 
     // If not action found
@@ -460,13 +364,11 @@ const handleAction = (message: string): void => {
 };
 
 // Handle mention click
-const handleMentionClick = (id: string): void => {
+const handleMentionClick = (nickName: string): void => {
   // Find the member by id
-  const member = channelStore.currentChannelMembers.find(
-    (member) => member.id === id
-  );
+
   // Add it to the writing input
-  messageData.value += `${member?.nickName} `;
+  messageData.value += `${nickName} `;
   showMentionHelper.value = false;
 
   // Focus back on the input field

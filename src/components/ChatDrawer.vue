@@ -23,7 +23,7 @@
           <q-item-section>
             <q-item-label lines="1">
               <span class="text-weight-bold">
-                {{ userStore.currentUserData?.nickName }}
+                {{ userStore.authInfo.user!.nickName }}
               </span>
             </q-item-label>
           </q-item-section>
@@ -105,12 +105,12 @@ import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
 import { useUserStore } from 'src/stores/user-store';
-import { User } from './models';
+import { User } from '../contracts/Auth';
 
 const userStore = useUserStore();
 const router = useRouter();
 
-const userStatus = ['Active', 'Do not disturb', 'Offline'];
+const userStatus = ['active', 'do not disturb', 'offline'];
 const notificationSetting = ['all', 'mentionsOnly', 'off'];
 
 const showProfileModal = ref(false);
@@ -128,7 +128,7 @@ const handleClickActivityStatus = (status: string) => {
 
   // Update the settings in the store
   userStore.updateUserSettings({
-    ...userStore.currentUserData,
+    ...userStore.authInfo.user,
     status,
   } as User);
 };
@@ -139,7 +139,7 @@ const toggleDropdownMenu = (e: Event) => {
 
 // Logout, clear session
 const handleLogout = () => {
-  userStore.logout2();
+  userStore.logout();
   router.push('/auth/login');
 };
 </script>
