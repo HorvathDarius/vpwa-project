@@ -1,8 +1,14 @@
-import { RawMessage, SerializedMessage, User } from 'src/contracts';
+import {
+  RawMessage,
+  SerializedMessage,
+  User,
+  UserChannelStatus,
+} from 'src/contracts';
 import { BootParams, SocketManager } from './SocketManager';
 import { useChannelStore } from 'src/stores/channel-store';
 import { Channel } from 'src/contracts/index';
 import { api } from 'src/boot/axios';
+import { useNotifications } from 'src/utils/useNotifications';
 
 // creating instance of this class automatically connects to given socket.io namespace
 // subscribe is called with boot params, so you can use it to dispatch actions for socket events
@@ -17,6 +23,21 @@ class ChannelSocketManager extends SocketManager {
       // store.commit('channels/NEW_MESSAGE', { channel, message });
       this.channelStore.newMessage({ channel, message });
     });
+
+    // When list of channels change
+    this.socket.on('channelListModified', (channelName: string) => {
+      this.channelStore.getAll();
+      this.channelStore.handleChannelListChange(channelName);
+      useNotifications(
+        'error',
+        `Your membership in channel ${channelName} was cacelled.`
+      );
+    });
+
+    // When new invitations arrive
+    this.socket.on('newInvite', (channelName: string) => {
+      this.channelStore.loadPendingChannels();
+    });
   }
 
   public addMessage(
@@ -29,6 +50,13 @@ class ChannelSocketManager extends SocketManager {
   public loadMessages(): Promise<SerializedMessage[]> {
     return this.emitAsync('loadMessages');
   }
+
+  public updateUserChannelStatus(
+    userName: string,
+    newStatus: UserChannelStatus
+  ): void {
+    this.emitAsync('updateUserChannelStatus', userName, newStatus);
+  }
 }
 
 class ChannelService {
@@ -36,7 +64,8 @@ class ChannelService {
 
   public join(name: string): ChannelSocketManager {
     if (this.channels.has(name)) {
-      throw new Error(`User is already joined in channel "${name}"`);
+      //throw new Error(`User is already joined in channel "${name}"`);
+      return this.channels.get(name) as ChannelSocketManager;
     }
 
     // connect to given channel namespace
@@ -84,39 +113,22 @@ class ChannelService {
   async removeUser(
     channelName: string,
     nickName: string,
-    userChannelStatus: string
-  ): Promise<string> {
-    const response = await api.patch('channels/users/status', {
-      channelName,
-      nickName,
-      userChannelStatus,
-    });
-    return response.data;
-  }
-
-  async kickUser(
-    channelName: string,
-    nickName: string,
-    userChannelStatus: string
-  ): Promise<string> {
-    const response = await api.patch('channels/users/status', {
-      channelName,
-      nickName,
-      userChannelStatus,
-    });
-    return response.data;
+    userChannelStatus: UserChannelStatus
+  ): Promise<void> {
+    const channel = this.channels.get(channelName);
+    channel?.updateUserChannelStatus(nickName, userChannelStatus);
   }
 
   async getChannelUsers(channelName: string): Promise<User[]> {
     const response = await api.get('channel/users', {
       params: { channelName },
     });
-    return response.data;
+    return response.data.users;
   }
 
   async getPendingChannels(): Promise<Channel[]> {
     const response = await api.get('channels/pending', {});
-    return response.data;
+    return response.data.channels;
   }
 
   async resolveChannelInvite(

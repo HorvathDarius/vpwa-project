@@ -11,6 +11,7 @@
         {{ channel?.name }}
         <q-icon
           v-if="channel?.createdBy === userStore.authInfo.user?.id"
+          :key="channel?.id"
           name="star"
           style="
             vertical-align: top;

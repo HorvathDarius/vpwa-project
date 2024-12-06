@@ -1,14 +1,9 @@
 <template>
   <q-header elevated class="bg-gradient row">
     <q-toolbar class="text-black q-px-lg">
-      <q-avatar>
-        <img src="/blankProfile.jpg" />
-      </q-avatar>
-
       <span class="q-subtitle-1 q-pl-md text-white text-bold">
         {{
-          channelStore.currentActiveChannel?.name ??
-          'VPWA Project Slack Application'
+          channelStore.channelState?.active ?? 'VPWA Project Slack Application'
         }}
       </span>
 
