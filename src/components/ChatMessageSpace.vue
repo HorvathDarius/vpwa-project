@@ -10,7 +10,7 @@
             <q-infinite-scroll
               v-if="channelStore.channelState.active"
               reverse
-              :offset="250"
+              :offset="500"
               class="q-px-lg"
               @load="loadMoreMessages"
             >
@@ -46,13 +46,20 @@
                 "
               />
               <q-chat-message
+                v-if="
+                  // If there is a message being typed
+                  channelStore.currentlyTyping !== null &&
+                  // And the active channel is the emitting channel
+                  channelStore.currentlyTyping.channel ===
+                    channelStore.channelState.active
+                "
                 class="text-grey-1"
-                name="Martin"
+                :name="`${channelStore.currentlyTyping.username} is typing...`"
                 bg-color="grey-5"
               >
-                <div @click="handleMouseHover">
+                <div @click="handleMouseClick">
                   <q-spinner-dots v-if="!showTypingMessage" size="2rem" />
-                  <span v-else>This is a message that is being typed...</span>
+                  <span v-else>{{ channelStore.currentlyTyping.message }}</span>
                 </div>
               </q-chat-message>
 
@@ -120,11 +127,13 @@ const messages = channelStore.channelState.messages;
 
 const loadMoreMessages = (index: number, done: () => void) => {
   setTimeout(() => {
+    // console.log('Loading more messages...', index);
+    channelStore.loadMoreMessages(channelStore.channelState.active!, index);
     done();
-  }, 2000);
+  }, 1000);
 };
 
-const handleMouseHover = () => {
+const handleMouseClick = () => {
   showTypingMessage.value = !showTypingMessage.value;
 };
 </script>

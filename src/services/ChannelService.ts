@@ -20,8 +20,18 @@ class ChannelSocketManager extends SocketManager {
     const channel = this.namespace.split('/').pop() as string;
 
     this.socket.on('message', (message: SerializedMessage) => {
-      // store.commit('channels/NEW_MESSAGE', { channel, message });
       this.channelStore.newMessage({ channel, message });
+    });
+
+    this.socket.on('userTypingMessage', (channel: string, username: string, message: string) => {
+      // If message is null or user is typing a command
+      if(message === '' || message[0] === '/') {
+        // Remove typing message
+        this.channelStore.currentlyTyping = null;
+      } else {
+        // Else display is typing message
+        this.channelStore.currentlyTyping = { channel, username, message };
+      }
     });
 
     // When list of channels change
@@ -36,6 +46,7 @@ class ChannelSocketManager extends SocketManager {
 
     // When new invitations arrive
     this.socket.on('newInvite', (channelName: string) => {
+      console.log('newInvite', channelName);
       this.channelStore.loadPendingChannels();
     });
   }
@@ -47,8 +58,12 @@ class ChannelSocketManager extends SocketManager {
     return this.emitAsync('addMessage', message, mention);
   }
 
-  public loadMessages(): Promise<SerializedMessage[]> {
-    return this.emitAsync('loadMessages');
+  public broadcastTyping(channel: string, username:string, message: string): Promise<SerializedMessage> {
+    return this.emitAsync('userIsTyping', channel, username, message);
+  }
+
+  public loadMessages({ index=0, count=10}): Promise<SerializedMessage[]> {
+    return this.emitAsync('loadMessages', {index, count});
   }
 
   public updateUserChannelStatus(

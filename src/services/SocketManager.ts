@@ -3,9 +3,9 @@ import { authManager } from '.';
 import { BootCallback } from '@quasar/app-vite';
 import { ChannelStateInterface } from 'src/stores/channel-store';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type BootParams<
-  T extends BootCallback<ChannelStateInterface> = BootCallback<ChannelStateInterface>
+T extends BootCallback<ChannelStateInterface> = BootCallback<ChannelStateInterface>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 > = T extends (params: infer P) => any ? P : never;
 
 export interface SocketManagerContract {

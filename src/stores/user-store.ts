@@ -1,7 +1,7 @@
 import { Ref, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { authManager, authService } from 'src/services';
-import { User, LoginCredentials, RegisterData } from 'src/contracts';
+import { User, LoginCredentials, RegisterData, UpdateStatus } from 'src/contracts';
 import { useChannelStore } from './channel-store';
 import { channelService } from 'src/services';
 
@@ -43,8 +43,7 @@ export const useUserStore = defineStore('users', () => {
   }
 
   // Update the user settings
-  async function updateUserSettings(userData: User) {
-    console.table(userData);
+  async function updateUserSettings(userData: UpdateStatus) {
     try {
       await authService.update(userData);
       checkUser();
