@@ -136,10 +136,9 @@ export const useChannelStore = defineStore('channels', () => {
   // Load the pending channels
   async function loadPendingChannels() {
     try {
-      const response = await channelService.getPendingChannels();
-      const { channels } = response;
+      const channels = await channelService.getPendingChannels();
       pendingChannels.value = channels;
-      return response;
+      return channels;
     } catch (error: unknown) {
       // useNotifications('error', '');
       throw error;
@@ -167,12 +166,11 @@ export const useChannelStore = defineStore('channels', () => {
   // Load the current members of a channel
   async function loadCurrentChannelMembers() {
     try {
-      const response = await channelService.getChannelUsers(
+      const users = await channelService.getChannelUsers(
         channelState.value.active!
       );
-      const { users } = response;
       activeChannelsMembers.value = users;
-      return response;
+      return users;
     } catch (error: unknown) {
       useNotifications('error', '');
       throw error;

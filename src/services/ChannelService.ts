@@ -111,12 +111,12 @@ class ChannelService {
     const response = await api.get('channel/users', {
       params: { channelName },
     });
-    return response.data;
+    return response.data.users;
   }
 
   async getPendingChannels(): Promise<Channel[]> {
     const response = await api.get('channels/pending', {});
-    return response.data;
+    return response.data.channels;
   }
 
   async resolveChannelInvite(
