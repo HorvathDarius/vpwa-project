@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { authManager, authService } from 'src/services';
 import { User, LoginCredentials, RegisterData } from 'src/contracts';
 import { useChannelStore } from './channel-store';
+import { channelService } from 'src/services';
 
 interface AuthStateInterface {
   user: User | null;
@@ -82,7 +83,11 @@ export const useUserStore = defineStore('users', () => {
       // }
       authenticationSuccess(user);
       console.table(authInfo.value.user);
-      channelStore.loadPendingChannels();
+      await channelStore.loadPendingChannels();
+      await channelStore.getAll();
+      user?.channels.forEach((channel) => {
+        channelService.join(channel.name);
+      });
       return user !== null;
     } catch (error) {
       // authenticationError(error as { message: string, field?: string}[]);

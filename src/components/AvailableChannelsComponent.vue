@@ -8,7 +8,7 @@
         :pending="true"
       />
       <ChatChannelComponent
-        v-for="channel in userStore.authInfo.user?.channels"
+        v-for="channel in channelStore.availableChannels"
         :key="channel.id"
         :channel="channel"
         :pending="false"
@@ -20,8 +20,6 @@
 <script setup lang="ts">
 import ChatChannelComponent from './ChatChannelComponent.vue';
 import { useChannelStore } from 'src/stores/channel-store';
-import { useUserStore } from 'src/stores/user-store';
 
 const channelStore = useChannelStore();
-const userStore = useUserStore();
 </script>

@@ -1,4 +1,9 @@
-import { RawMessage, SerializedMessage, User } from 'src/contracts';
+import {
+  RawMessage,
+  SerializedMessage,
+  User,
+  UserChannelStatus,
+} from 'src/contracts';
 import { BootParams, SocketManager } from './SocketManager';
 import { useChannelStore } from 'src/stores/channel-store';
 import { Channel } from 'src/contracts/index';
@@ -17,6 +22,16 @@ class ChannelSocketManager extends SocketManager {
       // store.commit('channels/NEW_MESSAGE', { channel, message });
       this.channelStore.newMessage({ channel, message });
     });
+
+    // When list of channels change
+    this.socket.on('channelListModified', () => {
+      this.channelStore.getAll();
+    });
+
+    // When new invitations arrive
+    this.socket.on('newInvite', () => {
+      this.channelStore.loadPendingChannels();
+    });
   }
 
   public addMessage(
@@ -29,6 +44,13 @@ class ChannelSocketManager extends SocketManager {
   public loadMessages(): Promise<SerializedMessage[]> {
     return this.emitAsync('loadMessages');
   }
+
+  public updateUserChannelStatus(
+    userName: string,
+    newStatus: UserChannelStatus
+  ): void {
+    this.emitAsync('updateUserChannelStatus', userName, newStatus);
+  }
 }
 
 class ChannelService {
@@ -36,7 +58,8 @@ class ChannelService {
 
   public join(name: string): ChannelSocketManager {
     if (this.channels.has(name)) {
-      throw new Error(`User is already joined in channel "${name}"`);
+      //throw new Error(`User is already joined in channel "${name}"`);
+      return this.channels.get(name) as ChannelSocketManager;
     }
 
     // connect to given channel namespace
@@ -84,27 +107,10 @@ class ChannelService {
   async removeUser(
     channelName: string,
     nickName: string,
-    userChannelStatus: string
-  ): Promise<string> {
-    const response = await api.patch('channels/users/status', {
-      channelName,
-      nickName,
-      userChannelStatus,
-    });
-    return response.data;
-  }
-
-  async kickUser(
-    channelName: string,
-    nickName: string,
-    userChannelStatus: string
-  ): Promise<string> {
-    const response = await api.patch('channels/users/status', {
-      channelName,
-      nickName,
-      userChannelStatus,
-    });
-    return response.data;
+    userChannelStatus: UserChannelStatus
+  ): Promise<void> {
+    const channel = this.channels.get(channelName);
+    channel?.updateUserChannelStatus(nickName, userChannelStatus);
   }
 
   async getChannelUsers(channelName: string): Promise<User[]> {
