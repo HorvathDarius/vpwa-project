@@ -4,7 +4,6 @@ module.exports = {
   parserOptions: {
     project: resolve(__dirname, './tsconfig.json'),
   },
-
   overrides: [
     {
       files: ['custom-service-worker.ts'],

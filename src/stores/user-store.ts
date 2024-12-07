@@ -56,7 +56,6 @@ export const useUserStore = defineStore('users', () => {
       await changeStatus(userData.status);
       await changeNotificationSettings(userData.notificationSetting);
       checkUser();
-      console.log(authInfo.value.user?.status);
     } catch (error) {
       throw error;
     }
@@ -86,16 +85,30 @@ export const useUserStore = defineStore('users', () => {
     try {
       authneticationStart();
       const user = await authService.me();
-      // if (user?.id !== authInfo.value.user?.id) {
-      //   await channelStore.join('');
-      // }
+
       authenticationSuccess(user);
       channelStore.loadPendingChannels();
       channelStore.getAll();
       userService.join();
-      user?.channels.forEach((channel) => {
-        channelService.join(channel.name);
-      });
+      // user?.channels.forEach((channel) => {
+      //   channelService.join(channel.name);
+      // });
+      
+      // If set offline status
+      if (user?.status === UserStatus.Offline) {
+        // unsubscribe from all channels
+        channelStore.availableChannels?.map((channel) => {
+          channelService.leave(channel.name);
+        })
+      }
+    // if set active status
+      if (user?.status === UserStatus.Active) {
+        // subscribe to all channels
+        channelStore.availableChannels?.map((channel) => {
+          channelService.join(channel.name);
+        })
+      }
+
       return user !== null;
     } catch (error) {
       console.log('error');

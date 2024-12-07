@@ -8,6 +8,7 @@ import {
   RawMessage,
   SerializedMessage,
   UserNotificationSetting,
+  UserStatus,
 } from 'src/contracts';
 import { channelService, userService } from 'src/services';
 import { useUserStore } from './user-store';
@@ -245,19 +246,25 @@ export const useChannelStore = defineStore('channels', () => {
     channelState.value.messages[channel].push(message);
     currentlyTyping.value = null;
 
+    // If app is not visible
     if (isVisible.value === false) {
-      if(userStore.authInfo.user?.notificationSetting === UserNotificationSetting.Off) {
-        console.log('NO NOTIFICATION');
+      // If no notification setting or if DND mode
+      if(userStore.authInfo.user?.notificationSetting === UserNotificationSetting.Off
+        || userStore.authInfo.user?.status === UserStatus.DND
+      ) {
         return;
       } 
 
+        // If only mentions
       if (userStore.authInfo.user?.notificationSetting === UserNotificationSetting.ShowMentions) {
-        console.log('MENTIONS')
+        if (!message.mentions){
+          return;
+        }
       } 
 
       const img = '/icons/icon-192x192.png';
       const text = message.content;
-      const notification = new Notification(channel, {
+      new Notification(channel, {
         body: text,
         icon: img,
       });
