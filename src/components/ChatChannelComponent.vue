@@ -102,6 +102,12 @@ const handleChannelClick = (channel: Channel) => {
     useNotifications('error', 'You are not a member of the channel yet');
     return;
   }
+
+  if (channel.name === channelStore.channelState.active) {
+    console.log(`Clicked on same channel ${channel.name}`);
+    return;
+  }
+
   // Set current channel
   channelStore.join(channel.name);
   channelStore.setActive(channel.name);

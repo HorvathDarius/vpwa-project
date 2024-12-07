@@ -9,9 +9,10 @@
             v-if="channelStore.channelState.active"
           >
             <q-infinite-scroll
+              ref="infScroll"
               v-if="channelStore.channelState.active"
               reverse
-              :offset="300"
+              :offset="500"
               class="q-px-lg q-pt-lg"
               @load="loadMoreMessages"
             >
@@ -123,25 +124,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, watch } from 'vue';
 import ChatFooter from './ChatFooter.vue';
 import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
+import { QInfiniteScroll } from 'quasar';
 
 const scrollContainer = ref<HTMLElement | null>(null);
+const infScroll = ref<QInfiniteScroll | null>(null);
 const hasMoreMessages = ref(true);
 const showTypingMessage = ref(false);
 const channelStore = useChannelStore();
 const userStore = useUserStore();
 const messages = channelStore.channelState.messages;
+const currentIndex = ref(1);
+
+// Watch for changes in the active channel
+watch(
+  () => channelStore.channelState.active,
+  (newActiveChannel) => {
+    if (newActiveChannel) {
+      hasMoreMessages.value = true; // Reset the flag for loading more messages
+      currentIndex.value = 0;
+      infScroll.value?.reset(); // Reset pagination index
+    }
+  }
+);
 
 // This function was created with help of chatGPT
 const loadMoreMessages = async (index: number, done: () => void) => {
-  const delay = 1000; // Timeout in milliseconds
+  const delay = 2000; // Timeout in milliseconds
   if (!scrollContainer.value) {
     done();
     return;
   }
+
+  const indexBefore = currentIndex.value;
 
   try {
     const previousScrollHeight = scrollContainer.value.scrollHeight;
@@ -149,7 +167,16 @@ const loadMoreMessages = async (index: number, done: () => void) => {
     // Wait for the specified timeout before fetching messages
     await new Promise((resolve) => setTimeout(resolve, delay));
 
+    if (indexBefore !== currentIndex.value) {
+      console.log(
+        `Skipping since the index was reset. index = ${currentIndex.value}`
+      );
+      done();
+      return;
+    }
+
     // Fetch messages after the delay
+    currentIndex.value++;
     const moreMessages = await channelStore.loadMoreMessages(
       channelStore.channelState.active!,
       index
@@ -162,13 +189,9 @@ const loadMoreMessages = async (index: number, done: () => void) => {
 
     // Adjust scroll position to prevent jumping
     adjustScrollPosition(previousScrollHeight);
-
-    // Mark the load cycle as done
     done();
   } catch (error) {
     console.error('Error loading messages:', error);
-
-    // Ensure the infinite scroll doesn't get stuck
     done();
   }
 };
