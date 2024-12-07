@@ -246,6 +246,11 @@ const handleMessageTyping = (value: string | null): void => {
     // Display list of members
     showMentionHelper.value = true;
   } else {
+    channelStore.handleUserTyping(
+      channelStore.channelState.active!,
+      userStore.authInfo.user!.nickName,
+      value!
+    );
     // Hide the lists
     showActionHelper.value = false;
     showMentionHelper.value = false;

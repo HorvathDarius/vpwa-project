@@ -29,6 +29,8 @@ export const useChannelStore = defineStore('channels', () => {
   const userStore = useUserStore();
   const pendingChannels = ref<Channel[]>([]);
   const activeChannelsMembers = ref<User[]>([]);
+  const activeChannelMessages = ref<SerializedMessage[]>([]);
+  const currentlyTyping = ref<{channel:string, username: string, message:string} | null>(null);
 
   const channelState: Ref<ChannelStateInterface> = ref({
     loading: false,
@@ -49,7 +51,7 @@ export const useChannelStore = defineStore('channels', () => {
     console.log('CANCEL - STORE');
     console.log(nickName);
     try {
-      const response = await channelService.removeUser(
+      await channelService.removeUser(
         channelState.value.active!,
         nickName,
         UserChannelStatus.LeftChannel
@@ -91,12 +93,11 @@ export const useChannelStore = defineStore('channels', () => {
         channelName,
         channelType
       );
-      useNotifications('success', `You have joined the channel ${channelName}`);
+      useNotifications('success', `You have joined the channel ${channel.name}`);
       await userStore.checkUser();
       return;
     } catch (error: unknown) {
       useNotifications('error', '');
-      channelState.value.active = channelName;
       throw error;
     }
   }
@@ -106,7 +107,7 @@ export const useChannelStore = defineStore('channels', () => {
     console.log('REVOKE MEMBER - STORE');
     console.log(nickName);
     try {
-      const response = await channelService.removeUser(
+      await channelService.removeUser(
         channelState.value.active!,
         nickName,
         UserChannelStatus.KickedOut
@@ -152,7 +153,7 @@ export const useChannelStore = defineStore('channels', () => {
     console.log('KICK MEMBER - STORE');
     console.log(nickName);
     try {
-      const response = await channelService.removeUser(
+      await channelService.removeUser(
         channelState.value.active!,
         nickName,
         UserChannelStatus.KickedOut
@@ -240,6 +241,7 @@ export const useChannelStore = defineStore('channels', () => {
       channelState.value.messages[channel] = [];
     }
     channelState.value.messages[channel].push(message);
+    currentlyTyping.value = null;
   }
 
   /**
@@ -248,8 +250,24 @@ export const useChannelStore = defineStore('channels', () => {
   async function join(channel: string) {
     try {
       loadingStart();
-      const messages = await channelService.join(channel).loadMessages();
+      const messageBatch = await channelService.join(channel).loadMessages({});
+      messageBatch.reverse();
+      const messages = [...messageBatch];
+      // const messages = await channelService.join(channel).loadMessages();
       loadingSuccess({ channel, messages });
+    } catch (error) {
+      loadingError(error as Error);
+      throw error;
+    }
+  }
+
+  async function loadMoreMessages(channel: string, index: number) {
+    try {
+      loadingStart();
+      const messageBatch = await channelService.in(channel)!.loadMessages({index: index * 10 + 1});
+      messageBatch.reverse();
+      const messages = [...messageBatch, ...channelState.value.messages[channel]];
+     loadingSuccess({ channel, messages });
     } catch (error) {
       loadingError(error as Error);
       throw error;
@@ -278,6 +296,14 @@ export const useChannelStore = defineStore('channels', () => {
       .in(channel)
       ?.addMessage(message, mention);
     newMessage({ channel, message: newMessageVariable as SerializedMessage });
+  }
+
+  function handleUserTyping(
+    channel: string,
+    username: string,
+    message: string,
+  ) {
+    channelService.in(channel)?.broadcastTyping(channel, username, message);
   }
 
   /**
@@ -309,6 +335,8 @@ export const useChannelStore = defineStore('channels', () => {
     availableChannels,
     pendingChannels,
     activeChannelsMembers,
+    activeChannelMessages,
+    currentlyTyping,
 
     // actions
     cancelChannel,
@@ -331,11 +359,13 @@ export const useChannelStore = defineStore('channels', () => {
     clearChannel,
     setActive,
     newMessage,
+    loadMoreMessages,
 
     // actions
     join,
     leave,
     addMessage,
+    handleUserTyping,
 
     // getters
     joinedChannels,

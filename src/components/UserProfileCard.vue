@@ -4,8 +4,9 @@
       <q-card-section class="q-pt-none">
         <q-input
           standout
+          disable
           class="q-mt-md text-black"
-          bg-color="white"
+          bg-color="grey"
           style="min-width: 100%"
           input-style="color: black;"
           v-model="user.fullName"
@@ -13,8 +14,9 @@
         />
         <q-input
           standout
+          disable
           class="q-mt-md text-black"
-          bg-color="white"
+          bg-color="grey"
           style="min-width: 100%"
           input-style="color: black;"
           v-model="user.email"
@@ -24,8 +26,9 @@
         />
         <q-input
           standout
+          disable
           class="q-mt-md text-black"
-          bg-color="white"
+          bg-color="grey"
           style="min-width: 100%"
           input-style="color: black;"
           v-model="user.nickName"
@@ -82,6 +85,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
+import { UpdateStatus } from 'src/contracts';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -110,7 +114,7 @@ const onSubmit = () => {
   userStore.updateUserSettings({
     status: user.value.status,
     notificationSetting: user.value.notificationSetting,
-  } as any);
+  } as UpdateStatus);
 };
 
 const handleLogout = () => {
