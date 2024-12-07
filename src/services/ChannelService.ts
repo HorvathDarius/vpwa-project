@@ -6,6 +6,7 @@ import {
 } from 'src/contracts';
 import { BootParams, SocketManager } from './SocketManager';
 import { useChannelStore } from 'src/stores/channel-store';
+import { useUserStore } from 'src/stores/user-store';
 import { Channel } from 'src/contracts/index';
 import { api } from 'src/boot/axios';
 import { useNotifications } from 'src/utils/useNotifications';
@@ -15,9 +16,12 @@ import { useNotifications } from 'src/utils/useNotifications';
 // you have access to socket.io socket using this.socket
 class ChannelSocketManager extends SocketManager {
   channelStore = useChannelStore();
+  userStore = useUserStore();
 
   public subscribe({}: BootParams): void {
     const channel = this.namespace.split('/').pop() as string;
+
+    this.socket.on('error', () => useNotifications('error', 'Error occured'));
 
     this.socket.on('message', (message: SerializedMessage) => {
       this.channelStore.newMessage({ channel, message });
@@ -42,12 +46,6 @@ class ChannelSocketManager extends SocketManager {
         'error',
         `Your membership in channel ${channelName} was cacelled.`
       );
-    });
-
-    // When new invitations arrive
-    this.socket.on('newInvite', (channelName: string) => {
-      console.log('newInvite', channelName);
-      this.channelStore.loadPendingChannels();
     });
   }
 
@@ -121,16 +119,15 @@ class ChannelService {
     return response.data;
   }
 
-  async inviteUser(channelName: string, nickName: string): Promise<void> {
-    await api.post('channels/invite', { channelName, nickName });
-  }
-
   async removeUser(
     channelName: string,
     nickName: string,
     userChannelStatus: UserChannelStatus
   ): Promise<void> {
     const channel = this.channels.get(channelName);
+    if (!channel) {
+      useNotifications('error', `You do not belong to channel ${channel}`);
+    }
     channel?.updateUserChannelStatus(nickName, userChannelStatus);
   }
 

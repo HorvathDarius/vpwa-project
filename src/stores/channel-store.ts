@@ -8,7 +8,7 @@ import {
   RawMessage,
   SerializedMessage,
 } from 'src/contracts';
-import { channelService } from 'src/services';
+import { channelService, userService } from 'src/services';
 import { useUserStore } from './user-store';
 
 export interface ChannelStateInterface {
@@ -79,10 +79,7 @@ export const useChannelStore = defineStore('channels', () => {
   // Invite a member to a channel
   async function inviteUser(nickName: string) {
     try {
-      return await channelService.inviteUser(
-        channelState.value.active!,
-        nickName
-      );
+      return await userService.inviteUser(channelState.value.active!, nickName);
     } catch (error: unknown) {
       useNotifications('error', '');
       throw error;
