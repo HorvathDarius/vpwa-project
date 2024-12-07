@@ -367,7 +367,7 @@ export const useChannelStore = defineStore('channels', () => {
     preloadChannelInfo,
     handleChannelListChange,
     channelState,
-
+    loadCurrentChannelMembers,
     getAll,
 
     // mutations

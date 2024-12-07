@@ -16,9 +16,22 @@
         >
           <q-item-section>
             <q-item-label lines="1">
-              <span class="text-weight-bold">
+              <span class="text-weight-bold" style="margin-right: 0.5rem">
                 {{ userStore.authInfo.user!.nickName }}
               </span>
+              <q-badge
+                :color="
+                    userStore.authInfo.user!.status === UserStatus.Active
+                      ? 'green'
+                      : userStore.authInfo.user!.status === UserStatus.DND
+                      ? 'red'
+                      : 'orange'
+                  "
+                rounded
+                ><q-tooltip>
+                  {{ userStore.authInfo.user!.status }}
+                </q-tooltip></q-badge
+              >
             </q-item-label>
           </q-item-section>
 
@@ -60,6 +73,7 @@ import ModalWindowComponent from './ModalWindowComponent.vue';
 import AvailableChannelsComponent from './AvailableChannelsComponent.vue';
 import UserProfileCard from './UserProfileCard.vue';
 import { useUserStore } from 'src/stores/user-store';
+import { UserStatus } from 'src/contracts';
 
 const userStore = useUserStore();
 const router = useRouter();

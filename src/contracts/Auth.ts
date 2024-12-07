@@ -1,9 +1,9 @@
 import { Channel } from './Channel';
 
 export enum UserStatus {
-  Active = 'Active',
-  Offline = 'Offline',
-  DND = 'Do not disturb',
+  Active = 'active',
+  Offline = 'offline',
+  DND = 'do not disturb',
 }
 
 export enum UserNotificationSetting {
@@ -34,8 +34,8 @@ export interface LoginCredentials {
 }
 
 export interface UpdateStatus {
-  status: UserStatus
-  notificationSetting: UserNotificationSetting
+  status: UserStatus;
+  notificationSetting: UserNotificationSetting;
 }
 
 export interface User {

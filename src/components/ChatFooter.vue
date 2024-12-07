@@ -112,8 +112,8 @@
                       member.status === UserStatus.Active
                         ? 'green'
                         : member.status === UserStatus.DND
-                        ? 'orange'
-                        : 'red'
+                        ? 'red'
+                        : 'orange'
                     "
                     rounded
                   />
@@ -266,6 +266,7 @@ const handleAction = (message: string): void => {
   switch (splitAction[0]) {
     case '/list':
       // Dispplay modal with members
+      channelStore.loadCurrentChannelMembers();
       showListOfMembers.value = true;
       break;
 
