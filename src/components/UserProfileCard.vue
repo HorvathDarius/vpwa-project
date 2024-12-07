@@ -110,11 +110,13 @@ const user = ref({
   notificationSetting: userStore.authInfo.user!.notificationSetting,
 });
 
-const onSubmit = () => {
-  userStore.updateUserSettings({
+const onSubmit = async () => {
+  await userStore.updateUserSettings({
     status: user.value.status,
     notificationSetting: user.value.notificationSetting,
   } as UpdateStatus);
+
+  //console.log('User status', user.value.status);
 };
 
 const handleLogout = () => {

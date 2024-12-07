@@ -1,7 +1,14 @@
 import { Ref, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { authManager, authService } from 'src/services';
-import { User, LoginCredentials, RegisterData, UpdateStatus } from 'src/contracts';
+import {
+  User,
+  LoginCredentials,
+  RegisterData,
+  UpdateStatus,
+  UserStatus,
+  UserNotificationSetting,
+} from 'src/contracts';
 import { useChannelStore } from './channel-store';
 import { channelService } from 'src/services';
 import { userService } from 'src/services';
@@ -46,8 +53,10 @@ export const useUserStore = defineStore('users', () => {
   // Update the user settings
   async function updateUserSettings(userData: UpdateStatus) {
     try {
-      await authService.update(userData);
+      await changeStatus(userData.status);
+      await changeNotificationSettings(userData.notificationSetting);
       checkUser();
+      console.log(authInfo.value.user?.status);
     } catch (error) {
       throw error;
     }
@@ -132,6 +141,22 @@ export const useUserStore = defineStore('users', () => {
       authenticationError(error as { message: string; field?: string }[]);
       throw error;
     }
+  }
+
+  async function changeStatus(newStatus: UserStatus) {
+    if (newStatus === authInfo.value.user?.status) {
+      return;
+    }
+    await userService.changeStatus(newStatus);
+  }
+
+  async function changeNotificationSettings(
+    newSetting: UserNotificationSetting
+  ) {
+    if (newSetting === authInfo.value.user?.notificationSetting) {
+      return;
+    }
+    await userService.changeNotificationSettings(newSetting);
   }
 
   /**
