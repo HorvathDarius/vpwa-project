@@ -24,9 +24,8 @@ const $q = useQuasar();
 watch(
   () => $q.appVisible,
   (value) => {
-    // console.log('App visible:', value);
-    if (value) {
-    }
+    console.log('App visible:', value);
+    channelStore.isVisible = value;
   }
 );
 </script>

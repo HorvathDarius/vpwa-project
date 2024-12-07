@@ -84,14 +84,12 @@ export const useUserStore = defineStore('users', () => {
 
   async function checkUser() {
     try {
-      console.log('checkUser');
       authneticationStart();
       const user = await authService.me();
       // if (user?.id !== authInfo.value.user?.id) {
       //   await channelStore.join('');
       // }
       authenticationSuccess(user);
-      console.table(authInfo.value.user);
       channelStore.loadPendingChannels();
       channelStore.getAll();
       userService.join();

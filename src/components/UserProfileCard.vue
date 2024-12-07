@@ -22,7 +22,6 @@
           v-model="user.email"
           label="Email"
           type="email"
-          @input="console.log('email', user.email)"
         />
         <q-input
           standout
@@ -33,7 +32,6 @@
           input-style="color: black;"
           v-model="user.nickName"
           label="Username"
-          @input="console.log('username', user.nickName)"
         />
         <q-select
           standout
@@ -44,7 +42,6 @@
           v-model="user.status"
           :options="statusOptions"
           label="Status"
-          @input="console.log('status', user.status)"
         />
         <q-select
           standout
@@ -55,7 +52,6 @@
           v-model="user.notificationSetting"
           :options="notificationOptions"
           label="Notification Setting"
-          @input="console.log('notificationSetting', user.notificationSetting)"
         />
       </q-card-section>
 
