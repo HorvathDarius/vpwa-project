@@ -7,6 +7,8 @@ import {
   UserChannelStatus,
   RawMessage,
   SerializedMessage,
+  UserNotificationSetting,
+  UserStatus,
 } from 'src/contracts';
 import { channelService, userService } from 'src/services';
 import { useUserStore } from './user-store';
@@ -35,6 +37,7 @@ export const useChannelStore = defineStore('channels', () => {
     username: string;
     message: string;
   } | null>(null);
+  const isVisible = ref(true);
 
   const channelState: Ref<ChannelStateInterface> = ref({
     loading: false,
@@ -52,8 +55,6 @@ export const useChannelStore = defineStore('channels', () => {
    */
   // Cancel a channel
   async function cancelChannel(nickName: string) {
-    console.log('CANCEL - STORE');
-    console.log(nickName);
     try {
       await channelService.removeUser(
         channelState.value.active!,
@@ -111,8 +112,6 @@ export const useChannelStore = defineStore('channels', () => {
 
   // Remove member from channel
   async function removeMember(nickName: string) {
-    console.log('REVOKE MEMBER - STORE');
-    console.log(nickName);
     try {
       await channelService.removeUser(
         channelState.value.active!,
@@ -157,8 +156,6 @@ export const useChannelStore = defineStore('channels', () => {
 
   // Kick member from cahnnel
   async function kickMemberFromChannel(nickName: string) {
-    console.log('KICK MEMBER - STORE');
-    console.log(nickName);
     try {
       await channelService.removeUser(
         channelState.value.active!,
@@ -243,12 +240,35 @@ export const useChannelStore = defineStore('channels', () => {
     channel: string;
     message: SerializedMessage;
   }) {
-    console.log(channelState.value);
     if (!channelState.value.messages[channel]) {
       channelState.value.messages[channel] = [];
     }
     channelState.value.messages[channel].push(message);
     currentlyTyping.value = null;
+
+    // If app is not visible
+    if (isVisible.value === false) {
+      // If no notification setting or if DND mode
+      if(userStore.authInfo.user?.notificationSetting === UserNotificationSetting.Off
+        || userStore.authInfo.user?.status === UserStatus.DND
+      ) {
+        return;
+      } 
+
+        // If only mentions
+      if (userStore.authInfo.user?.notificationSetting === UserNotificationSetting.ShowMentions) {
+        if (!message.mentions){
+          return;
+        }
+      } 
+
+      const img = '/icons/icon-192x192.png';
+      const text = message.content;
+      new Notification(channel, {
+        body: text,
+        icon: img,
+      });
+    }
   }
 
   /**
@@ -328,7 +348,6 @@ export const useChannelStore = defineStore('channels', () => {
    * GETTERS
    */
   function joinedChannels() {
-    console.log(Object.keys(channelState.value.messages));
     return Object.keys(channelState.value.messages);
   }
 
@@ -355,6 +374,7 @@ export const useChannelStore = defineStore('channels', () => {
     activeChannelsMembers,
     activeChannelMessages,
     currentlyTyping,
+    isVisible,
 
     // actions
     cancelChannel,

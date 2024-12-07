@@ -21,8 +21,6 @@ const api = axios.create({
   headers: {}
 })
 
-const DEBUG = process.env.NODE_ENV === 'development'
-
 // add interceptor to add authorization header for api calls
 api.interceptors.request.use(
   (config) => {
@@ -32,17 +30,9 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
-    if (DEBUG) {
-      console.info('-> ', config)
-    }
-
     return config
   },
   (error) => {
-    if (DEBUG) {
-      console.error('-> ', error)
-    }
-
     return Promise.reject(error)
   }
 )
@@ -50,17 +40,9 @@ api.interceptors.request.use(
 // add interceptor for response to trigger logout
 api.interceptors.response.use(
   (response) => {
-    if (DEBUG) {
-      console.info('<- ', response)
-    }
-
     return response
   },
   (error) => {
-    if (DEBUG) {
-      console.error('<- ', error.response)
-    }
-
     // server api request returned unathorized response so we trrigger logout
     if (error.response.status === 401 && !error.response.config.dontTriggerLogout) {
       authManager.logout()

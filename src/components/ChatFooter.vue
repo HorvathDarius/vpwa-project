@@ -183,7 +183,6 @@ const handleUserRights = () => {
   if (channelStore.channelState.active === null) {
     return [{ name: '/join', action: '', rights: '' }];
   }
-  console.log('ACTIVE - ', channelStore.channelState.active);
   if (userStore.checkUserRights(channelStore.channelState?.active)) {
     return commands;
   } else {

@@ -89,7 +89,6 @@ const handleInvitationClick = (
   decision: string,
   channelId: string
 ) => {
-  console.log('Invitation Clicked');
   e.stopPropagation();
 
   channelStore.respondToInvitation(decision, channelId);
