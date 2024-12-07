@@ -30,7 +30,11 @@ export const useChannelStore = defineStore('channels', () => {
   const pendingChannels = ref<Channel[]>([]);
   const activeChannelsMembers = ref<User[]>([]);
   const activeChannelMessages = ref<SerializedMessage[]>([]);
-  const currentlyTyping = ref<{channel:string, username: string, message:string} | null>(null);
+  const currentlyTyping = ref<{
+    channel: string;
+    username: string;
+    message: string;
+  } | null>(null);
 
   const channelState: Ref<ChannelStateInterface> = ref({
     loading: false,
@@ -93,7 +97,10 @@ export const useChannelStore = defineStore('channels', () => {
         channelName,
         channelType
       );
-      useNotifications('success', `You have joined the channel ${channel.name}`);
+      useNotifications(
+        'success',
+        `You have joined the channel ${channel.name}`
+      );
       await userStore.checkUser();
       return;
     } catch (error: unknown) {
@@ -261,13 +268,24 @@ export const useChannelStore = defineStore('channels', () => {
     }
   }
 
-  async function loadMoreMessages(channel: string, index: number) {
+  async function loadMoreMessages(
+    channel: string,
+    index: number
+  ): Promise<boolean> {
     try {
       loadingStart();
-      const messageBatch = await channelService.in(channel)!.loadMessages({index: index * 10 + 1});
+      const messageBatch = await channelService
+        .in(channel)!
+        .loadMessages({ index: index * 10 + 1 });
       messageBatch.reverse();
-      const messages = [...messageBatch, ...channelState.value.messages[channel]];
-     loadingSuccess({ channel, messages });
+
+      const messages = [
+        ...messageBatch,
+        ...channelState.value.messages[channel],
+      ];
+      loadingSuccess({ channel, messages });
+
+      return messageBatch.length > 0 ? true : false;
     } catch (error) {
       loadingError(error as Error);
       throw error;
@@ -301,7 +319,7 @@ export const useChannelStore = defineStore('channels', () => {
   function handleUserTyping(
     channel: string,
     username: string,
-    message: string,
+    message: string
   ) {
     channelService.in(channel)?.broadcastTyping(channel, username, message);
   }

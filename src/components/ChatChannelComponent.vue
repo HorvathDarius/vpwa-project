@@ -5,6 +5,11 @@
     v-ripple
     class="q-pa-md"
     @click="() => handleChannelClick(channel as Channel)"
+    :style="
+      channel!.name === channelStore.channelState.active
+        ? 'background-color: rgba(255, 255, 255, 0.15)'
+        : ''
+    "
   >
     <q-item-section>
       <q-item-label lines="1" class="text-bold text-h6">
