@@ -23,6 +23,8 @@ cleanupOutdatedCaches();
 
 const FALLBACK_HTML_URL = '/error.html';
 
+// done with help of Service Worker API example and ChatGPT 
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 self.addEventListener('install', (event: any) => {
   event.waitUntil(

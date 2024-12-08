@@ -70,7 +70,7 @@ export const useChannelStore = defineStore('channels', () => {
       channelService.leave(channelState.value.active!);
       return;
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'Action could not be completed');
       throw error;
     }
   }
@@ -86,7 +86,7 @@ export const useChannelStore = defineStore('channels', () => {
     try {
       return await userService.inviteUser(channelState.value.active!, nickName);
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'User could not be invited');
       throw error;
     }
   }
@@ -149,7 +149,6 @@ export const useChannelStore = defineStore('channels', () => {
       pendingChannels.value = channels;
       return channels;
     } catch (error: unknown) {
-      // useNotifications('error', '');
       throw error;
     }
   }
@@ -165,7 +164,7 @@ export const useChannelStore = defineStore('channels', () => {
       useNotifications('success', `You kicked ${nickName}`);
       return;
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'Could not complete action');
       throw error;
     }
   }
@@ -179,7 +178,7 @@ export const useChannelStore = defineStore('channels', () => {
       activeChannelsMembers.value = users;
       return users;
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'Could not load members of channel');
       throw error;
     }
   }
@@ -284,6 +283,7 @@ export const useChannelStore = defineStore('channels', () => {
       loadingSuccess({ channel, messages });
     } catch (error) {
       loadingError(error as Error);
+      useNotifications('error', 'Could not join channel');
       throw error;
     }
   }
