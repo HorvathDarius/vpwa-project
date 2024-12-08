@@ -22,10 +22,6 @@ defineOptions({
   width: 100vw
   height: 100vh
 
-.background-style
-  background-image: url(/image.webp)
-  background-size: cover
-
 .see-through-style
   background: rgba(255,255,255, 0.05)
   backdrop-filter: blur(50px)
