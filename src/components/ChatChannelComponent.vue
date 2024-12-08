@@ -5,12 +5,18 @@
     v-ripple
     class="q-pa-md"
     @click="() => handleChannelClick(channel as Channel)"
+    :style="
+      channel!.name === channelStore.channelState.active
+        ? 'background-color: rgba(255, 255, 255, 0.15)'
+        : ''
+    "
   >
     <q-item-section>
       <q-item-label lines="1" class="text-bold text-h6">
         {{ channel?.name }}
         <q-icon
           v-if="channel?.createdBy === userStore.authInfo.user?.id"
+          :key="channel?.id"
           name="star"
           style="
             vertical-align: top;
@@ -61,16 +67,13 @@
         />
       </q-item-section>
     </div>
-    <q-item-section side v-else>
-      <q-btn round icon="more_vert" flat dense />
-    </q-item-section>
   </q-item>
 </template>
 
 <script setup lang="ts">
 import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
-import { Channel } from './models';
+import { Channel } from 'src/contracts/index';
 import { useNotifications } from 'src/utils/useNotifications';
 
 const userStore = useUserStore();
@@ -86,7 +89,6 @@ const handleInvitationClick = (
   decision: string,
   channelId: string
 ) => {
-  console.log('Invitation Clicked');
   e.stopPropagation();
 
   channelStore.respondToInvitation(decision, channelId);
@@ -99,6 +101,12 @@ const handleChannelClick = (channel: Channel) => {
     useNotifications('error', 'You are not a member of the channel yet');
     return;
   }
+
+  if (channel.name === channelStore.channelState.active) {
+    console.log(`Clicked on same channel ${channel.name}`);
+    return;
+  }
+
   // Set current channel
   channelStore.join(channel.name);
   channelStore.setActive(channel.name);

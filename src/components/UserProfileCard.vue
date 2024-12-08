@@ -4,8 +4,9 @@
       <q-card-section class="q-pt-none">
         <q-input
           standout
+          disable
           class="q-mt-md text-black"
-          bg-color="white"
+          bg-color="grey"
           style="min-width: 100%"
           input-style="color: black;"
           v-model="user.fullName"
@@ -13,24 +14,24 @@
         />
         <q-input
           standout
+          disable
           class="q-mt-md text-black"
-          bg-color="white"
+          bg-color="grey"
           style="min-width: 100%"
           input-style="color: black;"
           v-model="user.email"
           label="Email"
           type="email"
-          @input="console.log('email', user.email)"
         />
         <q-input
           standout
+          disable
           class="q-mt-md text-black"
-          bg-color="white"
+          bg-color="grey"
           style="min-width: 100%"
           input-style="color: black;"
           v-model="user.nickName"
           label="Username"
-          @input="console.log('username', user.nickName)"
         />
         <q-select
           standout
@@ -41,7 +42,6 @@
           v-model="user.status"
           :options="statusOptions"
           label="Status"
-          @input="console.log('status', user.status)"
         />
         <q-select
           standout
@@ -52,7 +52,6 @@
           v-model="user.notificationSetting"
           :options="notificationOptions"
           label="Notification Setting"
-          @input="console.log('notificationSetting', user.notificationSetting)"
         />
       </q-card-section>
 
@@ -82,6 +81,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
+import { UpdateStatus } from 'src/contracts';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -106,11 +106,13 @@ const user = ref({
   notificationSetting: userStore.authInfo.user!.notificationSetting,
 });
 
-const onSubmit = () => {
-  userStore.updateUserSettings({
+const onSubmit = async () => {
+  await userStore.updateUserSettings({
     status: user.value.status,
     notificationSetting: user.value.notificationSetting,
-  } as any);
+  } as UpdateStatus);
+
+  //console.log('User status', user.value.status);
 };
 
 const handleLogout = () => {

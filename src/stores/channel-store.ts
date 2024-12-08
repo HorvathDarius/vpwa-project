@@ -1,12 +1,16 @@
 import { Ref, ref } from 'vue';
 import { defineStore } from 'pinia';
+import { useNotifications } from 'src/utils/useNotifications';
 import {
   Channel,
   User,
-} from '../components/models';
-import { useNotifications } from 'src/utils/useNotifications';
-import { RawMessage, SerializedMessage } from 'src/contracts';
-import { channelService } from 'src/services';
+  UserChannelStatus,
+  RawMessage,
+  SerializedMessage,
+  UserNotificationSetting,
+  UserStatus,
+} from 'src/contracts';
+import { channelService, userService } from 'src/services';
 import { useUserStore } from './user-store';
 
 export interface ChannelStateInterface {
@@ -24,17 +28,23 @@ export const useChannelStore = defineStore('channels', () => {
    * State
    */
   const availableChannels = ref<Channel[]>();
-  const currentActiveChannel = ref<Channel | null>(null);
   const userStore = useUserStore();
   const pendingChannels = ref<Channel[]>([]);
   const activeChannelsMembers = ref<User[]>([]);
+  const activeChannelMessages = ref<SerializedMessage[]>([]);
+  const currentlyTyping = ref<{
+    channel: string;
+    username: string;
+    message: string;
+  } | null>(null);
+  const isVisible = ref(true);
 
   const channelState: Ref<ChannelStateInterface> = ref({
     loading: false,
     error: null,
     messages: {},
     active: null,
-  })
+  });
 
   /**
    * Getters
@@ -45,56 +55,70 @@ export const useChannelStore = defineStore('channels', () => {
    */
   // Cancel a channel
   async function cancelChannel(nickName: string) {
-    console.log('CANCEL - STORE');
-    console.log(nickName);
     try {
-      const response = await channelService.removeUser(channelState.value.active!, nickName, 'left_channel');
-      useNotifications('success', response);
+      await channelService.removeUser(
+        channelState.value.active!,
+        nickName,
+        UserChannelStatus.LeftChannel
+      );
+      useNotifications(
+        'success',
+        `You successfully left channel ${channelState.value.active!}`
+      );
       await userStore.checkUser();
       channelState.value.active = null;
+      channelService.leave(channelState.value.active!);
       return;
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'Action could not be completed');
       throw error;
+    }
+  }
+
+  function handleChannelListChange(channelName: string) {
+    if (channelState.value.active === channelName) {
+      channelState.value.active = null;
     }
   }
 
   // Invite a member to a channel
   async function inviteUser(nickName: string) {
     try {
-      return await channelService.inviteUser(channelState.value.active!, nickName);
+      return await userService.inviteUser(channelState.value.active!, nickName);
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'User could not be invited');
       throw error;
     }
-
   }
 
   // Join a channel
   async function joinChannel(channelName: string, channelType: string) {
     try {
-      const channel = await channelService.joinChannel(channelName, channelType);
-      if (channel) {
-        useNotifications('success', `You have create the channel ${channel.name}`);
-      } else {
-        useNotifications('success', `You have joined the channel ${channelName}`);
-      }
+      const channel = await channelService.joinChannel(
+        channelName,
+        channelType
+      );
+      useNotifications(
+        'success',
+        `You have joined the channel ${channel.name}`
+      );
       await userStore.checkUser();
       return;
     } catch (error: unknown) {
       useNotifications('error', '');
-      channelState.value.active = channelName;
       throw error;
     }
   }
 
   // Remove member from channel
   async function removeMember(nickName: string) {
-    console.log('REVOKE MEMBER - STORE');
-    console.log(nickName);
     try {
-      const response = await channelService.removeUser(channelState.value.active!, nickName, 'kicked_out');
-      useNotifications('success', response);
+      await channelService.removeUser(
+        channelState.value.active!,
+        nickName,
+        UserChannelStatus.KickedOut
+      );
+      useNotifications('success', `You kicked ${nickName}`);
       return;
     } catch (error: unknown) {
       useNotifications('error', '');
@@ -106,7 +130,10 @@ export const useChannelStore = defineStore('channels', () => {
   async function respondToInvitation(decision: string, channelID: string) {
     try {
       const accept = decision === 'accept' ? true : false;
-      const response = await channelService.resolveChannelInvite(channelID, accept);
+      const response = await channelService.resolveChannelInvite(
+        channelID,
+        accept
+      );
       userStore.checkUser();
       return response;
     } catch (error: unknown) {
@@ -118,26 +145,26 @@ export const useChannelStore = defineStore('channels', () => {
   // Load the pending channels
   async function loadPendingChannels() {
     try {
-      const response = await channelService.getPendingChannels();
-      const { channels } = response;
+      const channels = await channelService.getPendingChannels();
       pendingChannels.value = channels;
-      return response;
+      return channels;
     } catch (error: unknown) {
-      // useNotifications('error', '');
       throw error;
     }
   }
 
   // Kick member from cahnnel
   async function kickMemberFromChannel(nickName: string) {
-    console.log('KICK MEMBER - STORE');
-    console.log(nickName);
     try {
-      const response = await channelService.removeUser(channelState.value.active!, nickName, 'kicked_out');
-      useNotifications('success', response);
+      await channelService.removeUser(
+        channelState.value.active!,
+        nickName,
+        UserChannelStatus.KickedOut
+      );
+      useNotifications('success', `You kicked ${nickName}`);
       return;
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'Could not complete action');
       throw error;
     }
   }
@@ -145,12 +172,13 @@ export const useChannelStore = defineStore('channels', () => {
   // Load the current members of a channel
   async function loadCurrentChannelMembers() {
     try {
-      const response = await channelService.getChannelUsers(channelState.value.active!);
-      const { users } = response;
+      const users = await channelService.getChannelUsers(
+        channelState.value.active!
+      );
       activeChannelsMembers.value = users;
-      return response;
+      return users;
     } catch (error: unknown) {
-      useNotifications('error', '');
+      useNotifications('error', 'Could not load members of channel');
       throw error;
     }
   }
@@ -164,7 +192,7 @@ export const useChannelStore = defineStore('channels', () => {
 
   async function getAll() {
     try {
-      const channels = await channelService.getAll(); 
+      const channels = await channelService.getAll();
       availableChannels.value = channels;
     } catch (error) {
       console.error(error);
@@ -180,7 +208,13 @@ export const useChannelStore = defineStore('channels', () => {
     channelState.value.error = null;
   }
 
-  function loadingSuccess({ channel, messages }: { channel: string, messages: SerializedMessage[] }) {
+  function loadingSuccess({
+    channel,
+    messages,
+  }: {
+    channel: string;
+    messages: SerializedMessage[];
+  }) {
     channelState.value.loading = false;
     channelState.value.messages[channel] = messages;
   }
@@ -191,15 +225,49 @@ export const useChannelStore = defineStore('channels', () => {
   }
 
   function clearChannel(channel: string) {
-    delete channelState.value.messages[channel]
+    delete channelState.value.messages[channel];
   }
 
   function setActive(channel: string) {
     channelState.value.active = channel;
   }
 
-  function newMessage({ channel, message }: { channel: string, message: SerializedMessage }) {
+  function newMessage({
+    channel,
+    message,
+  }: {
+    channel: string;
+    message: SerializedMessage;
+  }) {
+    if (!channelState.value.messages[channel]) {
+      channelState.value.messages[channel] = [];
+    }
     channelState.value.messages[channel].push(message);
+    currentlyTyping.value = null;
+
+    // If app is not visible
+    if (isVisible.value === false) {
+      // If no notification setting or if DND mode
+      if(userStore.authInfo.user?.notificationSetting === UserNotificationSetting.Off
+        || userStore.authInfo.user?.status === UserStatus.DND
+      ) {
+        return;
+      } 
+
+        // If only mentions
+      if (userStore.authInfo.user?.notificationSetting === UserNotificationSetting.ShowMentions) {
+        if (!message.mentions){
+          return;
+        }
+      } 
+
+      const img = '/icons/icon-192x192.png';
+      const text = message.content;
+      new Notification(channel, {
+        body: text,
+        icon: img,
+      });
+    }
   }
 
   /**
@@ -208,8 +276,36 @@ export const useChannelStore = defineStore('channels', () => {
   async function join(channel: string) {
     try {
       loadingStart();
-      const messages = await channelService.join(channel).loadMessages();
+      const messageBatch = await channelService.join(channel).loadMessages({});
+      messageBatch.reverse();
+      const messages = [...messageBatch];
+      // const messages = await channelService.join(channel).loadMessages();
       loadingSuccess({ channel, messages });
+    } catch (error) {
+      loadingError(error as Error);
+      useNotifications('error', 'Could not join channel');
+      throw error;
+    }
+  }
+
+  async function loadMoreMessages(
+    channel: string,
+    index: number
+  ): Promise<boolean> {
+    try {
+      loadingStart();
+      const messageBatch = await channelService
+        .in(channel)!
+        .loadMessages({ index: index * 10 + 1 });
+      messageBatch.reverse();
+
+      const messages = [
+        ...messageBatch,
+        ...channelState.value.messages[channel],
+      ];
+      loadingSuccess({ channel, messages });
+
+      return messageBatch.length > 0 ? true : false;
     } catch (error) {
       loadingError(error as Error);
       throw error;
@@ -222,31 +318,50 @@ export const useChannelStore = defineStore('channels', () => {
     leaving.forEach((channel) => {
       channelService.leave(channel);
       clearChannel(channel);
-    })
+    });
   }
 
-  async function addMessage({channel, message, mention}: {channel: string, message: RawMessage, mention: number}) {
-    const newMessageVariable = await channelService.in(channel)?.addMessage(message, mention);
+  async function addMessage({
+    channel,
+    message,
+    mention,
+  }: {
+    channel: string;
+    message: RawMessage;
+    mention: number;
+  }) {
+    const newMessageVariable = await channelService
+      .in(channel)
+      ?.addMessage(message, mention);
     newMessage({ channel, message: newMessageVariable as SerializedMessage });
-  } 
+  }
+
+  function handleUserTyping(
+    channel: string,
+    username: string,
+    message: string
+  ) {
+    channelService.in(channel)?.broadcastTyping(channel, username, message);
+  }
 
   /**
    * GETTERS
    */
   function joinedChannels() {
-    console.log(Object.keys(channelState.value.messages));
     return Object.keys(channelState.value.messages);
   }
 
   function currentMessages() {
-    return channelState.value.active !== null ? channelState.value.messages[channelState.value.active] : [];
+    return channelState.value.active !== null
+      ? channelState.value.messages[channelState.value.active]
+      : [];
   }
 
   function lastMessageOf() {
     return (channel: string) => {
       const messages = channelState.value.messages[channel];
       return messages.length > 0 ? messages[messages.length - 1] : null;
-    }
+    };
   }
 
   /**
@@ -255,9 +370,11 @@ export const useChannelStore = defineStore('channels', () => {
   return {
     // state
     availableChannels,
-    currentActiveChannel,
     pendingChannels,
     activeChannelsMembers,
+    activeChannelMessages,
+    currentlyTyping,
+    isVisible,
 
     // actions
     cancelChannel,
@@ -268,9 +385,9 @@ export const useChannelStore = defineStore('channels', () => {
     kickMemberFromChannel,
     loadPendingChannels,
     preloadChannelInfo,
-
+    handleChannelListChange,
     channelState,
-
+    loadCurrentChannelMembers,
     getAll,
 
     // mutations
@@ -280,11 +397,13 @@ export const useChannelStore = defineStore('channels', () => {
     clearChannel,
     setActive,
     newMessage,
+    loadMoreMessages,
 
     // actions
     join,
     leave,
     addMessage,
+    handleUserTyping,
 
     // getters
     joinedChannels,

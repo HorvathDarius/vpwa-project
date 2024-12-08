@@ -112,8 +112,8 @@
                       member.status === UserStatus.Active
                         ? 'green'
                         : member.status === UserStatus.DND
-                        ? 'orange'
-                        : 'red'
+                        ? 'red'
+                        : 'orange'
                     "
                     rounded
                   />
@@ -158,7 +158,7 @@ import { useChannelStore } from 'src/stores/channel-store';
 import { useUserStore } from 'src/stores/user-store';
 import ModalWindowComponent from './ModalWindowComponent.vue';
 import { useNotifications } from 'src/utils/useNotifications';
-import { UserStatus } from './models';
+import { UserStatus } from 'src/contracts/index';
 
 const actionInputField = useTemplateRef('action-input-field');
 const messageData = ref('');
@@ -183,7 +183,6 @@ const handleUserRights = () => {
   if (channelStore.channelState.active === null) {
     return [{ name: '/join', action: '', rights: '' }];
   }
-  console.log('ACTIVE - ', channelStore.channelState.active);
   if (userStore.checkUserRights(channelStore.channelState?.active)) {
     return commands;
   } else {
@@ -246,6 +245,11 @@ const handleMessageTyping = (value: string | null): void => {
     // Display list of members
     showMentionHelper.value = true;
   } else {
+    channelStore.handleUserTyping(
+      channelStore.channelState.active!,
+      userStore.authInfo.user!.nickName,
+      value!
+    );
     // Hide the lists
     showActionHelper.value = false;
     showMentionHelper.value = false;
@@ -261,6 +265,7 @@ const handleAction = (message: string): void => {
   switch (splitAction[0]) {
     case '/list':
       // Dispplay modal with members
+      channelStore.loadCurrentChannelMembers();
       showListOfMembers.value = true;
       break;
 

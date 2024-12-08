@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>No Internet</title>
+  </head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: arial;
+    }
+
+    .WAL {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .background-style {
+      background: linear-gradient(
+        90deg,
+        rgba(2, 2, 14, 1) 0%,
+        rgba(1, 6, 20, 1) 100%
+      );
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      color: white;
+      text-align: center;
+
+      margin: 0;
+    }
+    p {
+      font-size: 1.4em;
+      color: white;
+      text-align: center;
+      margin: 0;
+    }
+
+    button {
+      background-color: #1356b3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      width: 200px;
+      cursor: pointer;
+    }
+  </style>
+  <body>
+    <div class="background-style WAL">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 30px;
+          align-items: center;
+        "
+      >
+        <h1>Uh oh...</h1>
+        <p>It appears you are not connected to the internet!</p>
+        <button onclick="window.location.reload()">Refresh</button>
+      </div>
+    </div>
+  </body>
+</html>

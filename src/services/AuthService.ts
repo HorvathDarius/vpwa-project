@@ -1,5 +1,5 @@
 import type { AxiosError, AxiosRequestConfig } from 'axios'
-import type { ApiToken, LoginCredentials, RegisterData, User } from 'src/contracts'
+import type { ApiToken, LoginCredentials, RegisterData, UpdateStatus, User } from 'src/contracts'
 import { api } from 'src/boot/axios'
 
 class AuthService {
@@ -32,7 +32,7 @@ class AuthService {
     await api.post('auth/logout')
   }
 
-  async update(data: any): Promise<User> {
+  async update(data: UpdateStatus): Promise<User> {
     return await api.post('auth/update', data);
   }
 }
