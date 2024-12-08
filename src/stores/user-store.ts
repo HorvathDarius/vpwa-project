@@ -12,6 +12,7 @@ import {
 import { useChannelStore } from './channel-store';
 import { channelService } from 'src/services';
 import { userService } from 'src/services';
+import { useNotifications } from 'src/utils/useNotifications';
 
 interface AuthStateInterface {
   user: User | null;
@@ -112,7 +113,6 @@ export const useUserStore = defineStore('users', () => {
       return user !== null;
     } catch (error) {
       console.log('error');
-      // authenticationError(error as { message: string, field?: string}[]);
       throw error;
     }
   }
@@ -124,6 +124,7 @@ export const useUserStore = defineStore('users', () => {
       return user;
     } catch (error) {
       authenticationError(error as { message: string; field?: string }[]);
+      useNotifications('error', 'Cannot register user');
       throw error;
     }
   }
@@ -137,6 +138,7 @@ export const useUserStore = defineStore('users', () => {
       return apiToken;
     } catch (error) {
       authenticationError(error as { message: string; field?: string }[]);
+      useNotifications('error', 'Invalid credentials');
       throw error;
     }
   }
@@ -150,6 +152,7 @@ export const useUserStore = defineStore('users', () => {
       authManager.removeToken();
     } catch (error) {
       authenticationError(error as { message: string; field?: string }[]);
+      useNotifications('error', 'Error logging out');
       throw error;
     }
   }
@@ -192,7 +195,3 @@ export const useUserStore = defineStore('users', () => {
     logout,
   };
 });
-
-/* 
-Controller
-*/
